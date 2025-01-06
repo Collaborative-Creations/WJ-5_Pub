@@ -39,8 +39,8 @@ jobs:
                       ${{ runner.os }}-node-
             - name: Install Dependencies
               run: npm ci
-            - name: Install Playwright Browsers
-              run: npx playwright install --with-deps
+            - name: Install chrome Browser
+              run: npx playwright install chrome
             - name: Run UI Tests
               run: npx cross-env test='stage' npx playwright test --grep "@smoke" --project=chromium
 
