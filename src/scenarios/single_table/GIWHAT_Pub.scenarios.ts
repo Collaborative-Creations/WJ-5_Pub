@@ -1,0 +1,148 @@
+interface TestData {
+  typeOfTest: string;
+  testName: string;
+  testStemForm: string;
+  lookUpModel: string;
+  blockName: string;
+  examineeAge: number;
+  SSP: string;
+  totalItems: number;
+  scoreFlag: string;
+  location?: string;
+  BbyC?: number;
+  negation?: boolean;
+  examineeGrade: string;
+}
+
+export const testData: TestData[] = [
+  {
+    typeOfTest: "Ages 4 to 5 - All correct scenario",
+    testName: "General Information–What",
+    testStemForm: "GIWHAT.W5PA",
+    lookUpModel: "SingleTable",
+    blockName: "Form A",
+    examineeAge: 4,
+    SSP: "Ages 4 to 5",
+    totalItems: 23,
+    scoreFlag: "",
+    location: "PublicationsOrg01",
+    examineeGrade: "Grade 5",
+  },
+  {
+    typeOfTest: "Ages 6 to 8 - All correct scenario",
+    testName: "General Information–What",
+    testStemForm: "GIWHAT.W5PA",
+    lookUpModel: "SingleTable",
+    blockName: "Form A",
+    examineeAge: 4,
+    SSP: "Ages 6 to 8",
+    totalItems: 19,
+    scoreFlag: "",
+    location: "PublicationsOrg01",
+    examineeGrade: "Grade 5",
+  },
+  {
+    typeOfTest: "Ages 9 to 11 - All correct scenario",
+    testName: "General Information–What",
+    testStemForm: "GIWHAT.W5PA",
+    lookUpModel: "SingleTable",
+    blockName: "Form A",
+    examineeAge: 4,
+    SSP: "Ages 9 to 11",
+    totalItems: 17,
+    scoreFlag: "",
+    location: "PublicationsOrg01",
+    examineeGrade: "Grade 5",
+  },
+  {
+    typeOfTest: "Ages 12 to 14 - All correct scenario",
+    testName: "General Information–What",
+    testStemForm: "GIWHAT.W5PA",
+    lookUpModel: "SingleTable",
+    blockName: "Form A",
+    examineeAge: 4,
+    SSP: "Ages 12 to 14",
+    totalItems: 15,
+    scoreFlag: "",
+    location: "PublicationsOrg01",
+    examineeGrade: "Grade 5",
+  },
+  {
+    typeOfTest: "Age 15 to Adult - All correct scenario",
+    testName: "General Information–What",
+    testStemForm: "GIWHAT.W5PA",
+    lookUpModel: "SingleTable",
+    blockName: "Form A",
+    examineeAge: 4,
+    SSP: "Age 15 to Adult",
+    totalItems: 12,
+    scoreFlag: "",
+    location: "PublicationsOrg01",
+    examineeGrade: "Grade 5",
+  },
+  {
+    typeOfTest: "Ages 4 to 5 - All incorrect scenario",
+    testName: "General Information–What",
+    testStemForm: "GIWHAT.W5PA",
+    lookUpModel: "SingleTable",
+    blockName: "Form A",
+    examineeAge: 4,
+    SSP: "Ages 4 to 5",
+    totalItems: 23,
+    scoreFlag: "",
+    location: "PublicationsOrg01",
+    examineeGrade: "Grade 5",
+  },
+  {
+    typeOfTest: "Ages 6 to 8 - All incorrect scenario",
+    testName: "General Information–What",
+    testStemForm: "GIWHAT.W5PA",
+    lookUpModel: "SingleTable",
+    blockName: "Form A",
+    examineeAge: 4,
+    SSP: "Ages 6 to 8",
+    totalItems: 19,
+    scoreFlag: "",
+    location: "PublicationsOrg01",
+    examineeGrade: "Grade 5",
+  },
+  {
+    typeOfTest: "Ages 9 to 11 - All incorrect scenario",
+    testName: "General Information–What",
+    testStemForm: "GIWHAT.W5PA",
+    lookUpModel: "SingleTable",
+    blockName: "Form A",
+    examineeAge: 4,
+    SSP: "Ages 9 to 11",
+    totalItems: 17,
+    scoreFlag: "",
+    location: "PublicationsOrg01",
+    examineeGrade: "Grade 5",
+  },
+  {
+    typeOfTest: "Ages 12 to 14 - All incorrect scenario",
+    testName: "General Information–What",
+    testStemForm: "GIWHAT.W5PA",
+    lookUpModel: "SingleTable",
+    blockName: "Form A",
+    examineeAge: 4,
+    SSP: "Ages 12 to 14",
+    totalItems: 15,
+    scoreFlag: "",
+    location: "PublicationsOrg01",
+    examineeGrade: "Grade 5",
+  },
+  {
+    typeOfTest: "Age 15 to Adult - All incorrect scenario",
+    testName: "General Information–What",
+    testStemForm: "GIWHAT.W5PA",
+    lookUpModel: "SingleTable",
+    blockName: "Form A",
+    examineeAge: 4,
+    SSP: "Age 15 to Adult",
+    totalItems: 12,
+    scoreFlag: "",
+    location: "PublicationsOrg01",
+    examineeGrade: "Grade 5",
+  },
+];

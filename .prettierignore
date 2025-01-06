@@ -1,0 +1,38 @@
+# Ignore artifacts:
+build
+coverage
+
+# Ignore all HTML files:
+**/*.html
+
+**/.git
+**/.svn
+**/.hg
+**/node_modules
+
+**/.git
+**/.svn
+**/.hg
+
+# Ignore node_modules directory
+node_modules/
+
+# Ignore build and output directories
+dist/
+build/
+out/
+
+# Ignore configuration files
+.prettierrc.js
+tsconfig.json
+mocha.opts
+
+# Ignore generated files
+*.js
+*.d.ts
+
+# Ignore specific files or directories as needed
+# /path/to/ignored/file.js
+# /path/to/ignored/directory/
+
+

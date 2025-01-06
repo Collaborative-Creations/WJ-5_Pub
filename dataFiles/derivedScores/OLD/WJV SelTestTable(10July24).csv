@@ -1,0 +1,154 @@
+SelTestTable_Version,Index,Battery,TaskStem,TaskName,ContribTaskStem,ContribTaskName,WeightInTask,NumInTask,SeqInTask,CHCLabel,Package
+V230808A,1,Test,ORLVOC,Oral Vocabulary,OVSYN,Oral Vocabulary - Synonyms,1,2,1,,
+V230808A,2,Test,ORLVOC,Oral Vocabulary,OVANT,Oral Vocabulary - Antonyms,1,2,2,,
+V230808A,3,Test,GENINF,General Information,GIWHER,General Information - Where,1,2,1,,
+V230808A,4,Test,GENINF,General Information,GIWHAT,General Information - What,1,2,2,,
+V230808A,5,Test,MATRCZ,Matrices,MTRCZ2,Matrices 2x2,1,2,1,,
+V230808A,6,Test,MATRCZ,Matrices,MTRCZ3,Matrices 3x3,1,2,2,,
+V230808A,7,COG,BIA,Brief Intellectual Ability,ORLVOC,Oral Vocabulary,1,3,1,Gc,Basic
+V230808A,8,COG,BIA,Brief Intellectual Ability,MATRCZ,Matrices,1,3,2,Gf,Basic
+V230808A,9,COG,BIA,Brief Intellectual Ability,VRBATN,Verbal Attention,1,3,3,Gwm-Wc,Basic
+V230808A,10,COG,GIA,General Intellectual Ability (GIA),ORLVOC,Oral Vocabulary,1,8,1,Gc,Basic
+V230808A,11,COG,GIA,General Intellectual Ability (GIA),MATRCZ,Matrices,1,8,2,Gf,Basic
+V230808A,12,COG,GIA,General Intellectual Ability (GIA),VRBATN,Verbal Attention,1,8,3,Gwm-Wc,Basic
+V230808A,13,COG,GIA,General Intellectual Ability (GIA),SPAREL,Spatial Relations,1,8,4,Gv,Basic
+V230808A,14,COG,GIA,General Intellectual Ability (GIA),SEMRET,Semantic Word Retrieval,1,8,5,Gr; Gs,Basic
+V230808A,15,COG,GIA,General Intellectual Ability (GIA),VRBANL,Verbal Analogies,1,8,6,Gf; Gc,Basic
+V230808A,16,COG,GIA,General Intellectual Ability (GIA),NUMPAT,Number-Pattern Matching,1,8,7,Gs,Basic
+V230808A,17,COG,GIA,General Intellectual Ability (GIA),STYREC,Story Recall,1,8,8,Gl,Basic
+V230808A,18,COG,GFGC,Gf-Gc Composite,ORLVOC,Oral Vocabulary,1,4,1,Gc,Basic
+V230808A,19,COG,GFGC,Gf-Gc Composite,MATRCZ,Matrices,1,4,2,Gf,Basic
+V230808A,20,COG,GFGC,Gf-Gc Composite,VRBANL,Verbal Analogies,1,4,3,Gf; Gc,Basic
+V230808A,21,COG,GFGC,Gf-Gc Composite,ANLSYN,Analysis-Synthesis,1,4,4,Gf; Gv,Basic
+V230808A,22,COG,GC,Comprehension-Knowledge (Gc),ORLVOC,Oral Vocabulary,1,2,1,Gc,Basic
+V230808A,23,COG,GC,Comprehension-Knowledge (Gc),VRBANL,Verbal Analogies,1,2,2,Gf; Gc,Basic
+V230808A,24,COG,GF,Fluid Reasoning (Gf),MATRCZ,Matrices,1,2,1,Gf,Basic
+V230808A,25,COG,GF,Fluid Reasoning (Gf),ANLSYN,Analysis-Synthesis,1,2,2,Gf; Gv,Basic
+V230808A,26,COG,COGEFF,Cognitive Efficiency (CE),VRBATN,Verbal Attention,1,2,1,Gwm-Wc,Basic
+V230808A,27,COG,COGEFF,Cognitive Efficiency (CE),NUMPAT,Number-Pattern Matching,1,2,2,Gs,Basic
+V230808A,28,COG,GFGCX,Gf-Gc Composite Extended,ORLVOC,Oral Vocabulary,1,6,1,Gc,Basic
+V230808A,29,COG,GFGCX,Gf-Gc Composite Extended,MATRCZ,Matrices,1,6,2,Gf,Basic
+V230808A,30,COG,GFGCX,Gf-Gc Composite Extended,VRBANL,Verbal Analogies,1,6,3,Gf; Gc,Basic
+V230808A,31,COG,GFGCX,Gf-Gc Composite Extended,ANLSYN,Analysis-Synthesis,1,6,4,Gf; Gv,Basic
+V230808A,32,COG,GFGCX,Gf-Gc Composite Extended,GENINF,General Information,1,6,5,Gc,Premium
+V230808A,33,COG,GFGCX,Gf-Gc Composite Extended,CONFRM,Concept Formation,1,6,6,Gf,Premium
+V230808A,34,COG,GCX,Comprehension-Knowledge Extended (Gc-Ext),ORLVOC,Oral Vocabulary,1,3,1,Gc,Basic
+V230808A,35,COG,GCX,Comprehension-Knowledge Extended (Gc-Ext),VRBANL,Verbal Analogies,1,3,2,Gf; Gc,Basic
+V230808A,36,COG,GCX,Comprehension-Knowledge Extended (Gc-Ext),GENINF,General Information,1,3,3,Gc,Premium
+V230808A,37,COG,GFX,Fluid Reasoning Extended (Gf-Ext),MATRCZ,Matrices,1,3,1,Gf,Basic
+V230808A,38,COG,GFX,Fluid Reasoning Extended (Gf-Ext),ANLSYN,Analysis-Synthesis,1,3,2,Gf; Gv,Basic
+V230808A,39,COG,GFX,Fluid Reasoning Extended (Gf-Ext),CONFRM,Concept Formation,1,3,3,Gf,Premium
+V230808A,40,COG,COGEFX,Cognitive Efficiency Extended CE-Ext),VRBATN,Verbal Attention,1,4,1,Gwm-Wc,Basic
+V230808A,41,COG,COGEFX,Cognitive Efficiency Extended CE-Ext),NUMPAT,Number-Pattern Matching,1,4,2,Gs,Basic
+V230808A,42,COG,COGEFX,Cognitive Efficiency Extended CE-Ext),NUMREV,Numbers Reversed,1,4,3,Gwm-Wc,Premium
+V230808A,43,COG,COGEFX,Cognitive Efficiency Extended CE-Ext),SYMBIN,Symbol Inhibition,1,4,4,Gs; ?,Premium
+V230808A,44,COG,AWKMEM,Auditory Working Memory  (Gwm-Wa Wc),VRBATN,Verbal Attention,1,2,1,Gwm-Wc,Basic
+V230808A,45,COG,AWKMEM,Auditory Working Memory  (Gwm-Wa Wc),NUMREV,Numbers Reversed,1,2,2,Gwm-Wc,Premium
+V230808A,46,COG,WKMATT,Working Memory-Attentional Control (Gwm-AC Wc),VRBATN,Verbal Attention,1,2,1,Gwm-Wc,Basic
+V230808A,47,COG,WKMATT,Working Memory-Attentional Control (Gwm-AC Wc),VWKMEM,Visual Working Memory,1,2,2,Gv; Gs,Premium
+V230808A,48,COG,GS,Cognitive Processing Speed (Gs),NUMPAT,Number-Pattern Matching,1,2,1,Gs,Basic
+V230808A,49,COG,GS,Cognitive Processing Speed (Gs),SYMBIN,Symbol Inhibition,1,2,2,Gs; ?,Premium
+V230808A,50,COG,GSX,Cognitive Processing Speed Extended (Gs-Ext),NUMPAT,Number-Pattern Matching,1,3,1,Gs,Basic
+V230808A,51,COG,GSX,Cognitive Processing Speed Extended (Gs-Ext),LETPAT,Letter-Pattern Matching,1,3,2,Gs; Gv,Premium
+V230808A,52,COG,GSX,Cognitive Processing Speed Extended (Gs-Ext),SYMBIN,Symbol Inhibition,1,3,3,Gs; ?,Premium
+V230808A,53,COG,GR,Retrieval Fluency (Gr),SEMRET,Semantic Word Retrieval,1,2,1,Gr; Gs,Basic
+V230808A,54,COG,GR,Retrieval Fluency (Gr),PHNRET,Phonemic Word Retrieval,1,2,2,Gr; Gs,Premium
+V230808A,55,COG,GL,Long-Term Storage (Gl) (aka Learning Efficiency),STYREC,Story Recall,1,2,1,Gl,Basic
+V230808A,56,COG,GL,Long-Term Storage (Gl) (aka Learning Efficiency),STYCMP,Story Comprehension,1,2,2,Gl,Premium
+V230808A,57,COG,GV,Visual Processing (Gv),SPAREL,Spatial Relations,1,2,1,Gv,Basic
+V230808A,58,COG,GV,Visual Processing (Gv),BLKROT,Block Rotation,1,2,2,Gv,Premium
+V230808A,59,COG,INDREA,Inductive Reasoning (Gf-I),MATRCZ,Matrices,1,3,1,Gf,Basic
+V230808A,60,COG,INDREA,Inductive Reasoning (Gf-I),VRBANL,Verbal Analogies,1,3,2,Gf; Gc,Basic
+V230808A,61,COG,INDREA,Inductive Reasoning (Gf-I),CONFRM,Concept Formation,1,3,3,Gf,Premium
+V230808A,62,COG,QNTREA,Quantitative Reasoning (Gf-RQ),ANLSYN,Analysis-Synthesis,1,2,1,Gf; Gv,Basic
+V230808A,63,COG,QNTREA,Quantitative Reasoning (Gf-RQ),NUMSER,Number Series,1,2,2,Gf; Gq,Premium
+V230808A,64,COG,PERSPD,Perceptual Speed-Search (Gs-Ps),NUMPAT,Number-Pattern Matching,1,2,1,Gs,Basic
+V230808A,65,COG,PERSPD,Perceptual Speed-Search (Gs-Ps),LETPAT,Letter-Pattern Matching,1,2,2,Gs; Gv,Premium
+V230808A,66,COG,NEWLEF,New Learning Efficiency,ANLSYN,Analysis-Synthesis,1,3,1,Gf; Gv,Basic
+V230808A,67,COG,NEWLEF,New Learning Efficiency,CONFRM,Concept Formation,1,3,2,Gf,Premium
+V230808A,68,COG,NEWLEF,New Learning Efficiency,VAL,Visual-Auditory Learning,1,3,3,Gf; Gv,Premium
+V230808A,69,COG,AWKMEX,Auditory Working Memory  Extended (Gwm-Wa Wc),VRBATN,Verbal Attention,1,3,1,Gwm-Wc,Basic
+V230808A,70,COG,AWKMEX,Auditory Working Memory  Extended (Gwm-Wa Wc),NUMREV,Numbers Reversed,1,3,2,Gwm-Wc,Premium
+V230808A,71,VTL,AWKMEX,Auditory Working Memory  Extended (Gwm-Wa Wc),OBJNUM,Animal-Number Sequencing,1,3,3,Gwm-Wc,Library
+V230808A,72,COG,GRX,Retrieval Fluency Extended (Gr-Ext),SEMRET,Semantic Word Retrieval,1,3,1,Gr; Gs,Basic
+V230808A,73,COG,GRX,Retrieval Fluency Extended (Gr-Ext),PHNRET,Phonemic Word Retrieval,1,3,2,Gr; Gs,Premium
+V230808A,74,VTL,GRX,Retrieval Fluency Extended (Gr-Ext),RPDPHO,Rapid Phoneme Naming,1,3,3,Gr-NA/Gs; Ga,Library
+V230808A,75,COG,PHRTFL,Phonemic Retrieval Fluency (Gr-FP),PHNRET,Phonemic Word Retrieval,1,2,1,Gr; Gs,Premium
+V230808A,76,VTL,PHRTFL,Phonemic Retrieval Fluency (Gr-FP),RPDPHO,Rapid Phoneme Naming,1,2,2,Gr-NA/Gs; Ga,Library
+V230808A,77,VTL,AMSPAN,Auditory Memory Span (Gwm-Wa),MEMWRD,Memory for Words,1,2,1,Gwm-Wa,Library
+V230808A,78,VTL,AMSPAN,Auditory Memory Span (Gwm-Wa),SENREP,Sentence Repetition,1,2,2,Gc; Gwm-Wa,Library
+V230808A,79,VTL,AMSPAX,Auditory Memory Span Extended (Gwm-Wa),NWDREP,Nonword Repetiton,1,3,1,Ga; Gwm-Wc,Library
+V230808A,80,VTL,AMSPAX,Auditory Memory Span Extended (Gwm-Wa),MEMWRD,Memory for Words,1,3,2,Gwm-Wa,Library
+V230808A,81,VTL,AMSPAX,Auditory Memory Span Extended (Gwm-Wa),SENREP,Sentence Repetition,1,3,3,Gc; Gwm-Wa,Library
+V230808A,82,VTL,PHNAWR,Phonological Awareness (Ga-PC),SNDBLN,Sound Blending,1,2,1,Ga,Library
+V230808A,83,VTL,PHNAWR,Phonological Awareness (Ga-PC),SEGMNT,Segmentation,1,2,2,Ga,Library
+V230808A,84,VTL,PHNAWX,Phonological Awareness Extended (Ga-PC),SNDBLN,Sound Blending,1,3,1,Ga,Library
+V230808A,85,VTL,PHNAWX,Phonological Awareness Extended (Ga-PC),SEGMNT,Segmentation,1,3,2,Ga,Library
+V230808A,86,VTL,PHNAWX,Phonological Awareness Extended (Ga-PC),SNDREV,Sound Reversal,1,3,3,Ga,Library
+V230808A,87,VTL,PHNMAN,Phonological Manipulation (Ga-PC),SNDDEL,Sound Deletion,1,2,1,Ga,Library
+V230808A,88,VTL,PHNMAN,Phonological Manipulation (Ga-PC),SNDSUB,Sound Substitution,1,2,2,Ga,Library
+V230808A,89,VTL,PHNMAX,Phonological Manipulation Extended (Ga-PC),SNDREV,Sound Reversal,1,3,1,Ga,Library
+V230808A,90,VTL,PHNMAX,Phonological Manipulation Extended (Ga-PC),SNDDEL,Sound Deletion,1,3,2,Ga,Library
+V230808A,91,VTL,PHNMAX,Phonological Manipulation Extended (Ga-PC),SNDSUB,Sound Substitution,1,3,3,Ga,Library
+V230808A,92,VTL,RANRDG,RAN-Reading,RPDPIC,Rapid Picture Naming,1,3,1,Gs; Gr-NA,Library
+V230808A,93,VTL,RANRDG,RAN-Reading,RPDLET,Rapid Letter Naming,1,3,2,Gs; Gr-NA,Library
+V230808A,94,VTL,RANRDG,RAN-Reading,RPDPHO,Rapid Phoneme Naming,1,3,3,Gr-NA/Gs; Ga,Library
+V230808A,95,VTL,RANMTH,RAN-Math,RPDNUM,Rapid Number Naming,1,2,1,Gr-NA; Gs,Library
+V230808A,96,VTL,RANMTH,RAN-Math,RPDQNT,Rapid Quantity Naming,1,2,2,Gr-NA; Gs,Library
+V230808A,97,ACH,LSTCMP,Listening Comprehension,ORLCMP,Oral Comprehension,1,2,1,Gc,Basic
+V230808A,98,ACH,LSTCMP,Listening Comprehension,STYCMP,Story Comprehension,1,2,2,Gl,Basic
+V230808A,99,ACH,ORLEXP,Oral Expression,PICVOC,Picture Vocabulary,1,2,1,Gc,Basic
+V230808A,100,ACH,ORLEXP,Oral Expression,LNGEXP,Language Expression,1,2,2,Gc,Basic
+V230808A,101,ACH,RDGBRF,Brief Reading,LWIDNT,Letter-Word Identification,1,2,1,Grw,Basic
+V230808A,102,ACH,RDGBRF,Brief Reading,PSGCMP,Passage Comprehension,1,2,2,Grw; Gc,Basic
+V230808A,103,ACH,RDGBAS,Basic Reading Skills,LWIDNT,Letter-Word Identification,1,2,1,Grw,Basic
+V230808A,104,ACH,RDGBAS,Basic Reading Skills,WRDATK,Word Attack,1,2,2,Grw; Ga?,Basic
+V230808A,105,ACH,RDGCMP,Reading Comprehension (RC),PSGCMP,Passage Comprehension,1,2,1,Grw; Gc,Basic
+V230808A,106,ACH,RDGCMP,Reading Comprehension (RC),PARCMP,Paragraph Reading Comprehension,1,2,2,Grw; Gc,Basic
+V230808A,107,ACH,RDGFLU,Reading Fluency,SRDGFL,Sentence Reading Fluency,1,2,1,Gs-ach; Grw,Basic
+V230808A,108,ACH,RDGFLU,Reading Fluency,WRDGFL,Word Reading Fluency,1,2,2,Gs-ach; Grw,Basic
+V230808A,109,ACH,MTHBRF,Brief Math,APPROB,Applied Problems,1,2,1,Gq,Basic
+V230808A,110,ACH,MTHBRF,Brief Math,CALC,Calculation,1,2,2,Gq; Gs-ach,Basic
+V230808A,111,ACH,MTHCAL,Math Calcuation Skills,CALC,Calculation,1,2,1,Gq; Gs-ach,Basic
+V230808A,112,ACH,MTHCAL,Math Calcuation Skills,MTHFLU,Math Facts Fluency,1,2,2,Gs-ach; Gq,Basic
+V230808A,113,ACH,MTHPRB,Math Problem Solving (MPS),APPROB,Applied Problems,1,2,1,Gq,Basic
+V230808A,114,ACH,MTHPRB,Math Problem Solving (MPS),MPRBID,Math Problem Identification,1,2,2,Gq,Basic
+V230808A,115,ACH,WRTBRF,Brief Writing,WRTSMP,Writing Samples,1,2,1,Grw,Basic
+V230808A,116,ACH,WRTBRF,Brief Writing,SWRTAC,Sentence Writing Accuracy,1,2,2,Grw; GS-ach,Basic
+V230808A,117,ACH,WRTBAS,Basic Writing Skills,SPELL,Spelling,1,2,1,Grw; Gs-ach,Basic
+V230808A,118,ACH,WRTBAS,Basic Writing Skills,SWRTAC,Sentence Writing Accuracy,1,2,2,Grw; GS-ach,Basic
+V230808A,119,ACH,WRTEXP,Written Expression,WRTSMP,Writing Samples,1,2,1,Grw,Basic
+V230808A,120,ACH,WRTEXP,Written Expression,SWRTFL,Sentence Writing Fluency,1,2,2,Gs-ach; Grw,Basic
+V230808A,121,ACH,ACDSKL,Academic Skills,LWIDNT,Letter-Word Identification,1,3,1,Grw,Basic
+V230808A,122,ACH,ACDSKL,Academic Skills,SPELL,Spelling,1,3,2,Grw; Gs-ach,Basic
+V230808A,123,ACH,ACDSKL,Academic Skills,CALC,Calculation,1,3,3,Gq; Gs-ach,Basic
+V230808A,124,ACH,ACDFLU,Academic Fluency,SRDGFL,Sentence Reading Fluency,1,3,1,Gs-ach; Grw,Basic
+V230808A,125,ACH,ACDFLU,Academic Fluency,MTHFLU,Math Facts Fluency,1,3,2,Gs-ach; Gq,Basic
+V230808A,126,ACH,ACDFLU,Academic Fluency,SWRTFL,Sentence Writing Fluency,1,3,3,Gs-ach; Grw,Basic
+V230808A,127,ACH,ACDAPP,Academic Applications,APPROB,Applied Problems,1,3,1,Gq,Basic
+V230808A,128,ACH,ACDAPP,Academic Applications,PSGCMP,Passage Comprehension,1,3,2,Grw; Gc,Basic
+V230808A,129,ACH,ACDAPP,Academic Applications,WRTSMP,Writing Samples,1,3,3,Grw,Basic
+V230808A,130,ACH,EXPLNG,Expressive Language,LNGEXP,Language Expression,1,2,1,Gc,Basic
+V230808A,131,ACH,EXPLNG,Expressive Language,WRTSMP,Writing Samples,1,2,2,Grw,Basic
+V230808A,132,ACH,RDGCMX,Reading Comprehension Extended (RC-Ext),PSGCMP,Passage Comprehension,1,3,1,Grw; Gc,Basic
+V230808A,133,ACH,RDGCMX,Reading Comprehension Extended (RC-Ext),PARCMP,Paragraph Reading Comprehension,1,3,2,Grw; Gc,Basic
+V230808A,134,ACH,RDGCMX,Reading Comprehension Extended (RC-Ext),RDGREC,Reading Recall,1,3,3,Grw; Gs/Gl?,Premium
+V230808A,135,ACH,RDGFLX,Reading Fluency Extended,SRDGFL,Sentence Reading Fluency,1,3,1,Gs-ach; Grw,Basic
+V230808A,136,ACH,RDGFLX,Reading Fluency Extended,WRDGFL,Word Reading Fluency,1,3,2,Gs-ach; Grw,Basic
+V230808A,137,ACH,RDGFLX,Reading Fluency Extended,ORLRDG,Oral Reading,1,3,3,Grw,Premium
+V230808A,138,ACH,MTHPRX,Math Problem Solving Extended (MPS-Ext),APPROB,Applied Problems,1,3,1,Gq,Basic
+V230808A,139,ACH,MTHPRX,Math Problem Solving Extended (MPS-Ext),MPRBID,Math Problem Identification,1,3,2,Gq,Basic
+V230808A,140,ACH,MTHPRX,Math Problem Solving Extended (MPS-Ext),NUMSER,Number Series,1,3,3,Gf; Gq,Premium
+V230808A,141,ACH,NUMCON,Number Concepts (Gq),NUMSEN,Number Sense,1,2,1,Gq,Premium
+V230808A,142,ACH,NUMCON,Number Concepts (Gq),MAGCMP,Magnitude Comparison,1,2,2,Gs-ach; Gs-cog,Premium
+V230808A,143,ACH,SPLSKL,Spelling Skills,SPELL,Spelling,1,2,1,Grw; Gs-ach,Basic
+V230808A,144,ACH,SPLSKL,Spelling Skills,SPLSND,Spelling of Sounds,1,2,2,Grw; Ga?,Premium
+V230808A,145,ACH,ACDKNW,Academic Knowledge,ACDVOC,Academic Vocabulary,1,2,1,Gc,Premium
+V230808A,146,ACH,ACDKNW,Academic Knowledge,ACDFCT,Academic Facts,1,2,2,Gc,Premium
+V230808A,147,ACH,PHGRKN,Phoneme-Grapheme Knowledge,WRDATK,Word Attack,1,2,1,Grw; Ga?,Basic
+V230808A,148,ACH,PHGRKN,Phoneme-Grapheme Knowledge,SPLSND,Spelling of Sounds,1,2,2,Grw; Ga?,Premium
+V230808A,149,ACH,RDGBAX,Basic Reading Skills Extended,LWIDNT,Letter-Word Identification,1,3,1,Grw,Basic
+V230808A,150,ACH,RDGBAX,Basic Reading Skills Extended,WRDATK,Word Attack,1,3,2,Grw; Ga?,Basic
+V230808A,151,ACH,RDGBAX,Basic Reading Skills Extended,ORLRDG,Oral Reading,1,3,3,Grw,Premium
+V230808A,152,VTL,NONE,..None..,UNDDIR,Understanding Directions,0,2,1,Gwm,Library
+V230808A,153,ACH,NONE,..None..,LWRTFL,Letter Writing Fluency,0,2,2,Gs-ach,Premium

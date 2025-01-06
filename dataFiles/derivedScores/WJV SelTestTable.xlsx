@@ -1,0 +1,178 @@
+SelTestTable_Version,SortOrder,Index,TaskType,CogOrder,AchOrder,VTLOrder,ClusterOrder,TaskStem,TaskName,ContribTaskStem,ContribTaskName,WeightInTask,NumInTask,SeqInTask,CHCLabel,HomeBattery,TestPackage,Subscription,Forms,Tags,ClusterHeadings,ClusterHeadingOrder
+V241002A,1,1,Test,1,,,,ORLVOC,Oral Vocabulary,,,,,,Gc,COG,COG-Std,COG,A,,,
+V241002A,2,1.1,CompoundTest,,,,,ORLVOC,Oral Vocabulary,OVSYN,Oral Vocabulary–Synonyms,1,2,1,,COG,COG-Std,COG,A,,,
+V241002A,3,1.2,CompoundTest,,,,,ORLVOC,Oral Vocabulary,OVANT,Oral Vocabulary–Antonyms,1,2,2,,COG,COG-Std,COG,A,,,
+V241002A,4,2,Test,2,,,,MATRCZ,Matrices,,,,,,Gf,COG,COG-Std,COG,A,,,
+V241002A,5,3,Test,3,,,,SPAREL,Spatial Relations,,,,,,Gv,COG,COG-Std,COG,A,,,
+V241002A,6,4,Test,4,,,,STYREC,Story Recall,,,,,,Gl,COG,COG-Std,COG,A,,,
+V241002A,7,5,Test,5,,,,SEMRET,Semantic Word Retrieval,,,,,,Gr,COG,COG-Std,COG,A,,,
+V241002A,8,6,Test,6,,,,VRBATN,Verbal Attention,,,,,,Gwm,COG,COG-Std,COG,A,,,
+V241002A,9,7,Test,7,,,,NUMPAT,Number-Pattern Matching,,,,,,Gs,COG,COG-Std,COG,A;X,,,
+V241002A,10,8,Test,8,,,,VRBANL,Verbal Analogies,,,,,,Gc;Gf,COG,COG-Std,COG,A,,,
+V241002A,11,9,Test,9,,,,ANLSYN,Analysis-Synthesis,,,,,,Gf,COG,COG-Std,COG,A,,,
+V241002A,12,10,Test,10,,,,BLKROT,Block Rotation,,,,,,Gv,COG,COG-Std,COG,A,,,
+V241002A,13,11,Test,11,16,,,STYCMP,Story Comprehension,,,,,,Gl,COG,COG-Std,COG;ACH,A,,,
+V241002A,14,12,Test,12,,,,PHNRET,Phonemic Word Retrieval,,,,,,Gr,COG,COG-Std,COG,A,,,
+V241002A,15,13,Test,13,,,,NUMREV,Numbers Reversed,,,,,,Gwm,COG,COG-Std,COG,A,,,
+V241002A,16,14,Test,14,,,,LETPAT,Letter-Pattern Matching,,,,,,Gs,COG,COG-Std,COG,A;X,,,
+V241002A,17,15,Test,15,,,,GENINF,General Information,,,,,,Gc,COG,COG-Ext,COG,A,,,
+V241002A,18,15.1,CompoundTest,,,,,GENINF,General Information,GIWHER,General Information–Where,1,2,1,,COG,COG-Ext,COG,A,,,
+V241002A,19,15.2,CompoundTest,,,,,GENINF,General Information,GIWHAT,General Information–What,1,2,2,,COG,COG-Ext,COG,A,,,
+V241002A,20,16,Test,16,,,,CONFRM,Concept Formation,,,,,,Gf,COG,COG-Ext,COG,A,,,
+V241002A,21,17,Test,17,,,,NUMSER,Number Series,,,,,,Gq;Gf,COG,COG-Ext,COG,A,,,
+V241002A,22,18,Test,18,,,,VAL,Visual-Auditory Learning,,,,,,Gv;Gf,COG,COG-Ext,COG,A,,,
+V241002A,23,19,Test,19,,,,VWKMEM,Visual Working Memory,,,,,,Gwm;Gv,COG,COG-Ext,COG,A,,,
+V241002A,24,20,Test,20,,,,SYMBIN,Symbol Inhibition,,,,,,Gs,COG,COG-Ext,COG,A;X,,,
+V241002A,25,21,Test,,1,,,PICVOC,Picture Vocabulary,,,,,,Gc,ACH,ACH-Std,ACH,A,dyslexia,,
+V241002A,26,22,Test,,2,,,LWIDNT,Letter-Word Identification,,,,,,Grw,ACH,ACH-Std,ACH,A;B,dyslexia,,
+V241002A,27,23,Test,,3,,,CALC,Calculation,,,,,,Gq,ACH,ACH-Std,ACH,A;B,,,
+V241002A,28,24,Test,,4,,,SPELL,Spelling,,,,,,Grw,ACH,ACH-Std,ACH,A;B,dyslexia,,
+V241002A,29,25,Test,,5,,,ORLCMP,Oral Comprehension,,,,,,Gc,ACH,ACH-Std,ACH,A,,,
+V241002A,30,26,Test,,6,,,WRDATK,Word Attack,,,,,,Grw;Ga,ACH,ACH-Std,ACH,A;B,dyslexia,,
+V241002A,31,27,Test,,7,,,MTHFLU,Math Facts Fluency,,,,,,Gs;Gq,ACH,ACH-Std,ACH,A;B,,,
+V241002A,32,28,Test,,8,,,SWRTAC,Sentence Writing Accuracy,,,,,,Grw,ACH,ACH-Std,ACH,A;B, ,,
+V241002A,33,29,Test,,9,,,PSGCMP,Passage Comprehension,,,,,,Grw;Gc,ACH,ACH-Std,ACH,A;B,,,
+V241002A,34,30,Test,,10,,,APPROB,Applied Problems,,,,,,Gq,ACH,ACH-Std,ACH,A;B,,,
+V241002A,35,31,Test,,11,,,SRDGFL,Sentence Reading Fluency,,,,,,Gs;Grw,ACH,ACH-Std,ACH,A;B,dyslexia,,
+V241002A,36,32,Test,,12,,,WRTSMP,Written Language Samples,,,,,,Grw,ACH,ACH-Std,ACH,A;B,,,
+V241002A,37,33,Test,,13,,,ORLSMP,Oral Language Samples,,,,,,Gl;Gc,ACH,ACH-Std,ACH,A,,,
+V241002A,38,34,Test,,14,,,SWRTFL,Sentence Writing Fluency,,,,,,Gs;Grw,ACH,ACH-Std,ACH,A;B,,,
+V241002A,39,35,Test,,15,,,PARCMP,Paragraph Reading Comprehension,,,,,,Grw;Gc,ACH,ACH-Std,ACH,A;B,,,
+V241002A,40,36,Test,,17,,,WRDGFL,Word Reading Fluency,,,,,,Gs;Grw,ACH,ACH-Std,ACH,A;B,dyslexia,,
+V241002A,41,37,Test,,18,,,MPRBID,Math Problem Identification,,,,,,Gq;Gf,ACH,ACH-Std,ACH,A,,,
+V241002A,42,38,Test,,19,,,MAGCMP,Magnitude Comparison,,,,,,Gs;Gq,ACH,ACH-Ext,ACH,A;X,,,
+V241002A,43,39,Test,,20,,,NUMSEN,Number Sense,,,,,,Gq,ACH,ACH-Ext,ACH,A;B,,,
+V241002A,44,40,Test,,21,,,SPLSND,Spelling of Sounds,,,,,,Ga;Grw,ACH,ACH-Ext,ACH,A,dyslexia,, 
+V241002A,45,41,Test,,22,,,ORLRDG,Oral Reading,,,,,,Grw,ACH,ACH-Ext,ACH,A;B,dyslexia,,
+V241002A,46,42,Test,,23,,,RDGREC,Reading Recall,,,,,,Grw;Gl,ACH,ACH-Ext,ACH,A,,,
+V241002A,47,43,Test,,24,,,ACDVOC,Academic Vocabulary,,,,,,Gc,ACH,ACH-Ext,ACH,A,dyslexia,,
+V241002A,48,44,Test,,25,,,ACDFCT,Academic Facts,,,,,,Gc,ACH,ACH-Ext,ACH,A,,,
+V241002A,49,45,Test,,26,,,LWRTFL,Letter Writing Fluency,,,,,,Gs,ACH,ACH-Ext,ACH,A,,,
+V241002A,50,46,Test,,,1,,NWDREP,Nonsense Word Repetition,,,,,,Ga;Gwm,VTL,VTL,COG;ACH,A,dyslexia,,
+V241002A,51,47,Test,,,2,,RPDPIC,Rapid Picture Naming,,,,,,Gs;Gr,VTL,VTL,COG;ACH,A;X,dyslexia,,
+V241002A,52,48,Test,,,3,,ANINUM,Animal-Number Sequencing,,,,,,Gwm,VTL,VTL,COG;ACH,A,,,
+V241002A,53,49,Test,,,4,,SNDREV,Sound Reversal,,,,,,Ga,VTL,VTL,COG;ACH,A, ,,
+V241002A,54,50,Test,,,5,,RPDLET,Rapid Letter Naming,,,,,,Gs;Gr,VTL,VTL,COG;ACH,A;X,dyslexia,,
+V241002A,55,51,Test,,,6,,UNDDIR,Understanding Directions,,,,,,Gwm;Gf,VTL,VTL,COG;ACH,A, ,,
+V241002A,56,52,Test,,,7,,SNDBLN,Sound Blending,,,,,,Ga,VTL,VTL,COG;ACH,A,dyslexia,,
+V241002A,57,53,Test,,,8,,RPDPHO,Rapid Phoneme Naming,,,,,,Gr;Ga,VTL,VTL,COG;ACH,A;X,dyslexia,,
+V241002A,58,54,Test,,,9,,MEMWRD,Memory for Words,,,,,,Gwm,VTL,VTL,COG;ACH,A,dyslexia,,
+V241002A,59,55,Test,,,10,,SEGMNT,Segmentation,,,,,,Ga,VTL,VTL,COG;ACH,A,dyslexia,,
+V241002A,60,56,Test,,,11,,RPDNUM,Rapid Number Naming,,,,,,Gs;Gr,VTL,VTL,COG;ACH,A;X,,,
+V241002A,61,57,Test,,,12,,SENREP,Sentence Repetition,,,,,,Gwm,VTL,VTL,COG;ACH,A,dyslexia,,
+V241002A,62,58,Test,,,13,,SNDDEL,Sound Deletion,,,,,,Ga,VTL,VTL,COG;ACH,A,dyslexia,,
+V241002A,63,59,Test,,,14,,RPDQNT,Rapid Quantity Naming,,,,,,Gs;Gv,VTL,VTL,COG;ACH,A;X,,,
+V241002A,64,60,Test,,,15,,SNDSUB,Sound Substitution,,,,,,Ga,VTL,VTL,COG;ACH,A,dyslexia,,
+V241002A,65,101.1,Cluster,,,,1,GIA,General Intellectual Ability (GIA),ORLVOC,Oral Vocabulary,1,8,1,Gc,COG,COG-Std,COG,,,General Intelligence Clusters,1
+V241002A,66,101.2,Cluster,,,,1,GIA,General Intellectual Ability (GIA),MATRCZ,Matrices,1,8,2,Gf,COG,COG-Std,COG,,,General Intelligence Clusters,1
+V241002A,67,101.3,Cluster,,,,1,GIA,General Intellectual Ability (GIA),SPAREL,Spatial Relations,1,8,3,Gv,COG,COG-Std,COG,,,General Intelligence Clusters,1
+V241002A,68,101.4,Cluster,,,,1,GIA,General Intellectual Ability (GIA),STYREC,Story Recall,1,8,4,Gl,COG,COG-Std,COG,,,General Intelligence Clusters,1
+V241002A,69,101.5,Cluster,,,,1,GIA,General Intellectual Ability (GIA),SEMRET,Semantic Word Retrieval,1,8,5,Gr,COG,COG-Std,COG,,,General Intelligence Clusters,1
+V241002A,70,101.6,Cluster,,,,1,GIA,General Intellectual Ability (GIA),VRBATN,Verbal Attention,1,8,6,Gwm,COG,COG-Std,COG,,,General Intelligence Clusters,1
+V241002A,71,101.7,Cluster,,,,1,GIA,General Intellectual Ability (GIA),NUMPAT,Number-Pattern Matching,1,8,7,Gs,COG,COG-Std,COG,,,General Intelligence Clusters,1
+V241002A,72,101.8,Cluster,,,,1,GIA,General Intellectual Ability (GIA),VRBANL,Verbal Analogies,1,8,8,Gc;Gf,COG,COG-Std,COG,,,General Intelligence Clusters,1
+V241002A,73,102.1,Cluster,,,,2,BIA,Brief Intellectual Ability (BIA),ORLVOC,Oral Vocabulary,1,3,1,Gc,COG,COG-Std,COG,,,General Intelligence Clusters,1
+V241002A,74,102.2,Cluster,,,,2,BIA,Brief Intellectual Ability (BIA),MATRCZ,Matrices,1,3,2,Gf,COG,COG-Std,COG,,,General Intelligence Clusters,1
+V241002A,75,102.3,Cluster,,,,2,BIA,Brief Intellectual Ability (BIA),VRBATN,Verbal Attention,1,3,3,Gwm,COG,COG-Std,COG,,,General Intelligence Clusters,1
+V241002A,76,103.1,Cluster,,,,3,GFGC,Gf-Gc Composite,ORLVOC,Oral Vocabulary,1,4,1,Gc,COG,COG-Std,COG,,,General Intelligence Clusters,1
+V241002A,77,103.2,Cluster,,,,3,GFGC,Gf-Gc Composite,MATRCZ,Matrices,1,4,2,Gf,COG,COG-Std,COG,,,General Intelligence Clusters,1
+V241002A,78,103.3,Cluster,,,,3,GFGC,Gf-Gc Composite,VRBANL,Verbal Analogies,1,4,3,Gc;Gf,COG,COG-Std,COG,,,General Intelligence Clusters,1
+V241002A,79,103.4,Cluster,,,,3,GFGC,Gf-Gc Composite,ANLSYN,Analysis-Synthesis,1,4,4,Gf,COG,COG-Std,COG,,,General Intelligence Clusters,1
+V241002A,80,104.1,Cluster,,,,4,GC,Comprehension-Knowledge (Gc),ORLVOC,Oral Vocabulary,1,2,1,Gc,COG,COG-Std,COG,,CALP,CHC Broad Ability Clusters,2
+V241002A,81,104.2,Cluster,,,,4,GC,Comprehension-Knowledge (Gc),VRBANL,Verbal Analogies,1,2,2,Gc;Gf,COG,COG-Std,COG,,CALP,CHC Broad Ability Clusters,2
+V241002A,82,105.1,Cluster,,,,5,GF,Fluid Reasoning (Gf),MATRCZ,Matrices,1,2,1,Gf,COG,COG-Std,COG,,,CHC Broad Ability Clusters,2
+V241002A,83,105.2,Cluster,,,,5,GF,Fluid Reasoning (Gf),ANLSYN,Analysis-Synthesis,1,2,2,Gf,COG,COG-Std,COG,,,CHC Broad Ability Clusters,2
+V241002A,84,106.1,Cluster,,,,6,AWKMEM,Auditory Working Memory Capacity  (Gwm),VRBATN,Verbal Attention,1,2,1,Gwm,COG,COG-Std,COG,,,CHC Broad Ability Clusters,2
+V241002A,85,106.2,Cluster,,,,6,AWKMEM,Auditory Working Memory Capacity  (Gwm),NUMREV,Numbers Reversed,1,2,2,Gwm,COG,COG-Std,COG,,,CHC Broad Ability Clusters,2
+V241002A,86,107.1,Cluster,,,,7,GS,Cognitive Processing Speed (Gs),NUMPAT,Number-Pattern Matching,1,2,1,Gs,COG,COG-Std,COG,,,CHC Broad Ability Clusters,2
+V241002A,87,107.2,Cluster,,,,7,GS,Cognitive Processing Speed (Gs),LETPAT,Letter-Pattern Matching,1,2,2,Gs,COG,COG-Std,COG,,,CHC Broad Ability Clusters,2
+V241002A,88,108.1,Cluster,,,,8,GR,Retrieval Fluency (Gr),SEMRET,Semantic Word Retrieval,1,2,1,Gr,COG,COG-Std,COG,,,CHC Broad Ability Clusters,2
+V241002A,89,108.2,Cluster,,,,8,GR,Retrieval Fluency (Gr),PHNRET,Phonemic Word Retrieval,1,2,2,Gr,COG,COG-Std,COG,,,CHC Broad Ability Clusters,2
+V241002A,90,109.1,Cluster,,,,9,GL,Long-Term Storage (Gl),STYREC,Story Recall,1,2,1,Gl,COG,COG-Std,COG,,,CHC Broad Ability Clusters,2
+V241002A,91,109.2,Cluster,,,,9,GL,Long-Term Storage (Gl),STYCMP,Story Comprehension,1,2,2,Gl,COG,COG-Std,COG,,,CHC Broad Ability Clusters,2
+V241002A,92,110.1,Cluster,,,,10,GV,Visual Processing (Gv),SPAREL,Spatial Relations,1,2,1,Gv,COG,COG-Std,COG,,,CHC Broad Ability Clusters,2
+V241002A,93,110.2,Cluster,,,,10,GV,Visual Processing (Gv),BLKROT,Block Rotation,1,2,2,Gv,COG,COG-Std,COG,,,CHC Broad Ability Clusters,2
+V241002A,94,111.1,Cluster,,,,11,PHNAWR,Phonological Awareness (Ga),SNDBLN,Sound Blending,1,2,1,Ga,VTL,VTL,COG;ACH,,,CHC Broad Ability Clusters,2
+V241002A,95,111.2,Cluster,,,,11,PHNAWR,Phonological Awareness (Ga),SEGMNT,Segmentation,1,2,2,Ga,VTL,VTL,COG;ACH,,,CHC Broad Ability Clusters,2
+V241002A,96,112.1,Cluster,,,,12,PHNMAN,Phonological Manipulation (Ga),SNDDEL,Sound Deletion,1,2,1,Ga,VTL,VTL,COG;ACH,,,CHC Narrow Ability and Clinical Clusters,3
+V241002A,97,112.2,Cluster,,,,12,PHNMAN,Phonological Manipulation (Ga),SNDSUB,Sound Substitution,1,2,2,Ga,VTL,VTL,COG;ACH,,,CHC Narrow Ability and Clinical Clusters,3
+V241002A,98,113.1,Cluster,,,,13,AMSPAN,Auditory Memory Span (Gwm),MEMWRD,Memory for Words,1,2,1,Gwm,VTL,VTL,COG;ACH,,,CHC Narrow Ability and Clinical Clusters,3
+V241002A,99,113.2,Cluster,,,,13,AMSPAN,Auditory Memory Span (Gwm),SENREP,Sentence Repetition,1,2,2,Gwm,VTL,VTL,COG;ACH,,,CHC Narrow Ability and Clinical Clusters,3
+V241002A,100,114.1,Cluster,,,,14,COGEFF,Cognitive Efficiency (CE),VRBATN,Verbal Attention,1,2,1,Gwm,COG,COG-Std,COG,,,CHC Narrow Ability and Clinical Clusters,3
+V241002A,101,114.2,Cluster,,,,14,COGEFF,Cognitive Efficiency (CE),NUMPAT,Number-Pattern Matching,1,2,2,Gs,COG,COG-Std,COG,,,CHC Narrow Ability and Clinical Clusters,3
+V241002A,102,115.1,Cluster,,,,15,PHRTFL,Phonemic Retrieval Fluency (Gr),PHNRET,Phonemic Word Retrieval,1,2,1,Gr,COG,COG-Std,COG,,,CHC Narrow Ability and Clinical Clusters,3
+V241002A,103,115.2,Cluster,,,,15,PHRTFL,Phonemic Retrieval Fluency (Gr),RPDPHO,Rapid Phoneme Naming,1,2,2,Gr;Ga,COG,VTL,COG,,,CHC Narrow Ability and Clinical Clusters,3
+V241002A,104,116.1,Cluster,,,,16,RANRDG,RAN–Reading (Gs; Gr),RPDPIC,Rapid Picture Naming,1,3,1,Gs;Gr,VTL,VTL,COG;ACH,,,CHC Narrow Ability and Clinical Clusters,3
+V241002A,105,116.2,Cluster,,,,16,RANRDG,RAN–Reading (Gs; Gr),RPDLET,Rapid Letter Naming,1,3,2,Gs;Gr,VTL,VTL,COG;ACH,,,CHC Narrow Ability and Clinical Clusters,3
+V241002A,106,116.3,Cluster,,,,16,RANRDG,RAN–Reading (Gs; Gr),RPDPHO,Rapid Phoneme Naming,1,3,3,Gr;Ga,VTL,VTL,COG;ACH,,,CHC Narrow Ability and Clinical Clusters,3
+V241002A,107,117.1,Cluster,,,,17,RANMTH,RAN–Math (Gs; Gr),RPDNUM,Rapid Number Naming,1,2,1,Gs;Gr,VTL,VTL,COG;ACH,,,CHC Narrow Ability and Clinical Clusters,3
+V241002A,108,117.2,Cluster,,,,17,RANMTH,RAN–Math (Gs; Gr),RPDQNT,Rapid Quantity Naming,1,2,2,Gs;Gr,VTL,VTL,COG;ACH,,,CHC Narrow Ability and Clinical Clusters,3
+V241002A,109,118.1,Cluster,,,,18,ORLANG,Oral Language (Gc),PICVOC,Picture Vocabulary,1,4,1,Gc,ACH,ACH-Std,ACH,,CALP,Oral Language Clusters,4
+V241002A,110,118.2,Cluster,,,,18,ORLANG,Oral Language (Gc),ORLCMP,Oral Comprehension,1,4,2,Gc,ACH,ACH-Std,ACH,,CALP,Oral Language Clusters,4
+V241002A,111,118.3,Cluster,,,,18,ORLANG,Oral Language (Gc),ORLSMP,Oral Language Samples,1,4,3,Gl;Gc,ACH,ACH-Std,ACH,,CALP,Oral Language Clusters,4
+V241002A,112,118.4,Cluster,,,,18,ORLANG,Oral Language (Gc),STYCMP,Story Comprehension,1,4,4,Gl,ACH,ACH-Std,ACH,,CALP,Oral Language Clusters,4
+V241002A,113,119.1,Cluster,,,,19,LSTCMP,Listening Comprehension (Gc),ORLCMP,Oral Comprehension,1,2,1,Gc,ACH,ACH-Std,COG;ACH,,CALP,Oral Language Clusters,4
+V241002A,114,119.2,Cluster,,,,19,LSTCMP,Listening Comprehension (Gc),STYCMP,Story Comprehension,1,2,2,Gl,ACH,ACH-Std,COG;ACH,,CALP,Oral Language Clusters,4
+V241002A,115,120.1,Cluster,,,,20,ORLEXP,Oral Expression (Gc; Gl),PICVOC,Picture Vocabulary,1,2,1,Gc,ACH,ACH-Std,ACH,,CALP,Oral Language Clusters,4
+V241002A,116,120.2,Cluster,,,,20,ORLEXP,Oral Expression (Gc; Gl),ORLSMP,Oral Language Samples,1,2,2,Gl;Gc,ACH,ACH-Std,ACH,,CALP,Oral Language Clusters,4
+V241002A,117,121.1,Cluster,,,,21,VOCAB,Vocabulary (Gc),PICVOC,Picture Vocabulary,1,2,1,Gc,ACH,ACH-Std,ACH,,CALP,Oral Language Clusters,4
+V241002A,118,121.2,Cluster,,,,21,VOCAB,Vocabulary (Gc),ACDVOC,Academic Vocabulary,1,2,2,Gc,ACH,ACH-Std,ACH,,CALP,Oral Language Clusters,4
+V241002A,119,122.1,Cluster,,,,22,RDGBRF,Brief Reading (Grw),LWIDNT,Letter-Word Identification,1,2,1,Grw,ACH,ACH-Std,ACH,,CALP,Reading Clusters,5
+V241002A,120,122.2,Cluster,,,,22,RDGBRF,Brief Reading (Grw),PSGCMP,Passage Comprehension,1,2,2,Grw;Gc,ACH,ACH-Std,ACH,,CALP,Reading Clusters,5
+V241002A,121,123.1,Cluster,,,,23,RDGBAS,Basic Reading Skills (Grw),LWIDNT,Letter-Word Identification,1,2,1,Grw,ACH,ACH-Std,ACH,,CALP,Reading Clusters,5
+V241002A,122,123.2,Cluster,,,,23,RDGBAS,Basic Reading Skills (Grw),WRDATK,Word Attack,1,2,2,Grw;Ga,ACH,ACH-Std,ACH,,CALP,Reading Clusters,5
+V241002A,123,124.1,Cluster,,,,24,RDGFLU,Reading Fluency (Grw),SRDGFL,Sentence Reading Fluency,1,2,1,Gs;Grw,ACH,ACH-Std,ACH,,CALP,Reading Clusters,5
+V241002A,124,124.2,Cluster,,,,24,RDGFLU,Reading Fluency (Grw),WRDGFL,Word Reading Fluency,1,2,2,Gs;Grw,ACH,ACH-Std,ACH,,CALP,Reading Clusters,5
+V241002A,125,125.1,Cluster,,,,25,RDGCMP,Reading Comprehension (Grw),PSGCMP,Passage Comprehension,1,2,1,Grw;Gc,ACH,ACH-Std,ACH,,CALP,Reading Clusters,5
+V241002A,126,125.2,Cluster,,,,25,RDGCMP,Reading Comprehension (Grw),PARCMP,Paragraph Reading Comprehension,1,2,2,Grw;Gc,ACH,ACH-Std,ACH,,CALP,Reading Clusters,5
+V241002A,127,126.1,Cluster,,,,26,MTHBRF,Brief Math (Gq),CALC,Calculation,1,2,1,Gq,ACH,ACH-Std,ACH,,,Math Clusters,6
+V241002A,128,126.2,Cluster,,,,26,MTHBRF,Brief Math (Gq),APPROB,Applied Problems,1,2,2,Gq,ACH,ACH-Std,ACH,,,Math Clusters,6
+V241002A,129,127.1,Cluster,,,,27,MTHCAL,Math Calculation Skills (Gq),CALC,Calculation,1,2,1,Gq,ACH,ACH-Std,ACH,,,Math Clusters,6
+V241002A,130,127.2,Cluster,,,,27,MTHCAL,Math Calculation Skills (Gq),MTHFLU,Math Facts Fluency,1,2,2,Gs;Gq,ACH,ACH-Std,ACH,,,Math Clusters,6
+V241002A,131,128.1,Cluster,,,,28,NUMCON,Number Concepts (Gq),MAGCMP,Magnitude Comparison,1,2,1,Gs;Gq,ACH,ACH-Ext,ACH,,,Math Clusters,6
+V241002A,132,128.2,Cluster,,,,28,NUMCON,Number Concepts (Gq),NUMSEN,Number Sense,1,2,2,Gq,ACH,ACH-Ext,ACH,,,Math Clusters,6
+V241002A,133,129.1,Cluster,,,,29,MTHPRB,Math Problem Solving (Gq),APPROB,Applied Problems,1,2,1,Gq,ACH,ACH-Std,ACH,,,Math Clusters,6
+V241002A,134,129.2,Cluster,,,,29,MTHPRB,Math Problem Solving (Gq),MPRBID,Math Problem Identification,1,2,2,Gq;Gf,ACH,ACH-Std,ACH,,,Math Clusters,6
+V241002A,135,130.1,Cluster,,,,30,WRTBRF,Brief Writing (Grw),SWRTAC,Sentence Writing Accuracy,1,2,1,Grw,ACH,ACH-Std,ACH,,CALP,Writing Clusters,7
+V241002A,136,130.2,Cluster,,,,30,WRTBRF,Brief Writing (Grw),WRTSMP,Written Language Samples,1,2,2,Grw,ACH,ACH-Std,ACH,,CALP,Writing Clusters,7
+V241002A,137,131.1,Cluster,,,,31,WRTBAS,Basic Writing Skills (Grw),SPELL,Spelling,1,2,1,Grw,ACH,ACH-Std,ACH,,CALP,Writing Clusters,7
+V241002A,138,131.2,Cluster,,,,31,WRTBAS,Basic Writing Skills (Grw),SWRTAC,Sentence Writing Accuracy,1,2,2,Grw,ACH,ACH-Std,ACH,,CALP,Writing Clusters,7
+V241002A,139,132.1,Cluster,,,,32,SPLSKL,Spelling Skills (Grw; Ga),SPELL,Spelling,1,2,1,Grw,ACH,ACH-Std,ACH,,,Writing Clusters,7
+V241002A,140,132.2,Cluster,,,,32,SPLSKL,Spelling Skills (Grw; Ga),SPLSND,Spelling of Sounds,1,2,2,Ga;Grw,ACH,ACH-Ext,ACH,,,Writing Clusters,7
+V241002A,141,133.1,Cluster,,,,33,WRTEXP,Written Expression (Grw),WRTSMP,Written Language Samples,1,2,1,Grw,ACH,ACH-Std,ACH,,CALP,Writing Clusters,7
+V241002A,142,133.2,Cluster,,,,33,WRTEXP,Written Expression (Grw),SWRTFL,Sentence Writing Fluency,1,2,2,Gs;Grw,ACH,ACH-Std,ACH,,CALP,Writing Clusters,7
+V241002A,143,134.1,Cluster,,,,34,ACHBRD,Broad Achievement (Grw; Gq; Gs),LWIDNT,Letter-Word Identification,1,9,1,Grw,ACH,ACH-Std,ACH,,,Cross-Domain Achievement Clusters,8
+V241002A,144,134.2,Cluster,,,,34,ACHBRD,Broad Achievement (Grw; Gq; Gs),CALC,Calculation,1,9,2,Gq,ACH,ACH-Std,ACH,,,Cross-Domain Achievement Clusters,8
+V241002A,145,134.3,Cluster,,,,34,ACHBRD,Broad Achievement (Grw; Gq; Gs),SPELL,Spelling,1,9,3,Grw,ACH,ACH-Std,ACH,,,Cross-Domain Achievement Clusters,8
+V241002A,146,134.4,Cluster,,,,34,ACHBRD,Broad Achievement (Grw; Gq; Gs),MTHFLU,Math Facts Fluency,1,9,4,Gs;Gq,ACH,ACH-Std,ACH,,,Cross-Domain Achievement Clusters,8
+V241002A,147,134.5,Cluster,,,,34,ACHBRD,Broad Achievement (Grw; Gq; Gs),PSGCMP,Passage Comprehension,1,9,5,Grw;Gc,ACH,ACH-Std,ACH,,,Cross-Domain Achievement Clusters,8
+V241002A,148,134.6,Cluster,,,,34,ACHBRD,Broad Achievement (Grw; Gq; Gs),APPROB,Applied Problems,1,9,6,Gq,ACH,ACH-Std,ACH,,,Cross-Domain Achievement Clusters,8
+V241002A,149,134.7,Cluster,,,,34,ACHBRD,Broad Achievement (Grw; Gq; Gs),SRDGFL,Sentence Reading Fluency,1,9,7,Gs;Grw,ACH,ACH-Std,ACH,,,Cross-Domain Achievement Clusters,8
+V241002A,150,134.8,Cluster,,,,34,ACHBRD,Broad Achievement (Grw; Gq; Gs),WRTSMP,Written Language Samples,1,9,8,Grw,ACH,ACH-Std,ACH,,,Cross-Domain Achievement Clusters,8
+V241002A,151,134.9,Cluster,,,,34,ACHBRD,Broad Achievement (Grw; Gq; Gs),SWRTFL,Sentence Writing Fluency,1,9,9,Gs;Grw,ACH,ACH-Std,ACH,,,Cross-Domain Achievement Clusters,8
+V241002A,152,135.1,Cluster,,,,35,ACDSKL,Academic Skills/Brief Achievement (Grw; Gq),LWIDNT,Letter-Word Identification,1,3,1,Grw,ACH,ACH-Std,ACH,,CALP,Cross-Domain Achievement Clusters,8
+V241002A,153,135.2,Cluster,,,,35,ACDSKL,Academic Skills/Brief Achievement (Grw; Gq),CALC,Calculation,1,3,2,Gq,ACH,ACH-Std,ACH,,CALP,Cross-Domain Achievement Clusters,8
+V241002A,154,135.3,Cluster,,,,35,ACDSKL,Academic Skills/Brief Achievement (Grw; Gq),SPELL,Spelling,1,3,3,Grw,ACH,ACH-Std,ACH,,CALP,Cross-Domain Achievement Clusters,8
+V241002A,155,136.1,Cluster,,,,36,ACDFLU,Academic Fluency (Gs),MTHFLU,Math Facts Fluency,1,3,1,Gs;Gq,ACH,ACH-Std,ACH,,CALP,Cross-Domain Achievement Clusters,8
+V241002A,156,136.2,Cluster,,,,36,ACDFLU,Academic Fluency (Gs),SRDGFL,Sentence Reading Fluency,1,3,2,Gs;Grw,ACH,ACH-Std,ACH,,CALP,Cross-Domain Achievement Clusters,8
+V241002A,157,136.3,Cluster,,,,36,ACDFLU,Academic Fluency (Gs),SWRTFL,Sentence Writing Fluency,1,3,3,Gs;Grw,ACH,ACH-Std,ACH,,CALP,Cross-Domain Achievement Clusters,8
+V241002A,158,137.1,Cluster,,,,37,ACDAPP,Academic Applications (Grw; Gq),PSGCMP,Passage Comprehension,1,3,1,Grw;Gc,ACH,ACH-Std,ACH,,CALP,Cross-Domain Achievement Clusters,8
+V241002A,159,137.2,Cluster,,,,37,ACDAPP,Academic Applications (Grw; Gq),APPROB,Applied Problems,1,3,2,Gq,ACH,ACH-Std,ACH,,CALP,Cross-Domain Achievement Clusters,8
+V241002A,160,137.3,Cluster,,,,37,ACDAPP,Academic Applications (Grw; Gq),WRTSMP,Written Language Samples,1,3,3,Grw,ACH,ACH-Std,ACH,,CALP,Cross-Domain Achievement Clusters,8
+V241002A,161,138.1,Cluster,,,,38,ACDKNW,Academic Knowledge (Gc),ACDVOC,Academic Vocabulary,1,2,1,Gc,ACH,ACH-Std,ACH,,CALP,Cross-Domain Achievement Clusters,8
+V241002A,162,138.2,Cluster,,,,38,ACDKNW,Academic Knowledge (Gc),ACDFCT,Academic Facts,1,2,2,Gc,ACH,ACH-Std,ACH,,CALP,Cross-Domain Achievement Clusters,8
+V241002A,163,139.1,Cluster,,,,39,PHGRKN,Phoneme-Grapheme Knowledge (Grw; Ga),WRDATK,Word Attack,1,2,1,Grw;Ga,ACH,ACH-Std,ACH,,,Cross-Domain Achievement Clusters,8
+V241002A,164,139.2,Cluster,,,,39,PHGRKN,Phoneme-Grapheme Knowledge (Grw; Ga),SPLSND,Spelling of Sounds,1,2,2,Ga;Grw,ACH,ACH-Ext,ACH,,,Cross-Domain Achievement Clusters,8
+V241002A,165,999.01,Single,,,,99,NONE,..None..,GENINF,General Information,0,13,1,Gc,COG,COG-Ext,COG,,,Single Tests,9
+V241002A,166,999.02,Single,,,,99,NONE,..None..,CONFRM,Concept Formation,0,13,2,Gf,COG,COG-Ext,COG,,,Single Tests,9
+V241002A,167,999.03,Single,,,,99,NONE,..None..,NUMSER,Number Series,0,13,3,Gq;Gf,COG,COG-Ext,COG,,,Single Tests,9
+V241002A,168,999.04,Single,,,,99,NONE,..None..,VAL,Visual-Auditory Learning,0,13,4,Gv;Gf,COG,COG-Ext,COG,,,Single Tests,9
+V241002A,169,999.05,Single,,,,99,NONE,..None..,VWKMEM,Visual Working Memory,0,13,5,Gwm;Gv,COG,COG-Ext,COG,,,Single Tests,9
+V241002A,170,999.06,Single,,,,99,NONE,..None..,SYMBIN,Symbol Inhibition,0,13,6,Gs,COG,COG-Ext,COG,,,Single Tests,9
+V241002A,171,999.07,Single,,,,99,NONE,..None..,ORLRDG,Oral Reading,0,13,7,Grw,ACH,ACH-Ext,ACH,,,Single Tests,9
+V241002A,172,999.08,Single,,,,99,NONE,..None..,RDGREC,Reading Recall,0,13,8,Grw;Gl,ACH,ACH-Ext,ACH,,,Single Tests,9
+V241002A,173,999.09,Single,,,,99,NONE,..None..,LWRTFL,Letter Writing Fluency,0,13,9,Gs,ACH,ACH-Ext,ACH,,,Single Tests,9
+V241002A,174,999.10,Single,,,,99,NONE,..None..,NWDREP,Nonsense Word Repetition,0,13,10,Ga;Gwm,VTL,VTL,COG;ACH,,,Single Tests,9
+V241002A,175,999.11,Single,,,,99,NONE,..None..,ANINUM,Animal-Number Sequencing,0,13,11,Gwm,VTL,VTL,COG;ACH,,,Single Tests,9
+V241002A,176,999.12,Single,,,,99,NONE,..None..,SNDREV,Sound Reversal,0,13,12,Ga,VTL,VTL,COG;ACH,,,Single Tests,9
+V241002A,177,999.13,Single,,,,99,NONE,..None..,UNDDIR,Understanding Directions,0,13,13,Gwm;Gf,VTL,VTL,COG;ACH,,,Single Tests,9
