@@ -42,7 +42,7 @@ jobs:
             - name: Install Playwright Browsers
               run: npx playwright install --with-deps
             - name: Run UI Tests
-              run: npx cross-env test='stage' npx playwright test --grep "@smoke" --project=chrome
+              run: npx cross-env test='stage' npx playwright test --grep "@smoke" --project=chromium
 
             # New step to publish CTRF report.
             - name: Publish CTRF Test Summary Results
