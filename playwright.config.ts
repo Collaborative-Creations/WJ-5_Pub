@@ -5,8 +5,8 @@ export default defineConfig({
   testMatch: ["**/*.spec.ts", "!UnitTest/*.test.ts"],
   retries: 0,
   workers: 1,
-  globalTimeout: 60 * 60 * 1000,
-  timeout: 60 * 60 * 1000,
+  // globalTimeout: 60 * 60 * 1000,
+  timeout: 10 * 60 * 1000,
   maxFailures: 0,
   reporter: [
     [
@@ -22,6 +22,8 @@ export default defineConfig({
   ],
 
   use: {
+    actionTimeout: 60 * 1000,
+    navigationTimeout: 60 * 1000,
     ignoreHTTPSErrors: true,
     screenshot: "only-on-failure",
     video: "on-first-retry",
@@ -36,7 +38,9 @@ export default defineConfig({
       // slowMo:500,
     },
   },
-  expect: {},
+  expect: {
+    timeout: 60 * 1000,
+  },
 
   projects: [
     {
