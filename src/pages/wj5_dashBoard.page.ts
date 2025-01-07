@@ -232,8 +232,8 @@ export default class Wj5DashboardPage {
         timeout: Number(3000),
       })
     ) {
-      await this.examineeSaveButton.click();
-      await this.examineeSaveOkButton.click();
+      await this.examineeSaveButton.click({ timeout: 30000});
+      await this.examineeSaveOkButton.click({ timeout: 30000});
     } else {
       console.error("Save Button IS Not Enabled To Save A NEw Examinee");
     }
@@ -312,7 +312,7 @@ export default class Wj5DashboardPage {
     await this.page
       .locator(".item-text.single-select")
       .getByText(new RegExp(examineeId))
-      .click();
+      .click({ timeout: 30000 });
     await this.page
       .getByText("Selected Examinee Details")
       .waitFor({ state: "visible" });

@@ -86,6 +86,7 @@ export default class wj5TestDataExportPage {
 
     console.log(`Type Of test ${typeOfTest} \n`);
     while (await this.plainNextButtonOrEndButton.isVisible()) {
+      await this.page.waitForTimeout(1000);
       const startTimer: number = performance.now();
 
       const itemDetails: string = await this.itemDetails.textContent();

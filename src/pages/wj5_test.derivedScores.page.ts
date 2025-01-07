@@ -996,7 +996,7 @@ export default class wj5TestPage {
           await this.nextButton.click();
         }
       } else {
-        await this.plainNextButtonOrEndButton.last().click();
+        await this.plainNextButtonOrEndButton.last().click({ timeout: 60000 });
       }
 
       if (
