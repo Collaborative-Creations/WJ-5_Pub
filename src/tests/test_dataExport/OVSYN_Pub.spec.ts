@@ -60,7 +60,7 @@ test.describe("OVSYN.W5PA Test Data Export Automation ", () => {
               );
             await wj5ExaminerDashPage.createTestAssignmentFromExamineeManagement(
               data.blockName,
-              examinee_ID,
+              result.examinee_ID,
               data.examineeGrade,
             );
 
