@@ -16,10 +16,17 @@ let txtFileContent: { [key: string]: { [key: string]: string } };
 
 test.describe.configure({ mode: "default" });
 let score: TestRunTimeData;
+let pRetry;
+
+interface ExamineeData {
+  examinee_ID: string;
+  dateOfBirth: string;
+}
 
 test.describe("OVSYN.W5PA Test Data Export Automation ", () => {
   testData.forEach((data) => {
     test.beforeAll(async () => {
+      pRetry = (await import("p-retry")).default;
       await setFilePathes(data.lookUpModel);
     });
     test(
@@ -40,19 +47,39 @@ test.describe("OVSYN.W5PA Test Data Export Automation ", () => {
       ) => {
         test.setTimeout(8 * 60 * 1000);
 
-        await wj5examiner.gotoUrl(getSiteUrl() + "home");
-        const { examinee_ID, dateOfBirth } =
-          await wj5ExaminerDashPage.addNewExamineeAndUpdateTheTemplate(
-            getSiteUrl(),
-            data.examineeAge,
-            data.location,
-            data.testStemForm,
-          );
-        await wj5ExaminerDashPage.createTestAssignmentFromExamineeManagement(
-          data.blockName,
-          examinee_ID,
-          data.examineeGrade,
+        const url = getSiteUrl() + "home";
+        const examineeData = await pRetry(
+          async (): Promise<ExamineeData> => {
+            await wj5examiner.gotoUrl(url);
+            const result =
+              await wj5ExaminerDashPage.addNewExamineeAndUpdateTheTemplate(
+                getSiteUrl(),
+                data.examineeAge,
+                data.location,
+                data.testStemForm,
+              );
+            await wj5ExaminerDashPage.createTestAssignmentFromExamineeManagement(
+              data.blockName,
+              examinee_ID,
+              data.examineeGrade,
+            );
+
+            return result;
+          },
+          {
+            retries: 2, // Number of retries
+            onFailedAttempt: (error) => {
+              console.warn(
+                `Attempt ${error.attemptNumber} for adding and assigning test to an examinee has failed. ${error.retriesLeft} retries left.`,
+                error.message,
+              );
+            },
+            minTimeout: 2000,
+            maxTimeout: 5000,
+          },
         );
+
+        const { examinee_ID, dateOfBirth } = examineeData;
 
         const ipad7 = devices["iPad (gen 7) landscape"];
         // await wj5examiner.gotoUrl(getSiteUrl() + "home");
