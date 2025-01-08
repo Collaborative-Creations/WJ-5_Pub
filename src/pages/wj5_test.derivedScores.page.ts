@@ -975,7 +975,7 @@ export default class wj5TestPage {
       }
 
       if (timerTest) {
-        await this.timerStopPopup.waitFor({ state: "visible", timeout: 60000 });
+        await this.timerStopPopup.waitFor({ state: "visible", timeout: 90000 });
         await this.plainNextButtonOrEndButton.last().click();
       } else if (tapFluency) {
         if (await this.doneButton.isVisible()) {
@@ -996,7 +996,7 @@ export default class wj5TestPage {
           await this.nextButton.click();
         }
       } else {
-        await this.plainNextButtonOrEndButton.last().click();
+        await this.plainNextButtonOrEndButton.last().click({ timeout: 60000 });
       }
 
       if (

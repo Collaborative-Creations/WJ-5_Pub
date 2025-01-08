@@ -4,5 +4,9 @@
     "resolveJsonModule": true,
     "downlevelIteration": true,
     "esModuleInterop": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "allowSyntheticDefaultImports": true
   }
 }

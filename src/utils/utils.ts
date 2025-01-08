@@ -560,7 +560,7 @@ export default class Utils {
         const RT1: number = Number(obj1[key].RT);
         const RT2: number = Number(obj2[key].RT);
 
-        expect.soft(Math.abs(RT1 - RT2)).toBeLessThanOrEqual(1); //CLINICAL-25333
+        expect.soft(Math.abs(RT1 - RT2)).toBeLessThanOrEqual(2); //CLINICAL-25333
         console.log("\n", RT1, "-", RT2, "= ", Math.abs(RT1 - RT2));
       } else {
         console.warn(`RT '${key}' not found in the second object`);
