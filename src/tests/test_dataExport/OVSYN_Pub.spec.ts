@@ -12,21 +12,23 @@ interface TestRunTimeData {
     Score: number;
   };
 }
-let txtFileContent: { [key: string]: { [key: string]: string } };
-
-test.describe.configure({ mode: "default" });
-let score: TestRunTimeData;
-let pRetry;
 
 interface ExamineeData {
   examinee_ID: string;
   dateOfBirth: string;
 }
 
+let pRetry;
+
+let txtFileContent: { [key: string]: { [key: string]: string } };
+
+test.describe.configure({ mode: "default" });
+let score: TestRunTimeData;
+
 test.describe("OVSYN.W5PA Test Data Export Automation ", () => {
   testData.forEach((data) => {
     test.beforeAll(async () => {
-      pRetry = (await import("p-retry")).default;
+      pRetry = (await import('p-retry')).default;
       await setFilePathes(data.lookUpModel);
     });
     test(
@@ -47,10 +49,9 @@ test.describe("OVSYN.W5PA Test Data Export Automation ", () => {
       ) => {
         test.setTimeout(8 * 60 * 1000);
 
-        const url = getSiteUrl() + "home";
         const examineeData = await pRetry(
           async (): Promise<ExamineeData> => {
-            await wj5examiner.gotoUrl(url);
+            await wj5examiner.gotoUrl(getSiteUrl() + "home");
             const result =
               await wj5ExaminerDashPage.addNewExamineeAndUpdateTheTemplate(
                 getSiteUrl(),
@@ -67,7 +68,7 @@ test.describe("OVSYN.W5PA Test Data Export Automation ", () => {
             return result;
           },
           {
-            retries: 2, // Number of retries
+            retries: 2,
             onFailedAttempt: (error) => {
               console.warn(
                 `Attempt ${error.attemptNumber} for adding and assigning test to an examinee has failed. ${error.retriesLeft} retries left.`,
@@ -127,30 +128,47 @@ test.describe("OVSYN.W5PA Test Data Export Automation ", () => {
         ) {
           await wj5AhDashPage.forceSubmitExamineeTest(examinee_ID);
         }
-        await wj5AhDashPage.uploadExportTemplete(data.lookUpModel);
-        await wj5AhDashPage.clickOnTheResportToDownload(testInfo);
-        await wj5AhDashPage.extractTheDownloadedZipFile();
-        const requiredFileName =
-          await wj5AhDashPage.printAllThedatafromTheFileRequired(
-            data.testStemForm,
-            "testDataExports",
-          );
+        await pRetry(
+          async () => {
+            await wj5ah.gotoUrl(getSiteUrl() + "home");
+            await wj5AhDashPage.welcomeTextToBeVisable();
+            await wj5AhDashPage.uploadExportTemplete(data.lookUpModel);
+            await wj5AhDashPage.clickOnTheResportToDownload(testInfo);
+            await wj5AhDashPage.extractTheDownloadedZipFile();
+            const requiredFileName =
+              await wj5AhDashPage.printAllThedatafromTheFileRequired(
+                data.testStemForm,
+                "testDataExports",
+              );
 
-        console.log(`requiredFileName`, requiredFileName);
+            console.log(`requiredFileName`, requiredFileName);
 
-        txtFileContent =
-          await wj5examinerUtils.readAllTxtContentFromTestDataExport(
-            requiredFileName,
-          );
-        console.log(`returnValues = `, txtFileContent);
-        await wj5examinerTest_dataExportPage.validateTheDownloadedReportWithRunTimeData(
-          requiredFileName,
-          txtFileContent,
-          examinee_ID,
-          dateOfBirth,
-          score,
-          data.testStemForm,
-          data.testSchemaFileName,
+            txtFileContent =
+              await wj5examinerUtils.readAllTxtContentFromTestDataExport(
+                requiredFileName,
+              );
+            console.log(`returnValues = `, txtFileContent);
+            await wj5examinerTest_dataExportPage.validateTheDownloadedReportWithRunTimeData(
+              requiredFileName,
+              txtFileContent,
+              examinee_ID,
+              dateOfBirth,
+              score,
+              data.testStemForm,
+              data.testSchemaFileName,
+            );
+          },
+          {
+            retries: 2,
+            onFailedAttempt: (error) => {
+              console.warn(
+                `Attempt ${error.attemptNumber} for fetching the report failed. ${error.retriesLeft} retries left.`,
+                error.message,
+              );
+            },
+            minTimeout: 2000,
+            maxTimeout: 5000,
+          },
         );
       },
     );

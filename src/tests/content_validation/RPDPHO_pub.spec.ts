@@ -38,7 +38,7 @@ test.describe(" Automating the content tests", () => {
         wj5examinerTest_contentPage,
         browser,
       }) => {
-        test.setTimeout(10 * 60 * 1000);
+        test.setTimeout(8 * 60 * 1000);
 
         const url = getSiteUrl() + "home";
         await wj5examiner.gotoUrl(url);

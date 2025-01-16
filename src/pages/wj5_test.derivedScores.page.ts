@@ -92,6 +92,7 @@ export default class wj5TestPage {
   private readonly ScoreLaterContinue: Locator;
   private readonly stopIcon: Locator;
   private readonly scoreText: Locator;
+  private readonly introDetails: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -158,7 +159,7 @@ export default class wj5TestPage {
     );
     this.beginNextTestButton = this.page.getByText("Begin Next Test");
     this.nextTestSelectValue = page.locator(".selected-value");
-    this.loading = page.locator(".CircleProgress_mcs_percentage");
+    this.loading = page.locator(".CircleProgress_mcs_percentage").first();
     this.startTimer = page.locator(
       `//button[text()="Start Timer" or text()="START TIMER"]`,
     );
@@ -190,6 +191,7 @@ export default class wj5TestPage {
     );
     this.stopIcon = this.page.locator("div[class='icon']");
     this.scoreText = this.page.locator("input[class='score-text']");
+    this.introDetails = this.page.locator("//span[@class='item-text']").first();
   }
 
   async selectThecheckBox(radioButton: number, info?: string) {
@@ -293,7 +295,7 @@ export default class wj5TestPage {
       return;
     }
   }
-
+  
   async clickOnLetsBeginButtonAndStartTest(
     testName: string,
     ssp: string,
@@ -317,7 +319,7 @@ export default class wj5TestPage {
     await expect(this.startTestButton).toBeVisible({ timeout: 10000 });
     await this.page.waitForTimeout(Number(3000));
     if (this.loading.isVisible())
-      await this.loading.waitFor({ state: "detached", timeout: 3 * 60 * 1000 });
+      await this.loading.waitFor({ state: "hidden", timeout: 3 * 60 * 1000 });
     await this.sspDropDown.selectOption(
       { label: sspOption },
       { timeout: 60000 },
@@ -975,7 +977,7 @@ export default class wj5TestPage {
       }
 
       if (timerTest) {
-        await this.timerStopPopup.waitFor({ state: "visible", timeout: 90000 });
+        await this.timerStopPopup.waitFor({ state: "visible", timeout: 60000 });
         await this.plainNextButtonOrEndButton.last().click();
       } else if (tapFluency) {
         if (await this.doneButton.isVisible()) {
@@ -2741,6 +2743,10 @@ export default class wj5TestPage {
     const excelFileData = ExcelFileData;
 
     // const excelFileData = await this.utils.getExcelSheetData(normTableFilePath);
+
+    if(examineeID == "" || examineeID == undefined || examineeID == null || examineeID.includes("No examinees meet the criteria specified.")){
+      throw new Error("The Examinee ID assertion failed, probable cause the Report could be empty.");
+    }
 
     const txtData = txtFileContent[testStemForm];
     softAssertPrint(examineeID, txtData.Examinee_ID, "Examinee ID");

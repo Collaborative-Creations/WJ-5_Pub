@@ -174,7 +174,7 @@ export default class Wj5DashboardPage {
     dateOfBirth: string;
   }> {
     const relogging = new Wj5LoginPage(this.page);
-    await relogging.reloginIfneeded(ahData.userName, ahData.passWord);
+    await relogging.reloginIfneeded(examinerData.userName, examinerData.passWord);
 
     console.log(`Trying to add an Examinee \n`);
 
@@ -232,8 +232,8 @@ export default class Wj5DashboardPage {
         timeout: Number(3000),
       })
     ) {
-      await this.examineeSaveButton.click({ timeout: 30000});
-      await this.examineeSaveOkButton.click({ timeout: 30000});
+      await this.examineeSaveButton.click({ timeout: 30000 });
+      await this.examineeSaveOkButton.click({ timeout: 30000 });
     } else {
       console.error("Save Button IS Not Enabled To Save A NEw Examinee");
     }
@@ -846,7 +846,7 @@ export default class Wj5DashboardPage {
       "WRTSMP.W5PA",
       "SENREP.W5PA",
       "SNDDEL.W5PA",
-      "SNDSUB.W5PA"
+      "SNDSUB.W5PA",
     ];
     const simpleTest: string[] = ["NUMPAT.W5PA", "LETPAT.W5PA", "MTHFLU.W5PA"];
 
@@ -1024,6 +1024,10 @@ export default class Wj5DashboardPage {
       }
     }
 
+    if(examineeid == "" || examineeid == undefined || examineeid == null || examineeid.includes("No examinees meet the criteria specified.")){
+      throw new Error("The Examinee ID assertion failed, probable cause the Report could be empty.");
+    }
+
     // softAssertPrint(examinerid, examinerData.examinerID, "Examiner ID"); // NO more examiner ID needed as of 25 Sep 2024
     softAssertPrint(examineeid, Wj5DashboardPage.examineeID, "Examinee ID");
     try {
@@ -1048,7 +1052,7 @@ export default class Wj5DashboardPage {
       $scoreFlag,
       $typeOfTest,
       $negation,
-      $StemForm,
+      $StemForm + ".Z",
     );
     softAssertPrint(scoreflag, $scoreFlag, "Score Flag");
     softAssertPrint(result?.wScore!, Number(wscore), "wScore");

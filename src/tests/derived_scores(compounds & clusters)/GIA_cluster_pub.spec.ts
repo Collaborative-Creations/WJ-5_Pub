@@ -20,17 +20,17 @@ type ScoreObject = {
 type ScoresRecord = Record<string, ScoreObject>;
 const scores: ScoresRecord = {};
 let excelFileData;
-let pRetry;
 
 interface ExamineeData {
   examinee_ID: string;
   dateOfBirth: string;
 }
+let pRetry;
 
 test.describe(" GIA cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test.beforeAll(async () => {
-      pRetry = (await import("p-retry")).default;
+      pRetry = (await import('p-retry')).default;
       await setFilePathes(data.lookUpModel);
     });
     test(
