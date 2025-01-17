@@ -1,6 +1,8 @@
 name: WJ-V Pub Tests
 
 on:
+  pull_request:
+    branches: [main, master]
   push:
     branches: [ main ]
   schedule:
