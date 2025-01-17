@@ -91,7 +91,7 @@ jobs:
 
   merge-reports:
     name: Merge Reports
-    if: always()  # Run even if test jobs fail
+    if: always()
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -99,7 +99,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: all-artifacts
-
+          
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -110,7 +110,7 @@ jobs:
           mkdir -p merged-report
           current_date=$(date +%Y-%m-%d_%H-%M-%S)
           
-          # Create index.html with enhanced styling
+          # Create index.html with enhanced styling and fixed paths
           cat << EOF > merged-report/index.html
           <!DOCTYPE html>
           <html>
@@ -129,8 +129,12 @@ jobs:
                 text-decoration: none;
                 color: #666;
                 position: relative;
+                border: 1px solid #ddd;
               }
-              .report-link:hover { background: #e5e5e5; }
+              .report-link:hover { 
+                background: #e5e5e5; 
+                border-color: #aaa;
+              }
               .status-badge {
                 position: absolute;
                 right: 15px;
@@ -143,6 +147,13 @@ jobs:
               .status-success { background: #e6ffe6; color: #006600; }
               .status-failure { background: #ffe6e6; color: #cc0000; }
               .timestamp { color: #999; font-size: 0.9em; margin-bottom: 20px; }
+              .no-reports { 
+                padding: 20px;
+                background: #fff8e6;
+                border-radius: 8px;
+                margin: 20px 0;
+                color: #855a00;
+              }
             </style>
           </head>
           <body>
@@ -151,14 +162,20 @@ jobs:
             <div class="report-container">
           EOF
           
-          # Process each report directory and status
+          # Process each report directory and ensure proper copying of all files
           for test_group in "derivedScores" "testDe" "singleTable"; do
             report_dir="all-artifacts/playwright-report-$test_group"
             status_file="all-artifacts/test-status-$test_group/status.txt"
             
             if [ -d "$report_dir" ]; then
-              mkdir -p "merged-report/$test_group"
-              cp -r "$report_dir"/* "merged-report/$test_group/"
+              # Create group directory
+              group_dir="merged-report/reports/$test_group"
+              mkdir -p "$group_dir"
+              
+              # Copy all files preserving directory structure
+              if [ -d "$report_dir" ]; then
+                cp -r "$report_dir"/* "$group_dir/"
+              fi
               
               # Read test status
               status="N/A"
@@ -172,14 +189,23 @@ jobs:
                 fi
               fi
               
-              echo "<a href='./$test_group/index.html' class='report-link'>
+              # Add link with correct relative path
+              echo "<a href='reports/$test_group/index.html' class='report-link'>
                 Test Report: $test_group
                 <span class='status-badge ${status_class}'>$status</span>
               </a>" >> merged-report/index.html
             fi
           done
           
+          # Add no-reports message if no reports found
+          if [ ! -d "merged-report/reports" ]; then
+            echo "<div class='no-reports'>No test reports available for this run.</div>" >> merged-report/index.html
+          fi
+          
           echo "</div></body></html>" >> merged-report/index.html
+          
+          # Create .nojekyll file to prevent GitHub Pages from using Jekyll
+          touch merged-report/.nojekyll
 
       - name: Upload merged report artifact
         uses: actions/upload-artifact@v4
