@@ -36,9 +36,9 @@ jobs:
         ]
         include:
           - test-group: "derivedScores"
-            grep-pattern: "(?=.*@derivedScores)(?=.*@OVSYN)"
+            grep-pattern: "(?=.*@derivedScores)(?=.*@GS)"
           - test-group: "testDe"
-            grep-pattern: "(?=.*@testDe)(?=.*@GS)"
+            grep-pattern: "(?=.*@testDe)(?=.*@OVSYN)"
           - test-group: "singleTable"
             grep-pattern: "(?=.*@singleTable)(?=.*@OVANT)"
 
