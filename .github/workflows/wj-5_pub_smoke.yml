@@ -55,7 +55,7 @@ jobs:
         run: npm ci
 
       - name: Install Playwright
-        run: npx playwright install chromium
+        run: npx playwright install chrome
         
       - name: Run Playwright tests
         id: run_tests
