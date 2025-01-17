@@ -36,11 +36,11 @@ jobs:
         ]
         include:
           - test-group: "derivedScores"
-            grep-pattern: "(?=.*@derivedScores)(?=.*@smoke)"
+            grep-pattern: "(?=.*@derivedScores)(?=.*@OVSYN)"
           - test-group: "testDe"
-            grep-pattern: "(?=.*@testDe)(?=.*@smoke)"
+            grep-pattern: "(?=.*@testDe)(?=.*@GS)"
           - test-group: "singleTable"
-            grep-pattern: "(?=.*@singleTable)(?=.*@smoke)"
+            grep-pattern: "(?=.*@singleTable)(?=.*@OVANT)"
 
     steps:
       - uses: actions/checkout@v4
@@ -99,6 +99,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: all-artifacts
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
           
       - name: Create merged report directory
         run: |
@@ -191,6 +196,9 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
     steps:
       - name: Download merged report
         uses: actions/download-artifact@v4
