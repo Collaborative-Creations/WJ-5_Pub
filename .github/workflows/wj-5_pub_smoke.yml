@@ -1,0 +1,67 @@
+name: WJ-V Pub Tests
+
+on:
+  push:
+    branches: [ main ]
+  schedule:
+    - cron: '0 5 * * *'  # Runs at 5 AM UTC every day
+
+env:
+  TEST_ENV: qa
+  NUM_RETRIES: 2
+  SLOW_MODE_DELAY_IN_MS: 100
+  CI: 'true'
+
+jobs:
+  test:
+    name: Run Playwright Tests (${{ matrix.test-group }})  # Added test group to job name for clarity
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.44.1-focal
+    strategy:
+      fail-fast: false  # Ensures all parallel jobs complete even if one fails
+      max-parallel: 3   # Explicitly set maximum parallel jobs
+      matrix:
+        test-group: [
+          "derivedScores",
+          "testDe",
+          "singleTable"
+        ]
+        include:
+          - test-group: "derivedScores"
+            grep-pattern: "(?=.*@derivedScores)(?=.*@smoke)"
+          - test-group: "testDe"
+            grep-pattern: "(?=.*@testDe)(?=.*@smoke)"
+          - test-group: "singleTable"
+            grep-pattern: "(?=.*@singleTable)(?=.*@smoke)"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright
+        run: npx playwright install chromium
+        
+      - name: Run Playwright tests
+        run: |
+          # Ensure only one worker is used
+          export PLAYWRIGHT_WORKERS=1
+          npx cross-env test=${{ env.TEST_ENV }} npx playwright test --grep "${{ matrix.grep-pattern }}" --project=chrome --workers=1
+        
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.test-group }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 30
