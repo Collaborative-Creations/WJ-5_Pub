@@ -14,15 +14,20 @@ env:
   SLOW_MODE_DELAY_IN_MS: 100
   CI: 'true'
 
+permissions:
+  contents: read
+  pages: write      # Required for GitHub Pages deployment
+  id-token: write   # Required for GitHub Pages deployment
+
 jobs:
   test:
-    name: Run Playwright Tests (${{ matrix.test-group }})  # Added test group to job name for clarity
+    name: Run Playwright Tests (${{ matrix.test-group }})
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.44.1-focal
     strategy:
-      fail-fast: false  # Ensures all parallel jobs complete even if one fails
-      max-parallel: 3   # Explicitly set maximum parallel jobs
+      fail-fast: false
+      max-parallel: 3
       matrix:
         test-group: [
           "derivedScores",
@@ -54,7 +59,6 @@ jobs:
         
       - name: Run Playwright tests
         run: |
-          # Ensure only one worker is used
           export PLAYWRIGHT_WORKERS=1
           npx cross-env test=${{ env.TEST_ENV }} npx playwright test --grep "${{ matrix.grep-pattern }}" --project=chrome --workers=1
         
@@ -67,3 +71,98 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 30
+
+  merge-reports:
+    name: Merge Reports
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-artifacts
+          
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Create merged report directory
+        run: |
+          mkdir -p merged-report
+          current_date=$(date +%Y-%m-%d_%H-%M-%S)
+          
+          # Create index.html with links to all reports
+          cat << EOF > merged-report/index.html
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Playwright Test Reports</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              h1 { color: #333; }
+              .report-link { 
+                display: block;
+                margin: 10px 0;
+                padding: 10px;
+                background: #f5f5f5;
+                border-radius: 5px;
+                text-decoration: none;
+                color: #666;
+              }
+              .report-link:hover { background: #e5e5e5; }
+              .timestamp { color: #999; font-size: 0.9em; }
+            </style>
+          </head>
+          <body>
+            <h1>Playwright Test Reports</h1>
+            <p class="timestamp">Last updated: $current_date</p>
+          EOF
+          
+          # Move each report to its own directory and add link to index
+          for report_dir in all-artifacts/playwright-report-*; do
+            if [ -d "$report_dir" ]; then
+              test_group=$(basename "$report_dir" | sed 's/playwright-report-//')
+              mkdir -p "merged-report/$test_group"
+              cp -r "$report_dir"/* "merged-report/$test_group/"
+              
+              echo "<a href='./$test_group/index.html' class='report-link'>
+                Test Report: $test_group
+              </a>" >> merged-report/index.html
+            fi
+          done
+          
+          echo "</body></html>" >> merged-report/index.html
+
+      - name: Upload merged report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: merged-playwright-report
+          path: merged-report/
+          retention-days: 30
+
+  deploy-report:
+    name: Deploy Report to GitHub Pages
+    needs: merge-reports
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download merged report
+        uses: actions/download-artifact@v4
+        with:
+          name: merged-playwright-report
+          path: merged-report
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: merged-report
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
