@@ -8,18 +8,24 @@ export default defineConfig({
   // globalTimeout: 60 * 60 * 1000,
   timeout: 10 * 60 * 1000,
   reporter: process.env.CI === "true"
-    ? "blob"
-    : [
-        [
-          "html",
-          {
-            outputFolder: `playwright-report/Execution_Folder-${new Date().toDateString()}_${new Date()
-              .toTimeString()
-              .replace(/:/g, "")}`,
-            open: "always",
-          },
-        ],
+  ? [
+      ["blob"], 
+      ["html", { 
+        outputFolder: 'playwright-report',  // Fixed folder name for CI
+        open: "never" 
+      }]
+    ]
+  : [
+      [
+        "html",
+        {
+          outputFolder: `playwright-report/Execution_Folder-${new Date().toDateString()}_${new Date()
+            .toTimeString()
+            .replace(/:/g, "")}`,
+          open: "always",
+        },
       ],
+    ],
   use: {
     actionTimeout: 60 * 1000,
     navigationTimeout: 60 * 1000,

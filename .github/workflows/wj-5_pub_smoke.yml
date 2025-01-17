@@ -55,14 +55,17 @@ jobs:
         run: npm ci
 
       - name: Install Playwright
-        run: npx playwright install chrome
+        run: npx playwright install chromium
         
       - name: Run Playwright tests
         id: run_tests
         continue-on-error: true  # Allow the step to fail but continue
         run: |
           export PLAYWRIGHT_WORKERS=1
-          npx cross-env test=${{ env.TEST_ENV }} npx playwright test --grep "${{ matrix.grep-pattern }}" --project=chrome --workers=1
+          npx cross-env test=${{ env.TEST_ENV }} npx playwright test \
+            --grep "${{ matrix.grep-pattern }}" \
+            --project=chrome \
+            --workers=1
         
       - name: Upload test results
         if: always()  # Upload results whether tests pass or fail
@@ -74,7 +77,6 @@ jobs:
             test-results/
           retention-days: 30
 
-      # Create a status file to indicate test result
       - name: Create status file
         if: always()
         run: |
@@ -91,7 +93,7 @@ jobs:
 
   merge-reports:
     name: Merge Reports
-    if: always()
+    if: always()  # Run even if test jobs fail
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -110,7 +112,7 @@ jobs:
           mkdir -p merged-report
           current_date=$(date +%Y-%m-%d_%H-%M-%S)
           
-          # Create index.html with enhanced styling and fixed paths
+          # Create index.html with enhanced styling
           cat << EOF > merged-report/index.html
           <!DOCTYPE html>
           <html>
@@ -162,20 +164,17 @@ jobs:
             <div class="report-container">
           EOF
           
-          # Process each report directory and ensure proper copying of all files
+          # Process each report directory
           for test_group in "derivedScores" "testDe" "singleTable"; do
-            report_dir="all-artifacts/playwright-report-$test_group"
+            report_source="all-artifacts/playwright-report-$test_group"
             status_file="all-artifacts/test-status-$test_group/status.txt"
             
-            if [ -d "$report_dir" ]; then
-              # Create group directory
-              group_dir="merged-report/reports/$test_group"
-              mkdir -p "$group_dir"
+            if [ -d "$report_source" ]; then
+              # Create directory for this test group
+              mkdir -p "merged-report/$test_group"
               
-              # Copy all files preserving directory structure
-              if [ -d "$report_dir" ]; then
-                cp -r "$report_dir"/* "$group_dir/"
-              fi
+              # Copy all contents
+              cp -r "$report_source"/* "merged-report/$test_group/"
               
               # Read test status
               status="N/A"
@@ -189,8 +188,8 @@ jobs:
                 fi
               fi
               
-              # Add link with correct relative path
-              echo "<a href='reports/$test_group/index.html' class='report-link'>
+              # Add link to the report
+              echo "<a href='./$test_group/playwright-report/index.html' class='report-link'>
                 Test Report: $test_group
                 <span class='status-badge ${status_class}'>$status</span>
               </a>" >> merged-report/index.html
@@ -198,14 +197,11 @@ jobs:
           done
           
           # Add no-reports message if no reports found
-          if [ ! -d "merged-report/reports" ]; then
+          if [ ! "$(ls -A merged-report)" ]; then
             echo "<div class='no-reports'>No test reports available for this run.</div>" >> merged-report/index.html
           fi
           
           echo "</div></body></html>" >> merged-report/index.html
-          
-          # Create .nojekyll file to prevent GitHub Pages from using Jekyll
-          touch merged-report/.nojekyll
 
       - name: Upload merged report artifact
         uses: actions/upload-artifact@v4
