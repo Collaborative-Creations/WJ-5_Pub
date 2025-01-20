@@ -1,0 +1,164 @@
+name: Parallel Playwright Tests
+
+on:
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  # Job to install dependencies and cache them
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+      - name: Cache Node.js modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+  # Parallel test jobs for each category
+  test-data-Export:
+    needs: setup
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.49.1-jammy
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+      - name: Install Dependencies
+        run: npm ci
+      - name: Install chrome Browser
+        run: npx playwright install chrome
+      - name: Run Derived Tests
+        run: npx cross-env test='stage' npx playwright test --grep "(?=.*@testDe)(?=.*@smoke)" --project=chrome
+      - name: Upload Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: derived-test-report
+          path: playwright-report/
+          retention-days: 30
+
+  test-single-table:
+    needs: setup
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.49.1-jammy
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+      - name: Install Dependencies
+        run: npm ci
+      - name: Install chrome Browser
+        run: npx playwright install chrome
+      - name: Run Single Table Tests
+        run: npx cross-env test='stage' npx playwright test --grep "(?=.*@singleTable)(?=.*@smoke)" --project=chrome
+      - name: Upload Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: single-table-test-report
+          path: playwright-report/
+          retention-days: 30
+
+  test-derived-scores:
+    needs: setup
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.49.1-jammy
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+      - name: Install Dependencies
+        run: npm ci
+      - name: Install chrome Browser
+        run: npx playwright install chrome
+      - name: Run Derived Scores Tests
+        run: npx cross-env test='stage' npx playwright test --grep "(?=.*@derivedScores)(?=.*@smoke)" --project=chrome
+      - name: Upload Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: derived-scores-test-report
+          path: playwright-report/
+          retention-days: 30
+
+  # test-content:
+  #   needs: setup
+  #   runs-on: ubuntu-latest
+  #   container:
+  #     image: mcr.microsoft.com/playwright:v1.49.1-jammy
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '18.x'
+  #     - name: Install Dependencies
+  #       run: npm ci
+  #     - name: Install chrome Browser
+  #       run: npx playwright install chrome
+  #     - name: Run Content Tests
+  #       run: npx cross-env test='stage' npx playwright test --grep "(?=.*@content)(?=.*@smoke)" --project=chrome
+  #     - name: Upload Report
+  #       if: always()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: content-test-report
+  #         path: playwright-report/
+  #         retention-days: 30
+
+  # test-hybrid-basal-and-ceiling:
+  #   needs: setup
+  #   runs-on: ubuntu-latest
+  #   container:
+  #     image: mcr.microsoft.com/playwright:v1.49.1-jammy
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '18.x'
+  #     - name: Install Dependencies
+  #       run: npm ci
+  #     - name: Install chrome Browser
+  #       run: npx playwright install chrome
+  #     - name: Run Hybrid Tests
+  #       run: npx cross-env test='stage' npx playwright test --grep "(?=.*@hybridBasalAndCeiling)(?=.*@smoke)" --project=chrome
+  #     - name: Upload Report
+  #       if: always()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: hybrid-test-report
+  #         path: playwright-report/
+  #         retention-days: 30
+
+  # Final job to aggregate results and notify
+  notify:
+    needs: [test-data-Export , test-single-table, test-derived-scores]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Notify Slack
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_CHANNEL: "#test-automation-results"
+          SLACK_USERNAME: "Playwright Tests"
+          SLACK_MESSAGE: |
+            Test Run Summary:
+            - Derived Tests: ${{ needs.test-derived.result }}
+            - Single Table Tests: ${{ needs.test-single-table.result }}
+            - Derived Scores Tests: ${{ needs.test-derived-scores.result }}
+            - Content Tests: ${{ needs.test-content.result }}
+            - Hybrid Tests: ${{ needs.test-hybrid.result }}

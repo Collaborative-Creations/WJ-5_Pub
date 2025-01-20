@@ -86,6 +86,7 @@ export default class wj5TestDataExportPage {
 
     console.log(`Type Of test ${typeOfTest} \n`);
     while (await this.plainNextButtonOrEndButton.isVisible()) {
+      await this.page.waitForTimeout(1000);
       const startTimer: number = performance.now();
 
       const itemDetails: string = await this.itemDetails.textContent();
@@ -106,7 +107,7 @@ export default class wj5TestDataExportPage {
             await this.page.locator(".small-blue-button").click();
             const numberPart = timeDisplay.replace(/^00'|"/g, "");
             const numberValue = parseInt(numberPart);
-            await this.page.waitForTimeout(numberValue * 1350);
+            await this.page.waitForTimeout(numberValue * 1500);
           }
           await this.correctOptionButton.click();
           score = 1;
@@ -131,6 +132,7 @@ export default class wj5TestDataExportPage {
       delivery_order++;
 
       await this.plainNextButtonOrEndButton.click();
+      await this.page.waitForRequest(() => true);
 
       if (
         (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
@@ -141,6 +143,7 @@ export default class wj5TestDataExportPage {
     console.log(this.testRunTimeData);
     return this.testRunTimeData;
   }
+  
 
   async completeTheTakenTestForTestDataExportforGIWHERPubTest(
     typeOfTest: string,
@@ -207,6 +210,7 @@ export default class wj5TestDataExportPage {
       delivery_order++;
 
       await this.plainNextButtonOrEndButton.click();
+      await this.page.waitForRequest(() => true);
 
       if (
         (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
@@ -257,6 +261,7 @@ export default class wj5TestDataExportPage {
               .locator(".time-display")
               .textContent();
             await this.page.locator(".small-blue-button").click();
+            await this.page.waitForRequest(() => true);
 
             const numberPart = timeDisplay.replace(/^00'|"/g, "");
             const numberValue = parseInt(numberPart);
@@ -303,6 +308,7 @@ export default class wj5TestDataExportPage {
       delivery_order++;
 
       await this.plainNextButtonOrEndButton.click();
+      await this.page.waitForRequest(() => true);
 
       if (
         (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
@@ -391,6 +397,7 @@ export default class wj5TestDataExportPage {
       delivery_order++;
 
       await this.plainNextButtonOrEndButton.click();
+      await this.page.waitForRequest(() => true);
 
       if (
         (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
@@ -473,6 +480,7 @@ export default class wj5TestDataExportPage {
       delivery_order++;
 
       await this.plainNextButtonOrEndButton.click();
+      await this.page.waitForRequest(() => true);
 
       if (
         (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
@@ -572,6 +580,7 @@ export default class wj5TestDataExportPage {
       delivery_order++;
 
       await this.plainNextButtonOrEndButton.click();
+      await this.page.waitForRequest(() => true);
 
       if (
         (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
@@ -645,7 +654,9 @@ export default class wj5TestDataExportPage {
         console.error("Error:", error);
       });
 
-    // this.utils.filterTheValues(Examiner_ID);
+      if(examineeID == "" || examineeID == undefined || examineeID == null || examineeID.includes("No examinees meet the criteria specified.")){
+        throw new Error("The Examinee ID assertion failed, probable cause the Report could be empty.");
+      }
 
     softAssertPrint(
       examineeID,

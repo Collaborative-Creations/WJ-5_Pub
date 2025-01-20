@@ -69,6 +69,9 @@ export default class wj5TestPage {
   private readonly listOfScoresForMathFactsFluency: Locator;
   private readonly endSessionReviewBtn: Locator;
   private readonly IDK: Locator;
+  private readonly introDetails: Locator;
+  private readonly loading: Locator;
+
   constructor(page: Page) {
     this.page = page;
     this.itemMap = new Map();
@@ -218,6 +221,8 @@ export default class wj5TestPage {
     this.IDK = this.page.locator("//button[text()='I Donʼt Know']");
     this.timeUpView = this.page.locator("//b[text()='Time is up.']");
     this.timeText = this.page.locator("//div[@class='time-score']//child::div[@class='time-text']");
+    this.introDetails = this.page.locator("//span[@class='item-text']").first();
+    this.loading = this.page.locator("div[class='loading-inner']").first();
   }
 
   async selectThecheckBox(radioButton: number, info?: string) {
@@ -275,7 +280,19 @@ export default class wj5TestPage {
     if (await this.page.locator(".top-line").isVisible()) {
       await this.page.locator(".blue-button").getByText("Letʼs Begin").click();
     }
+    await expect(this.plainNextButtonOrEndButton).toBeVisible();
 
+    while (await this.plainNextButtonOrEndButton.isVisible()) {
+      const introDetails: string = (await this.introDetails.textContent())!;
+      if (introDetails === "Intro 1" || introDetails === "Intro 2") {
+        await this.plainNextButtonOrEndButton.click();
+      } else if (introDetails === "Intro 3") {
+        await this.page
+          .locator("button.plain-button.nav-button")
+          .getByText("Begin Administration")
+          .click();
+      }
+    }
     await this.page.locator(".plain-button.menu-button").click();
     await this.page.locator(".main .plain-button:nth-child(3)").click();
     await this.page
@@ -285,6 +302,7 @@ export default class wj5TestPage {
   }
 
   async clickOnLetsBeginButtonAndStartTest(testName: string, ssp: string) {
+    await this.loading.waitFor({ state: "hidden", timeout: 2 * 60 * 1000 });
     expect(await this.testNameAtAdminOverview.textContent(), {
       message: "The test name didnt match at Administration Overview page",
     }).toContain(testName);
@@ -2810,7 +2828,7 @@ export default class wj5TestPage {
   ) {
     const testNames: string[] = ["WRTSMP.W5PA"];
     const testNames1: string[] = ["SWRTFL.W5PA", "MTHFLU.W5PA"];
-    const testNames2: string[] = ["RPDPHO.W5PA","LETPAT.W5PA"];
+    const testNames2: string[] = ["RPDPHO.W5PA","LETPAT.W5PA","RPDLET.W5PA","RPDPIC.W5PA"];
     await expect.soft(this.AEValue).toHaveText(AE);
     await expect.soft(this.GEValue).toHaveText(GE);
     expect
@@ -2854,7 +2872,7 @@ export default class wj5TestPage {
        } else if  (testNames2.includes(testStemForm)) {
           await this.EndTestPopUpElements.nth(18).click();
        } else {
-         await this.EndTestPopUpElements.nth(15).click();
+         await this.EndTestPopUpElements.nth(17).click();
        }
     }
     const rsbelements = await this.page.locator(
@@ -2863,7 +2881,6 @@ export default class wj5TestPage {
     const count = await rsbelements.count();
     // Array to store text contents
     const responseStyleBehaviours: string[] = [];
-
     // Iterate over each element and fetch text content
     for (let i = 0; i < count; i++) {
       const element = rsbelements.nth(i);
@@ -2871,7 +2888,6 @@ export default class wj5TestPage {
       responseStyleBehaviours.push(textContent?.trim() || "");
     }
     console.log(responseStyleBehaviours);
-
     rsb.forEach((rsbehaviourText, index) => {
       expect(responseStyleBehaviours[index]).toContain(rsbehaviourText);
     });
@@ -2882,10 +2898,11 @@ export default class wj5TestPage {
     } else if  (testNames1.includes(testStemForm)) {
       await this.EndTestPopUpElements.nth(19).click();
     } else {
-      await this.EndTestPopUpElements.nth(15).click();
+      await this.EndTestPopUpElements.nth(17).click();
     }
     await this.page.waitForTimeout(2000);
   }
+
   async completeTSObservationsandClickNext() {
     await this.page.bringToFront();
 

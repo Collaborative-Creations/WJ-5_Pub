@@ -44,7 +44,7 @@ export default class Wj5LoginPage {
     try {
       await this.page
         .locator("text= My Test Assignments")
-        .waitFor({ state: "visible", timeout: 60000 });
+        .waitFor({ state: "visible", timeout: 30000 });
     } catch (error) {
       console.warn(`Login page either blank or not in dashboard ${error}`);
       await this.loginToRiversideScore(username, password);

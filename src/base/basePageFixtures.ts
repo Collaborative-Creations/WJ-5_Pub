@@ -32,6 +32,11 @@ import wj5NumrevPage from  "../pages/WJV_UI_Regression/wj5_NUMREV.page";
 import wj5OrlsmpPage from "../pages/WJV_UI_Regression/wj5_ORLSMP.page";
 import wj5ParcmpPage from "../pages/WJV_UI_Regression/wj5_PARCMP.page";
 import wj5DecilePage from"../pages/wj5_test.decile_page";
+import wj5RpdletPage from "../pages/WJV_UI_Regression/wj5_RPDLET.page";
+import wj5SenrepPage from "../pages/WJV_UI_Regression/wj5_SENREP.page";
+import wj5SegmntPage from "../pages/WJV_UI_Regression/wj5_SEGMNT.page";
+import wj5RpdpicPage from "../pages/WJV_UI_Regression/wj5_RPDPIC.page";
+
 
 
 type Fixtures = {
@@ -74,6 +79,10 @@ type Fixtures = {
   wj5examinerTest_orlsmpPage: wj5OrlsmpPage;
   wj5examinerTest_parcmpPage: wj5ParcmpPage;
   wj5examinerTest_decileTablePage: wj5DecilePage;
+  wj5examinerTest_rpdletPage: wj5RpdletPage;
+  wj5examinerTest_senrepPage: wj5SenrepPage;
+  wj5examinerTest_segmntPage: wj5SegmntPage;
+  wj5examinerTest_rpdpicPage: wj5RpdpicPage;
 
 };
 
@@ -236,5 +245,22 @@ export const test = base.extend<Fixtures>({
   wj5examinerTest_decileTablePage: async ({ context }, use) => {
     await use(new wj5DecilePage(wj5examinerNewPage));
   },
+
+  wj5examinerTest_rpdletPage: async ({ context }, use) => {
+    await use(new wj5RpdletPage(wj5examinerNewPage));
+  },
+
+  wj5examinerTest_senrepPage: async ({ context }, use) => {
+    await use(new wj5SenrepPage(wj5examinerNewPage));
+  },
+
+  wj5examinerTest_segmntPage: async ({ context }, use) => {
+    await use(new wj5SegmntPage(wj5examinerNewPage));
+  },
+
+  wj5examinerTest_rpdpicPage: async ({ context }, use) => {
+    await use(new wj5RpdpicPage(wj5examinerNewPage));
+  },
+  
 });
 
