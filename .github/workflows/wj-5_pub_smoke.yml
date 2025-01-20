@@ -36,11 +36,11 @@ jobs:
         ]
         include:
           - test-group: "derivedScores"
-            grep-pattern: "(?=.*@derivedScores)(?=.*@GS)"
+            grep-pattern: "(?=.*@derivedScores)(?=.*@smoke)"
           - test-group: "testDe"
-            grep-pattern: "(?=.*@testDe)(?=.*@OVSYN)"
+            grep-pattern: "(?=.*@testDe)(?=.*@smoke)"
           - test-group: "singleTable"
-            grep-pattern: "(?=.*@singleTable)(?=.*@OVANT)"
+            grep-pattern: "(?=.*@singleTable)(?=.*@smoke)"
 
     steps:
       - uses: actions/checkout@v4
