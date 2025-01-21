@@ -1,0 +1,309 @@
+name: WJ-V Pub Tests
+
+on:
+  # Keep existing triggers
+  pull_request:
+    branches: [main, master]
+  push:
+    branches: [ main ]
+  schedule:
+    - cron: '0 5 * * *'
+  # Add workflow_dispatch for manual triggers with options
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Test environment'
+        required: true
+        type: choice
+        default: 'stage'
+        options:
+          - 'stage'
+          - 'qa'
+          - 'prod'
+      test_group_1:
+        description: 'First test group'
+        required: false
+        type: choice
+        options:
+          - 'none'
+          - 'derivedScores'
+          - 'testDe'
+          - 'singleTable'
+      test_group_2:
+        description: 'Second test group'
+        required: false
+        type: choice
+        options:
+          - 'none'
+          - 'derivedScores'
+          - 'testDe'
+          - 'singleTable'
+      test_group_3:
+        description: 'Third test group'
+        required: false
+        type: choice
+        options:
+          - 'none'
+          - 'derivedScores'
+          - 'testDe'
+          - 'singleTable'
+
+env:
+  TEST_ENV: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'stage' }}
+  NUM_RETRIES: 2
+  SLOW_MODE_DELAY_IN_MS: 100
+  CI: 'true'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  prepare-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      test-groups: ${{ steps.set-matrix.outputs.test-groups }}
+    steps:
+      - id: set-matrix
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # For manual triggers, build array from selected options
+            GROUPS=()
+            if [ "${{ inputs.test_group_1 }}" != "none" ]; then
+              GROUPS+=("\"${{ inputs.test_group_1 }}\"")
+            fi
+            if [ "${{ inputs.test_group_2 }}" != "none" ]; then
+              GROUPS+=("\"${{ inputs.test_group_2 }}\"")
+            fi
+            if [ "${{ inputs.test_group_3 }}" != "none" ]; then
+              GROUPS+=("\"${{ inputs.test_group_3 }}\"")
+            fi
+            
+            # If no groups selected, use default groups
+            if [ ${#GROUPS[@]} -eq 0 ]; then
+              echo "test-groups=[\"derivedScores\",\"testDe\",\"singleTable\"]" >> $GITHUB_OUTPUT
+            else
+              echo "test-groups=[${GROUPS[*]}]" >> $GITHUB_OUTPUT
+            fi
+          else
+            # For automated triggers, use all groups
+            echo "test-groups=[\"derivedScores\",\"testDe\",\"singleTable\"]" >> $GITHUB_OUTPUT
+          fi
+
+  test:
+    needs: prepare-matrix
+    name: Run Playwright Tests (${{ matrix.test-group }})
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.44.1-focal
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        test-group: ${{ fromJson(needs.prepare-matrix.outputs.test-groups) }}
+        include:
+          - test-group: "derivedScores"
+            grep-pattern: "(?=.*@derivedScores)(?=.*@smoke)"
+          - test-group: "testDe"
+            grep-pattern: "(?=.*@testDe)(?=.*@smoke)"
+          - test-group: "singleTable"
+            grep-pattern: "(?=.*@singleTable)(?=.*@smoke)"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright
+        run: npx playwright install chrome
+        
+      - name: Run Playwright tests
+        id: run_tests
+        continue-on-error: true
+        run: |
+          export PLAYWRIGHT_WORKERS=1
+          npx cross-env test=${{ env.TEST_ENV }} npx playwright test \
+            --grep "${{ matrix.grep-pattern }}" \
+            --project=chrome \
+            --workers=1
+        
+      - name: Upload test results
+        if: always()  # Upload results whether tests pass or fail
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.test-group }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 30
+
+      - name: Create status file
+        if: always()
+        run: |
+          mkdir -p test-status
+          echo "${{ steps.run_tests.outcome }}" > test-status/status.txt
+
+      - name: Upload status
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-status-${{ matrix.test-group }}
+          path: test-status/
+          retention-days: 30
+
+  merge-reports:
+    name: Merge Reports
+    if: always()  # Run even if test jobs fail
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-artifacts
+          
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Create merged report directory
+        run: |
+          mkdir -p merged-report
+          current_date=$(date +%Y-%m-%d_%H-%M-%S)
+          
+          # Create index.html with enhanced styling
+          cat << EOF > merged-report/index.html
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Playwright Test Reports</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; max-width: 1200px; margin: 0 auto; padding: 20px; }
+              h1 { color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+              .report-container { margin: 20px 0; }
+              .report-link { 
+                display: block;
+                margin: 10px 0;
+                padding: 15px;
+                background: #f5f5f5;
+                border-radius: 8px;
+                text-decoration: none;
+                color: #666;
+                position: relative;
+                border: 1px solid #ddd;
+              }
+              .report-link:hover { 
+                background: #e5e5e5; 
+                border-color: #aaa;
+              }
+              .status-badge {
+                position: absolute;
+                right: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                padding: 5px 10px;
+                border-radius: 15px;
+                font-size: 0.9em;
+              }
+              .status-success { background: #e6ffe6; color: #006600; }
+              .status-failure { background: #ffe6e6; color: #cc0000; }
+              .timestamp { color: #999; font-size: 0.9em; margin-bottom: 20px; }
+              .no-reports { 
+                padding: 20px;
+                background: #fff8e6;
+                border-radius: 8px;
+                margin: 20px 0;
+                color: #855a00;
+              }
+            </style>
+          </head>
+          <body>
+            <h1>Playwright Test Reports</h1>
+            <p class="timestamp">Last updated: $current_date</p>
+            <div class="report-container">
+          EOF
+          
+          # Process each report directory
+          for test_group in "derivedScores" "testDe" "singleTable"; do
+            report_source="all-artifacts/playwright-report-$test_group"
+            status_file="all-artifacts/test-status-$test_group/status.txt"
+            
+            if [ -d "$report_source" ]; then
+              # Create directory for this test group
+              mkdir -p "merged-report/$test_group"
+              
+              # Copy all contents
+              cp -r "$report_source"/* "merged-report/$test_group/"
+              
+              # Read test status
+              status="N/A"
+              status_class="status-neutral"
+              if [ -f "$status_file" ]; then
+                status=$(cat "$status_file")
+                if [ "$status" = "success" ]; then
+                  status_class="status-success"
+                else
+                  status_class="status-failure"
+                fi
+              fi
+              
+              # Add link to the report
+              echo "<a href='./$test_group/playwright-report/index.html' class='report-link'>
+                Test Report: $test_group
+                <span class='status-badge ${status_class}'>$status</span>
+              </a>" >> merged-report/index.html
+            fi
+          done
+          
+          # Add no-reports message if no reports found
+          if [ ! "$(ls -A merged-report)" ]; then
+            echo "<div class='no-reports'>No test reports available for this run.</div>" >> merged-report/index.html
+          fi
+          
+          echo "</div></body></html>" >> merged-report/index.html
+
+      - name: Upload merged report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: merged-playwright-report
+          path: merged-report/
+          retention-days: 30
+
+  deploy-report:
+    name: Deploy Report to GitHub Pages
+    if: always()  # Run even if previous jobs fail
+    needs: merge-reports
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Download merged report
+        uses: actions/download-artifact@v4
+        with:
+          name: merged-playwright-report
+          path: merged-report
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: merged-report
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

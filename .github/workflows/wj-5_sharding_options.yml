@@ -1,0 +1,236 @@
+name: Playwright Sharded Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Test environment (stage/qa)'
+        required: true
+        default: 'stage'
+      test_pattern:
+        description: 'Test pattern (e.g., @smoke, (?=.*@testDe)(?=.*@smoke))'
+        required: true
+        default: '@smoke'
+      shard_count:
+        description: 'Number of shards'
+        required: true
+        default: '5'
+        type: choice
+        options:
+          - '1'
+          - '2'
+          - '4'
+          - '6'
+          - '8'
+          - '10'
+
+env:
+  NUM_RETRIES: 2
+  SLOW_MODE_DELAY_IN_MS: 0
+  CI: 'true'
+  PLAYWRIGHT_WORKERS: 1
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  test:
+    name: 'Shard ${{ matrix.shard }}'
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.44.1-focal
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - shard: 1
+          - shard: 2
+            if: ${{ inputs.shard_count >= 2 }}
+          - shard: 3
+            if: ${{ inputs.shard_count >= 3 }}
+          - shard: 4
+            if: ${{ inputs.shard_count >= 4 }}
+          - shard: 5
+            if: ${{ inputs.shard_count >= 5 }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright
+        run: npx playwright install chrome
+        
+      - name: Run Playwright tests
+        id: run_tests
+        continue-on-error: true
+        env:
+          SHARD_COUNT: ${{ inputs.shard_count }}
+        run: |
+          # Ensure single-threaded execution
+          export PLAYWRIGHT_WORKERS=1
+          
+          npx cross-env test=${{ inputs.environment }} npx playwright test \
+            --grep "${{ inputs.test_pattern }}" \
+            --project=chrome \
+            --shard=${{ matrix.shard }}/${{ inputs.shard_count }}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-shard-${{ matrix.shard }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 30
+
+      - name: Create status file
+        if: always()
+        run: |
+          mkdir -p test-status
+          echo "${{ steps.run_tests.outcome }}" > test-status/status.txt
+
+      - name: Upload status
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-status-shard-${{ matrix.shard }}
+          path: test-status/
+          retention-days: 30
+
+  merge-reports:
+    name: Merge Reports
+    if: always()
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-artifacts
+          
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Create merged report directory
+        run: |
+          mkdir -p merged-report
+          current_date=$(date +%Y-%m-%d_%H-%M-%S)
+          
+          cat << EOF > merged-report/index.html
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Playwright Test Reports</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; max-width: 1200px; margin: 0 auto; padding: 20px; }
+              h1 { color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+              .report-container { margin: 20px 0; }
+              .report-link { 
+                display: block;
+                margin: 10px 0;
+                padding: 15px;
+                background: #f5f5f5;
+                border-radius: 8px;
+                text-decoration: none;
+                color: #666;
+                position: relative;
+                border: 1px solid #ddd;
+              }
+              .report-link:hover { background: #e5e5e5; }
+              .status-badge {
+                position: absolute;
+                right: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                padding: 5px 10px;
+                border-radius: 15px;
+                font-size: 0.9em;
+              }
+              .status-success { background: #e6ffe6; color: #006600; }
+              .status-failure { background: #ffe6e6; color: #cc0000; }
+            </style>
+          </head>
+          <body>
+            <h1>Playwright Test Reports</h1>
+            <p>Environment: ${{ inputs.environment }}</p>
+            <p>Test Pattern: ${{ inputs.test_pattern }}</p>
+            <p>Last updated: $current_date</p>
+            <div class="report-container">
+          EOF
+          
+          # Process each shard's report
+          for ((i=1; i<=${{ inputs.shard_count }}; i++)); do
+            report_source="all-artifacts/playwright-report-shard-$i"
+            status_file="all-artifacts/test-status-shard-$i/status.txt"
+            
+            if [ -d "$report_source" ]; then
+              mkdir -p "merged-report/shard-$i"
+              cp -r "$report_source"/* "merged-report/shard-$i/"
+              
+              status="N/A"
+              status_class="status-neutral"
+              if [ -f "$status_file" ]; then
+                status=$(cat "$status_file")
+                if [ "$status" = "success" ]; then
+                  status_class="status-success"
+                else
+                  status_class="status-failure"
+                fi
+              fi
+              
+              echo "<a href='./shard-$i/playwright-report/index.html' class='report-link'>
+                Shard $i Report
+                <span class='status-badge ${status_class}'>$status</span>
+              </a>" >> merged-report/index.html
+            fi
+          done
+          
+          echo "</div></body></html>" >> merged-report/index.html
+
+      - name: Upload merged report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: merged-playwright-report
+          path: merged-report/
+          retention-days: 30
+
+  deploy-report:
+    name: Deploy Report to GitHub Pages
+    if: always()
+    needs: merge-reports
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download merged report
+        uses: actions/download-artifact@v4
+        with:
+          name: merged-playwright-report
+          path: merged-report
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: merged-report
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
