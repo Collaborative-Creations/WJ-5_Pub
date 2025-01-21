@@ -1,4 +1,4 @@
-name: Playwright Sharded Tests
+name: Playwright Sharded Tests Options
 
 on:
   workflow_dispatch:
