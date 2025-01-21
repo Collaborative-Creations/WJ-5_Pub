@@ -1,4 +1,4 @@
-name: WJ-V Pub Tests
+name: WJ-V Pub Smoke options
 
 on:
   # Keep existing triggers
