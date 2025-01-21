@@ -82,7 +82,7 @@ jobs:
     name: 'Shard ${{ matrix.shard }}'
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/playwright:v1.44.2-focal
+      image: mcr.microsoft.com/playwright:v1.49.1-noble
     
     strategy:
       fail-fast: false
