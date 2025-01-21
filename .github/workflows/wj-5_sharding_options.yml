@@ -34,6 +34,7 @@ on:
           - 'webkit'
 
 env:
+  TEST_ENV: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'stage' }}
   NUM_RETRIES: 2
   SLOW_MODE_DELAY_IN_MS: 0
   CI: 'true'
@@ -112,16 +113,14 @@ jobs:
         id: run_tests
         continue-on-error: true
         env:
-          SHARD_COUNT: ${{ github.event.inputs.shard_count }}
-          TEST_ENV: ${{ github.event.inputs.environment }}
+          SHARD_COUNT: ${{ github.event.inputs.shard_count }}          
         run: |
           echo "Running shard ${{ matrix.shard }} of ${{ github.event.inputs.shard_count }}"
           
-          npx playwright test \
+          npx cross-env test=${{ env.TEST_ENV }} npx playwright test \
             --grep "${{ github.event.inputs.test_pattern }}" \
             --project=${{ github.event.inputs.browser }} \
             --shard=${{ matrix.shard }}/${{ github.event.inputs.shard_count }} \
-            --reporter=list,html,github \
             --workers=1 \
             --retries=${{ env.NUM_RETRIES }}
 
