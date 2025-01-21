@@ -1,5 +1,4 @@
 name: Playwright Sharded Tests Options
-name: Playwright Sharded Tests Options
 
 on:
   workflow_dispatch:
@@ -33,22 +32,12 @@ on:
           - 'chrome'
           - 'firefox'
           - 'webkit'
-      browser:
-        description: 'Browser to run tests on'
-        required: true
-        default: 'chrome'
-        type: choice
-        options:
-          - 'chrome'
-          - 'firefox'
-          - 'webkit'
 
 env:
   NUM_RETRIES: 2
   SLOW_MODE_DELAY_IN_MS: 0
   CI: 'true'
   PLAYWRIGHT_WORKERS: 1
-  NODE_VERSION: '20'
   NODE_VERSION: '20'
 
 permissions:
@@ -88,39 +77,7 @@ jobs:
               ;;
           esac
 
-  prepare:
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-    steps:
-      - id: set-matrix
-        run: |
-          case ${{ github.event.inputs.shard_count }} in
-            "1")
-              echo "matrix={\"shard\":[1]}" >> $GITHUB_OUTPUT
-              ;;
-            "2")
-              echo "matrix={\"shard\":[1,2]}" >> $GITHUB_OUTPUT
-              ;;
-            "4")
-              echo "matrix={\"shard\":[1,2,3,4]}" >> $GITHUB_OUTPUT
-              ;;
-            "6")
-              echo "matrix={\"shard\":[1,2,3,4,5,6]}" >> $GITHUB_OUTPUT
-              ;;
-            "8")
-              echo "matrix={\"shard\":[1,2,3,4,5,6,7,8]}" >> $GITHUB_OUTPUT
-              ;;
-            "10")
-              echo "matrix={\"shard\":[1,2,3,4,5,6,7,8,9,10]}" >> $GITHUB_OUTPUT
-              ;;
-            *)
-              echo "matrix={\"shard\":[1]}" >> $GITHUB_OUTPUT
-              ;;
-          esac
-
   test:
-    needs: prepare
     needs: prepare
     name: 'Shard ${{ matrix.shard }}'
     runs-on: ubuntu-latest
@@ -130,23 +87,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{fromJson(needs.prepare.outputs.matrix)}}
-      matrix: ${{fromJson(needs.prepare.outputs.matrix)}}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
 
-      - name: Set up Node.js ${{ env.NODE_VERSION }}
       - name: Set up Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
@@ -154,12 +104,7 @@ jobs:
         run: |
           npm ci
           npx playwright install-deps
-        run: |
-          npm ci
-          npx playwright install-deps
 
-      - name: Install Playwright browsers
-        run: npx playwright install ${{ inputs.browser }}
       - name: Install Playwright browsers
         run: npx playwright install ${{ inputs.browser }}
         
@@ -169,18 +114,7 @@ jobs:
         env:
           SHARD_COUNT: ${{ github.event.inputs.shard_count }}
           TEST_ENV: ${{ github.event.inputs.environment }}
-          SHARD_COUNT: ${{ github.event.inputs.shard_count }}
-          TEST_ENV: ${{ github.event.inputs.environment }}
         run: |
-          echo "Running shard ${{ matrix.shard }} of ${{ github.event.inputs.shard_count }}"
-          
-          npx playwright test \
-            --grep "${{ github.event.inputs.test_pattern }}" \
-            --project=${{ github.event.inputs.browser }} \
-            --shard=${{ matrix.shard }}/${{ github.event.inputs.shard_count }} \
-            --reporter=list,html,github \
-            --workers=1 \
-            --retries=${{ env.NUM_RETRIES }}
           echo "Running shard ${{ matrix.shard }} of ${{ github.event.inputs.shard_count }}"
           
           npx playwright test \
@@ -210,10 +144,6 @@ jobs:
           echo "Environment: ${{ github.event.inputs.environment }}" >> test-status/status.txt
           echo "Browser: ${{ github.event.inputs.browser }}" >> test-status/status.txt
           echo "Test Pattern: ${{ github.event.inputs.test_pattern }}" >> test-status/status.txt
-          echo "Shard: ${{ matrix.shard }}" >> test-status/status.txt
-          echo "Environment: ${{ github.event.inputs.environment }}" >> test-status/status.txt
-          echo "Browser: ${{ github.event.inputs.browser }}" >> test-status/status.txt
-          echo "Test Pattern: ${{ github.event.inputs.test_pattern }}" >> test-status/status.txt
 
       - name: Upload status
         if: always()
@@ -238,7 +168,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          node-version: ${{ env.NODE_VERSION }}
           
       - name: Create merged report directory
         run: |
@@ -248,70 +177,11 @@ jobs:
           cat << EOF > merged-report/index.html
           <!DOCTYPE html>
           <html lang="en">
-          <html lang="en">
           <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Playwright Test Reports</title>
             <style>
-              :root {
-                --primary-color: #0366d6;
-                --success-color: #28a745;
-                --failure-color: #dc3545;
-                --neutral-color: #6c757d;
-              }
-              
-              body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-                line-height: 1.6;
-                margin: 0;
-                padding: 20px;
-                background: #f8f9fa;
-                color: #24292e;
-              }
-              
-              .container {
-                max-width: 1200px;
-                margin: 0 auto;
-                background: white;
-                padding: 2rem;
-                border-radius: 10px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-              }
-              
-              h1 {
-                color: var(--primary-color);
-                border-bottom: 2px solid #eaecef;
-                padding-bottom: 0.5rem;
-                margin-bottom: 1.5rem;
-              }
-              
-              .meta-info {
-                background: #f6f8fa;
-                padding: 1rem;
-                border-radius: 6px;
-                margin: 1rem 0;
-                border: 1px solid #eaecef;
-              }
-              
-              .meta-info p {
-                margin: 0.5rem 0;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-              }
-              
-              .meta-info strong {
-                color: var(--neutral-color);
-              }
-              
-              .report-container {
-                margin: 2rem 0;
-              }
-              
-              .report-link {
               :root {
                 --primary-color: #0366d6;
                 --success-color: #28a745;
@@ -374,25 +244,11 @@ jobs:
                 background: white;
                 border: 1px solid #e1e4e8;
                 border-radius: 6px;
-                margin: 1rem 0;
-                padding: 1rem;
-                background: white;
-                border: 1px solid #e1e4e8;
-                border-radius: 6px;
                 text-decoration: none;
-                color: var(--primary-color);
                 color: var(--primary-color);
                 position: relative;
                 transition: all 0.2s ease;
-                transition: all 0.2s ease;
               }
-              
-              .report-link:hover {
-                transform: translateX(5px);
-                border-color: var(--primary-color);
-                background: #f6f8fa;
-              }
-              
               
               .report-link:hover {
                 transform: translateX(5px);
@@ -403,30 +259,8 @@ jobs:
               .status-badge {
                 position: absolute;
                 right: 1rem;
-                right: 1rem;
                 top: 50%;
                 transform: translateY(-50%);
-                padding: 0.25rem 0.75rem;
-                border-radius: 2rem;
-                font-size: 0.875rem;
-                font-weight: 500;
-                text-transform: uppercase;
-              }
-              
-              .status-success {
-                background: #e6ffed;
-                color: var(--success-color);
-              }
-              
-              .status-failure {
-                background: #ffeef0;
-                color: var(--failure-color);
-              }
-              
-              .status-neutral {
-                background: #f6f8fa;
-                color: var(--neutral-color);
-              }
                 padding: 0.25rem 0.75rem;
                 border-radius: 2rem;
                 font-size: 0.875rem;
@@ -461,16 +295,6 @@ jobs:
                 <p><strong>Last Updated:</strong> $current_date</p>
               </div>
               <div class="report-container">
-            <div class="container">
-              <h1>Playwright Test Reports</h1>
-              <div class="meta-info">
-                <p><strong>Environment:</strong> ${{ inputs.environment }}</p>
-                <p><strong>Browser:</strong> ${{ inputs.browser }}</p>
-                <p><strong>Test Pattern:</strong> ${{ inputs.test_pattern }}</p>
-                <p><strong>Total Shards:</strong> ${{ inputs.shard_count }}</p>
-                <p><strong>Last Updated:</strong> $current_date</p>
-              </div>
-              <div class="report-container">
           EOF
           
           # Process each shard's report
@@ -486,7 +310,6 @@ jobs:
               status_class="status-neutral"
               if [ -f "$status_file" ]; then
                 status=$(head -n 1 "$status_file")
-                status=$(head -n 1 "$status_file")
                 if [ "$status" = "success" ]; then
                   status_class="status-success"
                 else
@@ -501,7 +324,6 @@ jobs:
             fi
           done
           
-          echo "</div></div></body></html>" >> merged-report/index.html
           echo "</div></div></body></html>" >> merged-report/index.html
 
       - name: Upload merged report artifact
