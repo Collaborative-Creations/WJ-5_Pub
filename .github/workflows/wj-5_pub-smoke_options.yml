@@ -1,32 +1,58 @@
-name: Playwright Sharded Tests
+name: WJ-V Pub Tests
 
 on:
+  # Keep existing triggers
+  pull_request:
+    branches: [main, master]
+  push:
+    branches: [ main ]
+  schedule:
+    - cron: '0 5 * * *'
+  # Add workflow_dispatch for manual triggers with options
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Test environment (stage/qa)'
+        description: 'Test environment'
         required: true
+        type: choice
         default: 'stage'
-      test_pattern:
-        description: 'Test pattern (e.g., @smoke, (?=.*@testDe)(?=.*@smoke))'
-        required: true
-        default: '@smoke'
-      shard_count:
-        description: 'Number of shards'
-        required: true
-        default: '5'
+        options:
+          - 'stage'
+          - 'qa'
+          - 'prod'
+      test_group_1:
+        description: 'First test group'
+        required: false
         type: choice
         options:
-          - '2'
-          - '3'
-          - '4'
-          - '5'
+          - 'none'
+          - 'derivedScores'
+          - 'testDe'
+          - 'singleTable'
+      test_group_2:
+        description: 'Second test group'
+        required: false
+        type: choice
+        options:
+          - 'none'
+          - 'derivedScores'
+          - 'testDe'
+          - 'singleTable'
+      test_group_3:
+        description: 'Third test group'
+        required: false
+        type: choice
+        options:
+          - 'none'
+          - 'derivedScores'
+          - 'testDe'
+          - 'singleTable'
 
 env:
+  TEST_ENV: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'stage' }}
   NUM_RETRIES: 2
-  SLOW_MODE_DELAY_IN_MS: 0
+  SLOW_MODE_DELAY_IN_MS: 100
   CI: 'true'
-  PLAYWRIGHT_WORKERS: 1
 
 permissions:
   contents: read
@@ -34,26 +60,56 @@ permissions:
   id-token: write
 
 jobs:
+  prepare-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      test-groups: ${{ steps.set-matrix.outputs.test-groups }}
+    steps:
+      - id: set-matrix
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # For manual triggers, build array from selected options
+            GROUPS=()
+            if [ "${{ inputs.test_group_1 }}" != "none" ]; then
+              GROUPS+=("\"${{ inputs.test_group_1 }}\"")
+            fi
+            if [ "${{ inputs.test_group_2 }}" != "none" ]; then
+              GROUPS+=("\"${{ inputs.test_group_2 }}\"")
+            fi
+            if [ "${{ inputs.test_group_3 }}" != "none" ]; then
+              GROUPS+=("\"${{ inputs.test_group_3 }}\"")
+            fi
+            
+            # If no groups selected, use default groups
+            if [ ${#GROUPS[@]} -eq 0 ]; then
+              echo "test-groups=[\"derivedScores\",\"testDe\",\"singleTable\"]" >> $GITHUB_OUTPUT
+            else
+              echo "test-groups=[${GROUPS[*]}]" >> $GITHUB_OUTPUT
+            fi
+          else
+            # For automated triggers, use all groups
+            echo "test-groups=[\"derivedScores\",\"testDe\",\"singleTable\"]" >> $GITHUB_OUTPUT
+          fi
+
   test:
-    name: 'Shard ${{ matrix.shard }}'
+    needs: prepare-matrix
+    name: Run Playwright Tests (${{ matrix.test-group }})
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.44.1-focal
-    
     strategy:
       fail-fast: false
+      max-parallel: 3
       matrix:
+        test-group: ${{ fromJson(needs.prepare-matrix.outputs.test-groups) }}
         include:
-          - shard: 1
-          - shard: 2
-            if: ${{ inputs.shard_count >= 2 }}
-          - shard: 3
-            if: ${{ inputs.shard_count >= 3 }}
-          - shard: 4
-            if: ${{ inputs.shard_count >= 4 }}
-          - shard: 5
-            if: ${{ inputs.shard_count >= 5 }}
-            
+          - test-group: "derivedScores"
+            grep-pattern: "(?=.*@derivedScores)(?=.*@smoke)"
+          - test-group: "testDe"
+            grep-pattern: "(?=.*@testDe)(?=.*@smoke)"
+          - test-group: "singleTable"
+            grep-pattern: "(?=.*@singleTable)(?=.*@smoke)"
+
     steps:
       - uses: actions/checkout@v4
 
@@ -72,22 +128,18 @@ jobs:
       - name: Run Playwright tests
         id: run_tests
         continue-on-error: true
-        env:
-          SHARD_COUNT: ${{ inputs.shard_count }}
         run: |
-          # Ensure single-threaded execution
           export PLAYWRIGHT_WORKERS=1
-          
-          npx cross-env test=${{ inputs.environment }} npx playwright test \
-            --grep "${{ inputs.test_pattern }}" \
+          npx cross-env test=${{ env.TEST_ENV }} npx playwright test \
+            --grep "${{ matrix.grep-pattern }}" \
             --project=chrome \
-            --shard=${{ matrix.shard }}/${{ inputs.shard_count }}
-
+            --workers=1
+        
       - name: Upload test results
-        if: always()
+        if: always()  # Upload results whether tests pass or fail
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-shard-${{ matrix.shard }}
+          name: playwright-report-${{ matrix.test-group }}
           path: |
             playwright-report/
             test-results/
@@ -103,13 +155,13 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-status-shard-${{ matrix.shard }}
+          name: test-status-${{ matrix.test-group }}
           path: test-status/
           retention-days: 30
 
   merge-reports:
     name: Merge Reports
-    if: always()
+    if: always()  # Run even if test jobs fail
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -128,6 +180,7 @@ jobs:
           mkdir -p merged-report
           current_date=$(date +%Y-%m-%d_%H-%M-%S)
           
+          # Create index.html with enhanced styling
           cat << EOF > merged-report/index.html
           <!DOCTYPE html>
           <html>
@@ -148,7 +201,10 @@ jobs:
                 position: relative;
                 border: 1px solid #ddd;
               }
-              .report-link:hover { background: #e5e5e5; }
+              .report-link:hover { 
+                background: #e5e5e5; 
+                border-color: #aaa;
+              }
               .status-badge {
                 position: absolute;
                 right: 15px;
@@ -160,25 +216,35 @@ jobs:
               }
               .status-success { background: #e6ffe6; color: #006600; }
               .status-failure { background: #ffe6e6; color: #cc0000; }
+              .timestamp { color: #999; font-size: 0.9em; margin-bottom: 20px; }
+              .no-reports { 
+                padding: 20px;
+                background: #fff8e6;
+                border-radius: 8px;
+                margin: 20px 0;
+                color: #855a00;
+              }
             </style>
           </head>
           <body>
             <h1>Playwright Test Reports</h1>
-            <p>Environment: ${{ inputs.environment }}</p>
-            <p>Test Pattern: ${{ inputs.test_pattern }}</p>
-            <p>Last updated: $current_date</p>
+            <p class="timestamp">Last updated: $current_date</p>
             <div class="report-container">
           EOF
           
-          # Process each shard's report
-          for ((i=1; i<=${{ inputs.shard_count }}; i++)); do
-            report_source="all-artifacts/playwright-report-shard-$i"
-            status_file="all-artifacts/test-status-shard-$i/status.txt"
+          # Process each report directory
+          for test_group in "derivedScores" "testDe" "singleTable"; do
+            report_source="all-artifacts/playwright-report-$test_group"
+            status_file="all-artifacts/test-status-$test_group/status.txt"
             
             if [ -d "$report_source" ]; then
-              mkdir -p "merged-report/shard-$i"
-              cp -r "$report_source"/* "merged-report/shard-$i/"
+              # Create directory for this test group
+              mkdir -p "merged-report/$test_group"
               
+              # Copy all contents
+              cp -r "$report_source"/* "merged-report/$test_group/"
+              
+              # Read test status
               status="N/A"
               status_class="status-neutral"
               if [ -f "$status_file" ]; then
@@ -190,12 +256,18 @@ jobs:
                 fi
               fi
               
-              echo "<a href='./shard-$i/playwright-report/index.html' class='report-link'>
-                Shard $i Report
+              # Add link to the report
+              echo "<a href='./$test_group/playwright-report/index.html' class='report-link'>
+                Test Report: $test_group
                 <span class='status-badge ${status_class}'>$status</span>
               </a>" >> merged-report/index.html
             fi
           done
+          
+          # Add no-reports message if no reports found
+          if [ ! "$(ls -A merged-report)" ]; then
+            echo "<div class='no-reports'>No test reports available for this run.</div>" >> merged-report/index.html
+          fi
           
           echo "</div></body></html>" >> merged-report/index.html
 
@@ -208,12 +280,15 @@ jobs:
 
   deploy-report:
     name: Deploy Report to GitHub Pages
-    if: always()
+    if: always()  # Run even if previous jobs fail
     needs: merge-reports
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
     steps:
       - name: Download merged report
         uses: actions/download-artifact@v4
