@@ -113,7 +113,9 @@ jobs:
         id: run_tests
         continue-on-error: true
         env:
-          SHARD_COUNT: ${{ github.event.inputs.shard_count }}          
+          SHARD_COUNT: ${{ github.event.inputs.shard_count }}
+          SHARD_NUMBER: ${{ matrix.shard }}
+          CI: 'true'
         run: |
           echo "Running shard ${{ matrix.shard }} of ${{ github.event.inputs.shard_count }}"
           
