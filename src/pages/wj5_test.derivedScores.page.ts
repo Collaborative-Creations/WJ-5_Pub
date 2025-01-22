@@ -159,7 +159,7 @@ export default class wj5TestPage {
     );
     this.beginNextTestButton = this.page.getByText("Begin Next Test");
     this.nextTestSelectValue = page.locator(".selected-value");
-    this.loading = page.locator(".CircleProgress_mcs_percentage").first();
+    this.loading = page.locator(".CircleProgress_mcs_percentage");
     this.startTimer = page.locator(
       `//button[text()="Start Timer" or text()="START TIMER"]`,
     );
@@ -295,7 +295,7 @@ export default class wj5TestPage {
       return;
     }
   }
-  
+
   async clickOnLetsBeginButtonAndStartTest(
     testName: string,
     ssp: string,
@@ -1137,7 +1137,7 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
       ) {
         break;
       }
@@ -1267,7 +1267,7 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
       ) {
         break;
       }
@@ -1401,7 +1401,7 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
       ) {
         break;
       }
@@ -1535,7 +1535,7 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
       ) {
         break;
       }
@@ -1665,7 +1665,7 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
       ) {
         break;
       }
@@ -1813,7 +1813,7 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
       ) {
         break;
       }
@@ -1947,7 +1947,7 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
       ) {
         break;
       }
@@ -2089,7 +2089,7 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
       ) {
         break;
       }
@@ -2261,6 +2261,9 @@ export default class wj5TestPage {
         );
       }
 
+      const button1Text:string = await this.plainNextButtonOrEndButton.first().textContent();
+      const button2Text:string = await this.plainNextButtonOrEndButton.last().textContent();
+
       if (stemForm.includes("WRTSMP.W5PA")) {
         if (!(lastItem === 15)) {
           await this.plainNextButtonOrEndButton.click();
@@ -2409,7 +2412,7 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
       ) {
         break;
       }
@@ -2539,7 +2542,7 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
       ) {
         break;
       }

@@ -1,0 +1,240 @@
+interface TestData {
+    typeOfTest: string;
+    testName: string;
+    blockName: string;
+    examineeAge: number;
+    SSP: string;
+    BbyC?: number;
+    testStemForm: string;
+    lookUpModel: string;
+    negation?: boolean;
+    location?: string;
+    examineeGrade: string;
+    AE: string;
+    GE: string;
+    ScoreCheckStatus: string;
+    FlagStatus: string;
+    OutcomeText: string;
+    responseStyleBehaviours: string[];
+  }
+  
+  export const testData: TestData[] = [
+    /*-----------------------------------Sample & Practice Exercise Scenarios-------------------------------*/
+  
+    {
+      typeOfTest: "All Examinees - Sample Items End Test Flow scenario",
+      testName: "Sentence Reading Fluency",
+      blockName: "Form A",
+      examineeAge: 4,
+      testStemForm: "SRDGFL.W5PA",
+      lookUpModel: "SingleTable",
+      SSP: "All Examinees",
+      location: "PVP",
+      examineeGrade: "Grade 4",
+      AE: "<4y0m",
+      GE: "<GK.0",
+      ScoreCheckStatus: "Test Complete",
+      FlagStatus: "0 items",
+      OutcomeText: "Examinee did not meet continuation requirements.",
+      responseStyleBehaviours: [
+        "Appeared to mark responses carefully",
+        "Appeared to read sentences slowly but accurately",
+        "Appeared to mark responses randomly without a strategy",
+        "Appeared to read sentences slowly and inaccurately",
+        "Appeared to read sentences quickly and accurately",
+        "None of the above",
+        "Appeared to read sentences quickly but inaccurately",
+      ],
+    },
+    {
+      typeOfTest: "All Examinees - Practice Exercise All correct scenario",
+      testName: "Sentence Reading Fluency",
+      blockName: "Form A",
+      examineeAge: 4,
+      testStemForm: "SRDGFL.W5PA",
+      lookUpModel: "SingleTable",
+      SSP: "All Examinees",
+      location: "PVP",
+      examineeGrade: "Grade 4",
+      AE: "",
+      GE: "",
+      ScoreCheckStatus: "",
+      FlagStatus: "",
+      OutcomeText: "",
+      responseStyleBehaviours: [],
+    },
+    {
+      typeOfTest:
+        "All Examinees - Practice Exercise 3 Correct 1 Incorrect scenario",
+      testName: "Sentence Reading Fluency",
+      blockName: "Form A",
+      examineeAge: 4,
+      testStemForm: "SRDGFL.W5PA",
+      lookUpModel: "SingleTable",
+      SSP: "All Examinees",
+      location: "PVP",
+      examineeGrade: "Grade 4",
+      AE: "",
+      GE: "",
+      ScoreCheckStatus: "",
+      FlagStatus: "",
+      OutcomeText: "",
+      responseStyleBehaviours: [],
+    },
+    {
+      typeOfTest: "All Examinees - Practice Exercise All incorrect scenario",
+      testName: "Sentence Reading Fluency",
+      blockName: "Form A",
+      examineeAge: 4,
+      testStemForm: "SRDGFL.W5PA",
+      lookUpModel: "SingleTable",
+      SSP: "All Examinees",
+      location: "PVP",
+      examineeGrade: "Grade 4",
+      AE: "<4y0m",
+      GE: "<GK.0",
+      ScoreCheckStatus: "Test Complete",
+      FlagStatus: "0 items",
+      OutcomeText: "Examinee did not meet continuation requirements.",
+      responseStyleBehaviours: [
+        "Appeared to mark responses carefully",
+        "Appeared to read sentences slowly but accurately",
+        "Appeared to mark responses randomly without a strategy",
+        "Appeared to read sentences slowly and inaccurately",
+        "Appeared to read sentences quickly and accurately",
+        "None of the above",
+        "Appeared to read sentences quickly but inaccurately",
+      ],
+    },
+  
+    /*---------------------------------------------Test Items' Scenarios-----------------------------------------------------*/
+    {
+      typeOfTest: "All Examinees - Test Items All correct scenario",
+      testName: "Sentence Reading Fluency",
+      blockName: "Form A",
+      examineeAge: 4,
+      testStemForm: "SRDGFL.W5PA",
+      lookUpModel: "SingleTable",
+      SSP: "All Examinees",
+      location: "PVP",
+      examineeGrade: "Grade 4",
+      AE: ">25y",
+      GE: ">G12.9",
+      ScoreCheckStatus: "Test Complete",
+      FlagStatus: "0 items",
+      OutcomeText: "Examinee completed all required test items.",
+      responseStyleBehaviours: [
+        "Appeared to mark responses carefully",
+        "Appeared to read sentences slowly but accurately",
+        "Appeared to mark responses randomly without a strategy",
+        "Appeared to read sentences slowly and inaccurately",
+        "Appeared to read sentences quickly and accurately",
+        "None of the above",
+        "Appeared to read sentences quickly but inaccurately",
+      ],
+    },
+  
+    {
+      typeOfTest:
+        "All Examinees - Test Items 5 Correct 5 Incorrect Two Tap scenario",
+      testName: "Sentence Reading Fluency",
+      blockName: "Form A",
+      examineeAge: 4,
+      testStemForm: "SRDGFL.W5PA",
+      lookUpModel: "SingleTable",
+      SSP: "All Examinees",
+      location: "PVP",
+      examineeGrade: "Grade 4",
+      AE: "5y1m",
+      GE: "<GK.0",
+      ScoreCheckStatus: "Test Complete",
+      FlagStatus: "0 items",
+      OutcomeText: "Examinee completed all required test items.",
+      responseStyleBehaviours: [
+        "Appeared to mark responses carefully",
+        "Appeared to read sentences slowly but accurately",
+        "Appeared to mark responses randomly without a strategy",
+        "Appeared to read sentences slowly and inaccurately",
+        "Appeared to read sentences quickly and accurately",
+        "None of the above",
+        "Appeared to read sentences quickly but inaccurately",
+      ],
+    },
+    {
+      typeOfTest: "All Examinees - Test Items All incorrect scenario",
+      testName: "Sentence Reading Fluency",
+      blockName: "Form A",
+      examineeAge: 4,
+      testStemForm: "SRDGFL.W5PA",
+      lookUpModel: "SingleTable",
+      SSP: "All Examinees",
+      location: "PVP",
+      examineeGrade: "Grade 0",
+      AE: "<4y0m",
+      GE: "<GK.0",
+      ScoreCheckStatus: "Test Complete",
+      FlagStatus: "0 items",
+      OutcomeText: "Examinee completed all required test items.",
+      responseStyleBehaviours: [
+        "Appeared to mark responses carefully",
+        "Appeared to read sentences slowly but accurately",
+        "Appeared to mark responses randomly without a strategy",
+        "Appeared to read sentences slowly and inaccurately",
+        "Appeared to read sentences quickly and accurately",
+        "None of the above",
+        "Appeared to read sentences quickly but inaccurately",
+      ],
+    },
+    {
+      typeOfTest:
+        "All Examinees - Test Items When Timer Counts Down 180 Sec On First Test Item Page",
+      testName: "Sentence Reading Fluency",
+      blockName: "Form A",
+      examineeAge: 4,
+      testStemForm: "SRDGFL.W5PA",
+      lookUpModel: "SingleTable",
+      SSP: "All Examinees",
+      location: "PVP",
+      examineeGrade: "Grade 0",
+      AE: "<4y0m",
+      GE: "<GK.0",
+      ScoreCheckStatus: "Test Complete",
+      FlagStatus: "0 items",
+      OutcomeText: "Test timer ran out.",
+      responseStyleBehaviours: [
+        "Appeared to mark responses carefully",
+        "Appeared to read sentences slowly but accurately",
+        "Appeared to mark responses randomly without a strategy",
+        "Appeared to read sentences slowly and inaccurately",
+        "Appeared to read sentences quickly and accurately",
+        "None of the above",
+        "Appeared to read sentences quickly but inaccurately",
+      ],
+    },
+    {
+      typeOfTest:
+        "All Examinees - Test Items When Timer Counts Down 180 Sec On Last Test Item Page",
+      testName: "Sentence Reading Fluency",
+      blockName: "Form A",
+      examineeAge: 4,
+      testStemForm: "SRDGFL.W5PA",
+      lookUpModel: "SingleTable",
+      SSP: "All Examinees",
+      location: "PVP",
+      examineeGrade: "Grade 0",
+      AE: ">25y",
+      GE: ">G12.9",
+      ScoreCheckStatus: "Test Complete",
+      FlagStatus: "0 items",
+      OutcomeText: "Test timer ran out.",
+      responseStyleBehaviours: [
+        "Appeared to mark responses carefully",
+        "Appeared to read sentences slowly but accurately",
+        "Appeared to mark responses randomly without a strategy",
+        "Appeared to read sentences slowly and inaccurately",
+        "Appeared to read sentences quickly and accurately",
+        "None of the above",
+        "Appeared to read sentences quickly but inaccurately",
+      ],
+    },
+  ];
