@@ -32,7 +32,7 @@ export default defineConfig({
     ignoreHTTPSErrors: true,
     screenshot: "only-on-failure",
     video: "on-first-retry",
-    trace: process.env.CI === "true" ? "retain-on-failure" : "on",
+    trace: process.env.CI === "true" ? "retain-on-first-failure" : "on",
     headless: true,
     launchOptions: {
       logger: {
