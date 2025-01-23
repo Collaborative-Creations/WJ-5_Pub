@@ -159,7 +159,7 @@ export default class wj5TestPage {
     );
     this.beginNextTestButton = this.page.getByText("Begin Next Test");
     this.nextTestSelectValue = page.locator(".selected-value");
-    this.loading = page.locator(".CircleProgress_mcs_percentage");
+    this.loading = page.locator(".CircleProgress_mcs_percentage").first();
     this.startTimer = page.locator(
       `//button[text()="Start Timer" or text()="START TIMER"]`,
     );
@@ -295,7 +295,7 @@ export default class wj5TestPage {
       return;
     }
   }
-
+  
   async clickOnLetsBeginButtonAndStartTest(
     testName: string,
     ssp: string,
@@ -2269,9 +2269,7 @@ export default class wj5TestPage {
           await this.plainNextButtonOrEndButton.click();
         }
 
-        if (
-          (await this.plainNextButtonOrEndButton.textContent()) ===
-            "End Test" &&
+        if (button1Text === "End Test" || button2Text === "Begin Next Test" &&
           !itemDetails.match(/^Item (9|1[0]|1[4-5])\b/)
         ) {
           break;
@@ -2279,9 +2277,7 @@ export default class wj5TestPage {
       } else {
         await this.plainNextButtonOrEndButton.click();
 
-        if (
-          (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
-        ) {
+        if (button1Text === "End Test") {
           break;
         }
       }
