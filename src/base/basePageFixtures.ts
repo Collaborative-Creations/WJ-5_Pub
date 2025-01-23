@@ -36,7 +36,16 @@ import wj5RpdletPage from "../pages/WJV_UI_Regression/wj5_RPDLET.page";
 import wj5SenrepPage from "../pages/WJV_UI_Regression/wj5_SENREP.page";
 import wj5SegmntPage from "../pages/WJV_UI_Regression/wj5_SEGMNT.page";
 import wj5RpdpicPage from "../pages/WJV_UI_Regression/wj5_RPDPIC.page";
-
+import wj5AnalysisSynthesisPage from "../pages/WJV_UI_Regression/wj5_ANLSYN.page";
+import wj5CalculationPage from "../pages/WJV_UI_Regression/wj5_CALC.page";
+import wj5SoundReversalPage from "../pages/WJV_UI_Regression/wj5_SNDREV.page";
+import wj5NumberPatternMatchingPage from "../pages/WJV_UI_Regression/wj5_NUMPAT.page";
+import wj5SentenceReadingFluencyPage from "../pages/WJV_UI_Regression/wj5_SRDGFL.page";
+import wj5OralVocabularyPage from "../pages/WJV_UI_Regression/wj5_OVSYN.page";
+import wj5OralVocabularyAntonymPage from "../pages/WJV_UI_Regression/wj5_OVANT.page";
+import wj5GeneralInfoPage from "../pages/WJV_UI_Regression/wj5_GIWHAT.page";
+import wj5GeneralInfoWHERPage from "../pages/WJV_UI_Regression/wj5_GIWHER.page";
+import wj5NonwordRepetitionPage from "../pages/WJV_UI_Regression/wj5_NWDREP.page";
 
 
 type Fixtures = {
@@ -83,6 +92,16 @@ type Fixtures = {
   wj5examinerTest_senrepPage: wj5SenrepPage;
   wj5examinerTest_segmntPage: wj5SegmntPage;
   wj5examinerTest_rpdpicPage: wj5RpdpicPage;
+  wj5examinerTest_ANLSYNPage: wj5AnalysisSynthesisPage;
+  wj5examinerTest_CALCPage: wj5CalculationPage;
+  wj5examinerTest_SNDREVPage: wj5SoundReversalPage;
+  wj5examinerTest_NUMPATPage: wj5NumberPatternMatchingPage;
+  wj5examinerTest_SRDGFLPage: wj5SentenceReadingFluencyPage;
+ wj5examinerTest_OVSYNPage: wj5OralVocabularyPage;
+  wj5examinerTest_OVANTPage: wj5OralVocabularyAntonymPage;
+  wj5examinerTest_GIWHATPage: wj5GeneralInfoPage;
+  wj5examinerTest_GIWHERPage: wj5GeneralInfoWHERPage;
+  wj5examinerTest_NWDREPPage: wj5NonwordRepetitionPage;
 
 };
 
@@ -246,7 +265,7 @@ export const test = base.extend<Fixtures>({
     await use(new wj5DecilePage(wj5examinerNewPage));
   },
 
-  wj5examinerTest_rpdletPage: async ({ context }, use) => {
+wj5examinerTest_rpdletPage: async ({ context }, use) => {
     await use(new wj5RpdletPage(wj5examinerNewPage));
   },
 
@@ -261,6 +280,47 @@ export const test = base.extend<Fixtures>({
   wj5examinerTest_rpdpicPage: async ({ context }, use) => {
     await use(new wj5RpdpicPage(wj5examinerNewPage));
   },
+
+  wj5examinerTest_ANLSYNPage: async ({ context }, use) => {
+    await use(new wj5AnalysisSynthesisPage(wj5examinerNewPage));
+  },
+
+  wj5examinerTest_CALCPage: async ({ context }, use) => {
+    await use(new wj5CalculationPage(wj5examinerNewPage));
+  },
+
+  wj5examinerTest_SNDREVPage: async ({ context }, use) => {
+    await use(new wj5SoundReversalPage(wj5examinerNewPage));
+  },
+
+  wj5examinerTest_NUMPATPage: async ({ context }, use) => {
+    await use(new wj5NumberPatternMatchingPage(wj5examinerNewPage));
+  },
+
+  wj5examinerTest_SRDGFLPage: async ({ context }, use) => {
+    await use(new wj5SentenceReadingFluencyPage(wj5examinerNewPage));
+  },
   
+ wj5examinerTest_OVSYNPage: async ({ context }, use) => {
+    await use(new wj5OralVocabularyPage(wj5examinerNewPage));
+  },
+
+  wj5examinerTest_OVANTPage: async ({ context }, use) => {
+    await use(new wj5OralVocabularyAntonymPage(wj5examinerNewPage));
+  },
+
+  wj5examinerTest_GIWHATPage: async ({ context }, use) => {
+    await use(new wj5GeneralInfoPage(wj5examinerNewPage));
+  },
+
+  wj5examinerTest_GIWHERPage: async ({ context }, use) => {
+    await use(new wj5GeneralInfoWHERPage(wj5examinerNewPage));
+  },
+
+  wj5examinerTest_NWDREPPage: async ({ context }, use) => {
+    await use(new wj5NonwordRepetitionPage(wj5examinerNewPage));
+  },
+
+
 });
 

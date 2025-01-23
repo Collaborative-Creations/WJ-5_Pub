@@ -1137,7 +1137,7 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
       ) {
         break;
       }
@@ -1267,7 +1267,7 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
       ) {
         break;
       }
@@ -1401,7 +1401,7 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
       ) {
         break;
       }
@@ -1535,7 +1535,7 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
       ) {
         break;
       }
@@ -1665,7 +1665,7 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
       ) {
         break;
       }
@@ -1813,7 +1813,7 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
       ) {
         break;
       }
@@ -1947,7 +1947,7 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
       ) {
         break;
       }
@@ -2089,7 +2089,7 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
       ) {
         break;
       }
@@ -2261,14 +2261,15 @@ export default class wj5TestPage {
         );
       }
 
+      const button1Text:string = await this.plainNextButtonOrEndButton.first().textContent();
+      const button2Text:string = await this.plainNextButtonOrEndButton.last().textContent();
+
       if (stemForm.includes("WRTSMP.W5PA")) {
         if (!(lastItem === 15)) {
           await this.plainNextButtonOrEndButton.click();
         }
 
-        if (
-          (await this.plainNextButtonOrEndButton.textContent()) ===
-            "End Test" &&
+        if (button1Text === "End Test" || button2Text === "Begin Next Test" &&
           !itemDetails.match(/^Item (9|1[0]|1[4-5])\b/)
         ) {
           break;
@@ -2276,9 +2277,7 @@ export default class wj5TestPage {
       } else {
         await this.plainNextButtonOrEndButton.click();
 
-        if (
-          (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
-        ) {
+        if (button1Text === "End Test") {
           break;
         }
       }
@@ -2409,7 +2408,7 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
       ) {
         break;
       }
@@ -2539,7 +2538,7 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
       ) {
         break;
       }

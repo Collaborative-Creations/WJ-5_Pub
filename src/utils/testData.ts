@@ -58,6 +58,7 @@ export function getWj5UserData() {
     ],
     accountHolder: [
       { userName: `PublicationsOrg01`, passWord: `Test@100` },
+      { userName: `Stage098`, passWord: `Test123!` },
       { userName: `WjvTestsMedium`, passWord: `Test123!` },
       { userName: `WjvTestsMaximum`, passWord: `Test123!` },
       { userName: `SuperQ23`, passWord: `Tes00` },
