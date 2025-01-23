@@ -1,28 +1,28 @@
 export function getWj5CIUserData(shardNumber: number) {
   const credentialSets = {
     examiner: [
-      { userName: '01PwAut25Ex_01', passWord: 'Test@100', examinerID: '01PwAut25Ex_01' },
-      { userName: '02PwAut25Ex_01', passWord: 'Test@100', examinerID: '02PwAut25Ex_01' },
-      { userName: '03PwAut25Ex_01', passWord: 'Test@100', examinerID: '03PwAut25Ex_01' },
-      { userName: '04PwAut25Ex_01', passWord: 'Test@100', examinerID: '04PwAut25Ex_01' },
-      { userName: '05PwAut25Ex_01', passWord: 'Test@100', examinerID: '05PwAut25Ex_01' },
-      { userName: '06PwAut25Ex_01', passWord: 'Test@100', examinerID: '06PwAut25Ex_01' },
-      { userName: '07PwAut25Ex_01', passWord: 'Test@100', examinerID: '07PwAut25Ex_01' },
-      { userName: '08PwAut25Ex_01', passWord: 'Test@100', examinerID: '08PwAut25Ex_01' },
-      { userName: '09PwAut25Ex_01', passWord: 'Test@100', examinerID: '09PwAut25Ex_01' },
-      { userName: '10PwAut25Ex_01', passWord: 'Test@100', examinerID: '10PwAut25Ex_01' }
+      { userName: 'S01PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S01PwAut25Ex_01' },
+      { userName: 'S02PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S02PwAut25Ex_01' },
+      { userName: 'S03PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S03PwAut25Ex_01' },
+      { userName: 'S04PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S04PwAut25Ex_01' },
+      { userName: 'S05PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S05PwAut25Ex_01' },
+      { userName: 'S06PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S06PwAut25Ex_01' },
+      { userName: 'S07PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S07PwAut25Ex_01' },
+      { userName: 'S08PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S08PwAut25Ex_01' },
+      { userName: 'S09PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S09PwAut25Ex_01' },
+      { userName: 'S10PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S10PwAut25Ex_01' }
     ],
     accountHolder: [
-      { userName: '01PwAut25AH', passWord: 'Test@100' },
-      { userName: '02PwAut25AH', passWord: 'Test@100' },
-      { userName: '03PwAut25AH', passWord: 'Test@100' },
-      { userName: '04PwAut25AH', passWord: 'Test@100' },
-      { userName: '05PwAut25AH', passWord: 'Test@100' },
-      { userName: '06PwAut25AH', passWord: 'Test@100' },
-      { userName: '07PwAut25AH', passWord: 'Test@100' },
-      { userName: '08PwAut25AH', passWord: 'Test@100' },
-      { userName: '09PwAut25AH', passWord: 'Test@100' },
-      { userName: '10PwAut25AH', passWord: 'Test@100' }
+      { userName: 'S01PwAut25AH', passWord: 'STest@100' },
+      { userName: 'S02PwAut25AH', passWord: 'STest@100' },
+      { userName: 'S03PwAut25AH', passWord: 'STest@100' },
+      { userName: 'S04PwAut25AH', passWord: 'STest@100' },
+      { userName: 'S05PwAut25AH', passWord: 'STest@100' },
+      { userName: 'S06PwAut25AH', passWord: 'STest@100' },
+      { userName: 'S07PwAut25AH', passWord: 'STest@100' },
+      { userName: 'S08PwAut25AH', passWord: 'STest@100' },
+      { userName: 'S09PwAut25AH', passWord: 'STest@100' },
+      { userName: 'S10PwAut25AH', passWord: 'STest@100' }
     ]
   };  
 
