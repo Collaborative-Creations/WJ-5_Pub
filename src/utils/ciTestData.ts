@@ -9,7 +9,7 @@ export function getWj5CIUserData(shardNumber: number) {
       { userName: 'S06PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S06PwAut25Ex_01' },
       { userName: 'S07PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S07PwAut25Ex_01' },
       { userName: 'S08PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S08PwAut25Ex_01' },
-      { userName: 'S09PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S09PwAut25Ex_01' },
+      { userName: 'S09PwAut25Ex_001', passWord: 'STest@100', examinerID: 'S09PwAut25Ex_01' },
       { userName: 'S10PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S10PwAut25Ex_01' }
     ],
     accountHolder: [
