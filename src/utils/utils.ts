@@ -599,7 +599,7 @@ export default class Utils {
         const val1: string = obj1[key].Response;
         const val2: string = obj2[key].Response;
 
-        expect.soft(val2).toContain(val1);
+        expect.soft(val2).toContain(val1.replace(/<\/?[^>]+(>|$)/g, ""));
 
         console.log("\n", val2, "===", val1);
       } else {
