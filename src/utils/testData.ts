@@ -8,6 +8,14 @@ export function getSiteUrl() {
       return "https://clinical-uat.rsiapps.com/";
     case "prod":
       return "https://riversidescore.com/";
+    case "qaCanada":
+      return "";
+    case "stageCanada":
+      return "";
+    case "uatCanada":
+      return "";
+    case "prodCanada":
+      return "https://ca.riversidescore.com/";
   }
 }
 export function getAdminUrl() {
@@ -20,6 +28,14 @@ export function getAdminUrl() {
       return "http://clinicaluat.rsiapps.com/";
     case "prod":
       return "https://admin.riversidescore.com";
+    case "qaCanada":
+      return "";
+    case "stageCanada":
+      return "";
+    case "uatCanada":
+      return "";
+    case "prodCanada":
+      return "http://caadmin.riversidescore.com/";
   }
 }
 export function getExamineeURL() {
@@ -32,6 +48,8 @@ export function getExamineeURL() {
       return "";
     case "prod":
       return "https://riversidescore.com/examinee";
+    case "prodCanada":
+      return "https://ca.riversidescore.com/examinee";
   }
 }
 export function getWj5UserData() {
