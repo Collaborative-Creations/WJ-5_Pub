@@ -4,42 +4,42 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Test environment (stage/qa)'
+        description: "Test environment (stage/qa)"
         required: true
-        default: 'stage'
+        default: "stage"
       test_pattern:
-        description: 'Test pattern (e.g., @smoke, (?=.*@testDe)(?=.*@smoke))'
+        description: "Test pattern (e.g., @smoke, (?=.*@testDe)(?=.*@smoke))"
         required: true
-        default: '@smoke'
+        default: "@smoke"
       shard_count:
-        description: 'Number of shards'
+        description: "Number of shards"
         required: true
-        default: '5'
+        default: "5"
         type: choice
         options:
-          - '1'
-          - '2'
-          - '4'
-          - '6'
-          - '8'
-          - '10'
+          - "1"
+          - "2"
+          - "4"
+          - "6"
+          - "8"
+          - "10"
       browser:
-        description: 'Browser to run tests on'
+        description: "Browser to run tests on"
         required: true
-        default: 'chrome'
+        default: "chrome"
         type: choice
         options:
-          - 'chrome'
-          - 'firefox'
-          - 'webkit'
+          - "chrome"
+          - "firefox"
+          - "webkit"
 
 env:
   TEST_ENV: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'stage' }}
   NUM_RETRIES: 2
   SLOW_MODE_DELAY_IN_MS: 0
-  CI: 'true'
+  CI: "true"
   PLAYWRIGHT_WORKERS: 1
-  NODE_VERSION: '20'
+  NODE_VERSION: "20"
 
 permissions:
   contents: read
@@ -80,11 +80,11 @@ jobs:
 
   test:
     needs: prepare
-    name: 'Shard ${{ matrix.shard }}'
+    name: "Shard ${{ matrix.shard }}"
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.49.1-noble
-    
+
     strategy:
       fail-fast: false
       matrix: ${{fromJson(needs.prepare.outputs.matrix)}}
@@ -99,7 +99,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: |
@@ -108,17 +108,17 @@ jobs:
 
       - name: Install Playwright browsers
         run: npx playwright install ${{ inputs.browser }}
-        
+
       - name: Run Playwright tests
         id: run_tests
         continue-on-error: true
         env:
           SHARD_COUNT: ${{ github.event.inputs.shard_count }}
           SHARD_NUMBER: ${{ matrix.shard }}
-          CI: 'true'
+          CI: "true"
         run: |
           echo "Running shard ${{ matrix.shard }} of ${{ github.event.inputs.shard_count }}"
-          
+
           npx cross-env test=${{ env.TEST_ENV }} npx playwright test \
             --grep "${{ github.event.inputs.test_pattern }}" \
             --project=${{ github.event.inputs.browser }} \
@@ -164,17 +164,17 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: all-artifacts
-          
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          
+
       - name: Create merged report directory
         run: |
           mkdir -p merged-report
           current_date=$(date +%Y-%m-%d_%H-%M-%S)
-          
+
           cat << EOF > merged-report/index.html
           <!DOCTYPE html>
           <html lang="en">
@@ -238,9 +238,13 @@ jobs:
                 margin: 2rem 0;
               }
               
+              .report-wrapper {
+                margin: 1rem 0;
+                position: relative;
+              }
+              
               .report-link {
                 display: block;
-                margin: 1rem 0;
                 padding: 1rem;
                 background: white;
                 border: 1px solid #e1e4e8;
@@ -249,19 +253,48 @@ jobs:
                 color: var(--primary-color);
                 position: relative;
                 transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
               }
               
               .report-link:hover {
-                transform: translateX(5px);
                 border-color: var(--primary-color);
                 background: #f6f8fa;
               }
               
+              .expand-btn {
+                background: none;
+                border: none;
+                cursor: pointer;
+                font-size: 1.2rem;
+                transition: transform 0.3s ease;
+                padding: 0.5rem;
+              }
+              
+              .expand-btn.active {
+                transform: rotate(90deg);
+              }
+              
+              .report-details {
+                display: none;
+                margin-top: 0.5rem;
+                border: 1px solid #e1e4e8;
+                border-radius: 0 0 6px 6px;
+                overflow: hidden;
+              }
+              
+              .report-details.show {
+                display: block;
+              }
+              
+              .report-details iframe {
+                width: 100%;
+                height: 600px;
+                border: none;
+              }
+              
               .status-badge {
-                position: absolute;
-                right: 1rem;
-                top: 50%;
-                transform: translateY(-50%);
                 padding: 0.25rem 0.75rem;
                 border-radius: 2rem;
                 font-size: 0.875rem;
@@ -297,7 +330,7 @@ jobs:
               </div>
               <div class="report-container">
           EOF
-          
+
           # Process each shard's report
           for ((i=1; i<=${{ inputs.shard_count }}; i++)); do
             report_source="all-artifacts/playwright-report-shard-$i"
@@ -318,14 +351,44 @@ jobs:
                 fi
               fi
               
-              echo "<a href='./shard-$i/playwright-report/index.html' class='report-link'>
-                Shard $i Report
-                <span class='status-badge ${status_class}'>$status</span>
-              </a>" >> merged-report/index.html
+              echo "
+              <div class='report-wrapper'>
+                <div class='report-link'>
+                  <span>Shard $i Report</span>
+                  <div>
+                    <span class='status-badge ${status_class}'>$status</span>
+                    <button class='expand-btn' data-shard='$i'>➤</button>
+                  </div>
+                </div>
+                <div class='report-details' id='shard-$i-details'>
+                  <iframe src='./shard-$i/playwright-report/index.html'></iframe>
+                </div>
+              </div>" >> merged-report/index.html
             fi
           done
-          
-          echo "</div></div></body></html>" >> merged-report/index.html
+
+          # Add JavaScript for interactivity
+          echo "
+          <script>
+            document.querySelectorAll('.report-link').forEach(link => {
+              link.addEventListener('click', (e) => {
+                const shardNum = e.currentTarget.querySelector('.expand-btn').dataset.shard;
+                const detailsContainer = document.getElementById('shard-' + shardNum + '-details');
+                const expandBtn = e.currentTarget.querySelector('.expand-btn');
+                
+                // If clicked on the expand button
+                if (e.target.classList.contains('expand-btn')) {
+                  detailsContainer.classList.toggle('show');
+                  expandBtn.classList.toggle('active');
+                } 
+                // If clicked on the main link, navigate to the report
+                else if (!e.target.classList.contains('expand-btn')) {
+                  window.open('./shard-' + shardNum + '/playwright-report/index.html', '_blank');
+                }
+              });
+            });
+          </script>
+          </div></div></body></html>" >> merged-report/index.html
 
       - name: Upload merged report artifact
         uses: actions/upload-artifact@v4
