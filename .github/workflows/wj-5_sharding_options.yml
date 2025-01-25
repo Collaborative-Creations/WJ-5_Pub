@@ -47,7 +47,6 @@ permissions:
   id-token: write
 
 jobs:
-
   prepare:
     runs-on: ubuntu-latest
     outputs:
@@ -347,7 +346,7 @@ jobs:
             if [ -d "$report_source" ]; then
               mkdir -p "merged-report/shard-$i"
               cp -r "$report_source"/* "merged-report/shard-$i/"
-
+              
               status="N/A"
               status_class="status-neutral"
               if [ -f "$status_file" ]; then
@@ -432,14 +431,13 @@ jobs:
       - name: Upload Pages artifact
         run: |
           mkdir -p gh-pages
-          # Use full run ID for unique URL
           cp -r merged-report gh-pages/${{ github.run_id }}
-          echo "Deployed to https://<username>.github.io/<repo>/${{ github.run_id }}"
+          echo "Deployed to https://collaborative-creations.github.io/WJ-5_Pub/${{ github.run_id }}"
 
       - name: Upload unique Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: gh-pages
+          path: merged-report
 
       - name: Deploy to GitHub Pages
         id: deployment
