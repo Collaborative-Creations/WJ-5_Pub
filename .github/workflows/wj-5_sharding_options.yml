@@ -47,6 +47,7 @@ permissions:
   id-token: write
 
 jobs:
+
   prepare:
     runs-on: ubuntu-latest
     outputs:
@@ -125,6 +126,12 @@ jobs:
             --shard=${{ matrix.shard }}/${{ github.event.inputs.shard_count }} \
             --workers=1 \
             --retries=${{ env.NUM_RETRIES }}
+
+      - name: Display test count
+        run: |
+          test_count=$(npx playwright show-report --json | jq '.stats.tests')
+          echo "Shard ${{ matrix.shard }} - Tests: $test_count"
+          echo "$test_count" > test-status/test-count.txt
 
       - name: Upload test results
         if: always()
@@ -335,11 +342,12 @@ jobs:
           for ((i=1; i<=${{ inputs.shard_count }}; i++)); do
             report_source="all-artifacts/playwright-report-shard-$i"
             status_file="all-artifacts/test-status-shard-$i/status.txt"
-            
+            test_count_file="all-artifacts/test-status-shard-$i/test-count.txt"
+
             if [ -d "$report_source" ]; then
               mkdir -p "merged-report/shard-$i"
               cp -r "$report_source"/* "merged-report/shard-$i/"
-              
+
               status="N/A"
               status_class="status-neutral"
               if [ -f "$status_file" ]; then
@@ -350,13 +358,19 @@ jobs:
                   status_class="status-failure"
                 fi
               fi
-              
+
+              test_count="N/A"
+              if [ -f "$test_count_file" ]; then
+                test_count=$(cat "$test_count_file")
+              fi
+
               echo "
               <div class='report-wrapper'>
                 <div class='report-link'>
                   <span>Shard $i Report</span>
                   <div>
                     <span class='status-badge ${status_class}'>$status</span>
+                    <span class='test-count'>Tests: $test_count</span>
                     <button class='expand-btn' data-shard='$i'>➤</button>
                   </div>
                 </div>
