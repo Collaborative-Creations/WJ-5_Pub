@@ -432,8 +432,9 @@ jobs:
       - name: Upload Pages artifact
         run: |
           mkdir -p gh-pages
+          # Use full run ID for unique URL
           cp -r merged-report gh-pages/${{ github.run_id }}
-          echo "Deployed to https://collaborative-creations.github.io/WJ-5_Pub/${{ github.run_id }}"
+          echo "Deployed to https://<username>.github.io/<repo>/${{ github.run_id }}"
 
       - name: Upload unique Pages artifact
         uses: actions/upload-pages-artifact@v3
