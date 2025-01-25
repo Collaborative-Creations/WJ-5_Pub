@@ -8,7 +8,8 @@ export default defineConfig({
   // globalTimeout: 60 * 60 * 1000,
   timeout: 10 * 60 * 1000,
   reporter: process.env.CI === "true"
-  ? [
+  ? [ 
+      ["line"],
       ["blob"], 
       ["html", { 
         outputFolder: 'playwright-report',  // Fixed folder name for CI
