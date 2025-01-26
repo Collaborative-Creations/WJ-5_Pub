@@ -128,6 +128,9 @@ jobs:
 
       - name: Display test count
         run: |
+          # Create test-status directory if it doesn't exist
+          mkdir -p test-status
+          
           # Extract test count from Playwright's output
           test_count=$(npx playwright test --list | grep -c '@')
           echo "Shard ${{ matrix.shard }} - Tests: $test_count"

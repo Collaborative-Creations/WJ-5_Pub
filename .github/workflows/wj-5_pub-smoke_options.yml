@@ -6,8 +6,8 @@ on:
   #   branches: [main, master]
   # push:
   #   branches: [ main ]
-  schedule:
-    - cron: "0 3 * * *"
+  # schedule:
+  #   - cron: "0 3 * * *"
   # Add workflow_dispatch for manual triggers with options
   workflow_dispatch:
     inputs:
@@ -425,7 +425,7 @@ jobs:
       - name: Upload unique Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: gh-pages
+          path: merged-report
 
       - name: Deploy to GitHub Pages
         id: deployment
