@@ -6,8 +6,8 @@ on:
   #   branches: [main, master]
   # push:
   #   branches: [ main ]
-  schedule:
-    - cron: "0 3 * * *"
+  # schedule:
+  #   - cron: "0 3 * * *"
   # Add workflow_dispatch for manual triggers with options
   workflow_dispatch:
     inputs:
@@ -416,16 +416,10 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
-      - name: Prepare unique deployment directory
-        run: |
-          mkdir -p gh-pages
-          cp -r merged-report gh-pages/${{ github.run_id }}
-          echo "Deployed to https://collaborative-creations.github.io/WJ-5_Pub/${{ github.run_id }}"
-
-      - name: Upload unique Pages artifact
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: gh-pages
+          path: merged-report
 
       - name: Deploy to GitHub Pages
         id: deployment
