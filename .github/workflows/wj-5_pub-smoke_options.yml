@@ -416,13 +416,7 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
-      - name: Prepare unique deployment directory
-        run: |
-          mkdir -p gh-pages
-          cp -r merged-report gh-pages/${{ github.run_id }}
-          echo "Deployed to https://collaborative-creations.github.io/WJ-5_Pub/${{ github.run_id }}"
-
-      - name: Upload unique Pages artifact
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: merged-report
