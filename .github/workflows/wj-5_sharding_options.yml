@@ -128,7 +128,8 @@ jobs:
 
       - name: Display test count
         run: |
-          test_count=$(npx playwright show-report --json | jq '.stats.tests')
+          # Extract test count from Playwright's output
+          test_count=$(npx playwright test --list | grep -c '@')
           echo "Shard ${{ matrix.shard }} - Tests: $test_count"
           echo "$test_count" > test-status/test-count.txt
 
