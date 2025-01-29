@@ -2826,9 +2826,11 @@ export default class wj5TestPage {
     testStemForm: string,
     typeOfTest: string,
   ) {
+    
     const testNames: string[] = ["WRTSMP.W5PA"];
     const testNames1: string[] = ["SWRTFL.W5PA", "MTHFLU.W5PA"];
-    const testNames2: string[] = ["RPDPHO.W5PA","LETPAT.W5PA","RPDLET.W5PA","RPDPIC.W5PA"];
+    const testNames2: string[] = ["RPDPHO.W5PA","LETPAT.W5PA","RPDLET.W5PA","RPDPIC.W5PA", "NUMPAT.W5PA", "SRDGFL.W5PA"];
+
     await expect.soft(this.AEValue).toHaveText(AE);
     await expect.soft(this.GEValue).toHaveText(GE);
     expect

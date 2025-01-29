@@ -295,7 +295,7 @@ export default class wj5TestPage {
       return;
     }
   }
-  
+
   async clickOnLetsBeginButtonAndStartTest(
     testName: string,
     ssp: string,
@@ -782,7 +782,6 @@ export default class wj5TestPage {
           "MATRCZ.W5PA_TestSchema.xlsx",
           "/Heading/",
         );
-        
     } else if (stemForm.includes("SEGMNT.W5PA")) {
       this.scoreMap.clear();
       this.scoreMap =
@@ -1137,7 +1136,8 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) ===
+        "End Test"
       ) {
         break;
       }
@@ -1267,7 +1267,8 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) ===
+        "End Test"
       ) {
         break;
       }
@@ -1398,10 +1399,11 @@ export default class wj5TestPage {
         );
       }
 
-      await this.plainNextButtonOrEndButton.click();
+      await this.plainNextButtonOrEndButton.first().click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) ===
+        "End Test"
       ) {
         break;
       }
@@ -1532,10 +1534,11 @@ export default class wj5TestPage {
         );
       }
 
-      await this.plainNextButtonOrEndButton.click();
+      await this.plainNextButtonOrEndButton.first().click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) ===
+        "End Test"
       ) {
         break;
       }
@@ -1665,7 +1668,8 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) ===
+        "End Test"
       ) {
         break;
       }
@@ -1813,7 +1817,8 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) ===
+        "End Test"
       ) {
         break;
       }
@@ -1945,6 +1950,7 @@ export default class wj5TestPage {
         );
       }
 
+      await this.plainNextButtonOrEndButton.first().click();
       await this.plainNextButtonOrEndButton.first().click();
 
       if (
@@ -2090,7 +2096,8 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) ===
+        "End Test"
       ) {
         break;
       }
@@ -2262,24 +2269,29 @@ export default class wj5TestPage {
         );
       }
 
+      const button1Text: string = await this.plainNextButtonOrEndButton
+        .first()
+        .textContent();
+      const button2Text: string = await this.plainNextButtonOrEndButton
+        .last()
+        .textContent();
+
       if (stemForm.includes("WRTSMP.W5PA")) {
         if (!(lastItem === 15)) {
           await this.plainNextButtonOrEndButton.click();
         }
 
         if (
-          (await this.plainNextButtonOrEndButton.textContent()) ===
-            "End Test" &&
-          !itemDetails.match(/^Item (9|1[0]|1[4-5])\b/)
+          button1Text === "End Test" ||
+          (button2Text === "Begin Next Test" &&
+            !itemDetails.match(/^Item (9|1[0]|1[4-5])\b/))
         ) {
           break;
         }
       } else {
         await this.plainNextButtonOrEndButton.click();
 
-        if (
-          (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
-        ) {
+        if (button1Text === "End Test") {
           break;
         }
       }
@@ -2410,7 +2422,8 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) ===
+        "End Test"
       ) {
         break;
       }
@@ -2540,7 +2553,8 @@ export default class wj5TestPage {
       await this.plainNextButtonOrEndButton.click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) ===
+        "End Test"
       ) {
         break;
       }
@@ -2671,10 +2685,11 @@ export default class wj5TestPage {
         );
       }
 
-      await this.plainNextButtonOrEndButton.click();
+      await this.plainNextButtonOrEndButton.first().click();
 
       if (
-        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) ===
+        "End Test"
       ) {
         break;
       }
@@ -2745,8 +2760,15 @@ export default class wj5TestPage {
 
     // const excelFileData = await this.utils.getExcelSheetData(normTableFilePath);
 
-    if(examineeID == "" || examineeID == undefined || examineeID == null || examineeID.includes("No examinees meet the criteria specified.")){
-      throw new Error("The Examinee ID assertion failed, probable cause the Report could be empty.");
+    if (
+      examineeID == "" ||
+      examineeID == undefined ||
+      examineeID == null ||
+      examineeID.includes("No examinees meet the criteria specified.")
+    ) {
+      throw new Error(
+        "The Examinee ID assertion failed, probable cause the Report could be empty.",
+      );
     }
 
     const txtData = txtFileContent[testStemForm];

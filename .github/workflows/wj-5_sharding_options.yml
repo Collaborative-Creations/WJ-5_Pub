@@ -1,0 +1,425 @@
+name: Playwright Sharded Tests Options
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Test environment (stage/qa)"
+        required: true
+        default: "stage"
+      test_pattern:
+        description: "Test pattern (e.g., @smoke, (?=.*@testDe)(?=.*@smoke))"
+        required: true
+        default: "@smoke"
+      shard_count:
+        description: "Number of shards"
+        required: true
+        default: "5"
+        type: choice
+        options:
+          - "1"
+          - "2"
+          - "4"
+          - "6"
+          - "8"
+          - "10"
+      browser:
+        description: "Browser to run tests on"
+        required: true
+        default: "chrome"
+        type: choice
+        options:
+          - "chrome"
+          - "firefox"
+          - "webkit"
+
+env:
+  TEST_ENV: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'stage' }}
+  NUM_RETRIES: 2
+  SLOW_MODE_DELAY_IN_MS: 0
+  CI: "true"
+  PLAYWRIGHT_WORKERS: 1
+  NODE_VERSION: "20"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          case ${{ github.event.inputs.shard_count }} in
+            "1")
+              echo "matrix={\"shard\":[1]}" >> $GITHUB_OUTPUT
+              ;;
+            "2")
+              echo "matrix={\"shard\":[1,2]}" >> $GITHUB_OUTPUT
+              ;;
+            "4")
+              echo "matrix={\"shard\":[1,2,3,4]}" >> $GITHUB_OUTPUT
+              ;;
+            "6")
+              echo "matrix={\"shard\":[1,2,3,4,5,6]}" >> $GITHUB_OUTPUT
+              ;;
+            "8")
+              echo "matrix={\"shard\":[1,2,3,4,5,6,7,8]}" >> $GITHUB_OUTPUT
+              ;;
+            "10")
+              echo "matrix={\"shard\":[1,2,3,4,5,6,7,8,9,10]}" >> $GITHUB_OUTPUT
+              ;;
+            *)
+              echo "matrix={\"shard\":[1]}" >> $GITHUB_OUTPUT
+              ;;
+          esac
+
+  test:
+    needs: prepare
+    name: "Shard ${{ matrix.shard }}"
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.49.1-noble
+
+    strategy:
+      fail-fast: false
+      matrix: ${{fromJson(needs.prepare.outputs.matrix)}}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npx playwright install-deps
+
+      - name: Install Playwright browsers
+        run: npx playwright install ${{ inputs.browser }}
+
+      - name: Run Playwright tests
+        id: run_tests
+        continue-on-error: true
+        env:
+          SHARD_COUNT: ${{ github.event.inputs.shard_count }}
+          SHARD_NUMBER: ${{ matrix.shard }}
+          CI: "true"
+        run: |
+          echo "Running shard ${{ matrix.shard }} of ${{ github.event.inputs.shard_count }}"
+
+          npx cross-env test=${{ env.TEST_ENV }} npx playwright test \
+            --grep "${{ github.event.inputs.test_pattern }}" \
+            --project=${{ github.event.inputs.browser }} \
+            --shard=${{ matrix.shard }}/${{ github.event.inputs.shard_count }} \
+            --workers=1 \
+            --retries=${{ env.NUM_RETRIES }}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-shard-${{ matrix.shard }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 30
+
+      - name: Create status file
+        if: always()
+        run: |
+          mkdir -p test-status
+          echo "${{ steps.run_tests.outcome }}" > test-status/status.txt
+          echo "Shard: ${{ matrix.shard }}" >> test-status/status.txt
+          echo "Environment: ${{ github.event.inputs.environment }}" >> test-status/status.txt
+          echo "Browser: ${{ github.event.inputs.browser }}" >> test-status/status.txt
+          echo "Test Pattern: ${{ github.event.inputs.test_pattern }}" >> test-status/status.txt
+
+      - name: Upload status
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-status-shard-${{ matrix.shard }}
+          path: test-status/
+          retention-days: 30
+
+  merge-reports:
+    name: Merge Reports
+    if: always()
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-artifacts
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Create merged report directory
+        run: |
+          mkdir -p merged-report
+          current_date=$(date +%Y-%m-%d_%H-%M-%S)
+
+          cat << EOF > merged-report/index.html
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Playwright Test Reports</title>
+            <style>
+              :root {
+                --primary-color: #0366d6;
+                --success-color: #28a745;
+                --failure-color: #dc3545;
+                --neutral-color: #6c757d;
+              }
+              
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+                line-height: 1.6;
+                margin: 0;
+                padding: 20px;
+                background: #f8f9fa;
+                color: #24292e;
+              }
+              
+              .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                background: white;
+                padding: 2rem;
+                border-radius: 10px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+              }
+              
+              h1 {
+                color: var(--primary-color);
+                border-bottom: 2px solid #eaecef;
+                padding-bottom: 0.5rem;
+                margin-bottom: 1.5rem;
+              }
+              
+              .meta-info {
+                background: #f6f8fa;
+                padding: 1rem;
+                border-radius: 6px;
+                margin: 1rem 0;
+                border: 1px solid #eaecef;
+              }
+              
+              .meta-info p {
+                margin: 0.5rem 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              }
+              
+              .meta-info strong {
+                color: var(--neutral-color);
+              }
+              
+              .report-container {
+                margin: 2rem 0;
+              }
+              
+              .report-wrapper {
+                margin: 1rem 0;
+                position: relative;
+              }
+              
+              .report-link {
+                display: block;
+                padding: 1rem;
+                background: white;
+                border: 1px solid #e1e4e8;
+                border-radius: 6px;
+                text-decoration: none;
+                color: var(--primary-color);
+                position: relative;
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+              }
+              
+              .report-link:hover {
+                border-color: var(--primary-color);
+                background: #f6f8fa;
+              }
+              
+              .expand-btn {
+                background: none;
+                border: none;
+                cursor: pointer;
+                font-size: 1.2rem;
+                transition: transform 0.3s ease;
+                padding: 0.5rem;
+              }
+              
+              .expand-btn.active {
+                transform: rotate(90deg);
+              }
+              
+              .report-details {
+                display: none;
+                margin-top: 0.5rem;
+                border: 1px solid #e1e4e8;
+                border-radius: 0 0 6px 6px;
+                overflow: hidden;
+              }
+              
+              .report-details.show {
+                display: block;
+              }
+              
+              .report-details iframe {
+                width: 100%;
+                height: 600px;
+                border: none;
+              }
+              
+              .status-badge {
+                padding: 0.25rem 0.75rem;
+                border-radius: 2rem;
+                font-size: 0.875rem;
+                font-weight: 500;
+                text-transform: uppercase;
+              }
+              
+              .status-success {
+                background: #e6ffed;
+                color: var(--success-color);
+              }
+              
+              .status-failure {
+                background: #ffeef0;
+                color: var(--failure-color);
+              }
+              
+              .status-neutral {
+                background: #f6f8fa;
+                color: var(--neutral-color);
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>Playwright Test Reports</h1>
+              <div class="meta-info">
+                <p><strong>Environment:</strong> ${{ inputs.environment }}</p>
+                <p><strong>Browser:</strong> ${{ inputs.browser }}</p>
+                <p><strong>Test Pattern:</strong> ${{ inputs.test_pattern }}</p>
+                <p><strong>Total Shards:</strong> ${{ inputs.shard_count }}</p>
+                <p><strong>Last Updated:</strong> $current_date</p>
+              </div>
+              <div class="report-container">
+          EOF
+
+          # Process each shard's report
+          for ((i=1; i<=${{ inputs.shard_count }}; i++)); do
+            report_source="all-artifacts/playwright-report-shard-$i"
+            status_file="all-artifacts/test-status-shard-$i/status.txt"
+            
+            if [ -d "$report_source" ]; then
+              mkdir -p "merged-report/shard-$i"
+              cp -r "$report_source"/* "merged-report/shard-$i/"
+              
+              status="N/A"
+              status_class="status-neutral"
+              if [ -f "$status_file" ]; then
+                status=$(head -n 1 "$status_file")
+                if [ "$status" = "success" ]; then
+                  status_class="status-success"
+                else
+                  status_class="status-failure"
+                fi
+              fi
+              
+              echo "
+              <div class='report-wrapper'>
+                <div class='report-link'>
+                  <span>Shard $i Report</span>
+                  <div>
+                    <span class='status-badge ${status_class}'>$status</span>
+                    <button class='expand-btn' data-shard='$i'>➤</button>
+                  </div>
+                </div>
+                <div class='report-details' id='shard-$i-details'>
+                  <iframe src='./shard-$i/playwright-report/index.html'></iframe>
+                </div>
+              </div>" >> merged-report/index.html
+            fi
+          done
+
+          # Add JavaScript for interactivity
+          echo "
+          <script>
+            document.querySelectorAll('.report-link').forEach(link => {
+              link.addEventListener('click', (e) => {
+                const shardNum = e.currentTarget.querySelector('.expand-btn').dataset.shard;
+                const detailsContainer = document.getElementById('shard-' + shardNum + '-details');
+                const expandBtn = e.currentTarget.querySelector('.expand-btn');
+                
+                // If clicked on the expand button
+                if (e.target.classList.contains('expand-btn')) {
+                  detailsContainer.classList.toggle('show');
+                  expandBtn.classList.toggle('active');
+                } 
+                // If clicked on the main link, navigate to the report
+                else if (!e.target.classList.contains('expand-btn')) {
+                  window.open('./shard-' + shardNum + '/playwright-report/index.html', '_blank');
+                }
+              });
+            });
+          </script>
+          </div></div></body></html>" >> merged-report/index.html
+
+      - name: Upload merged report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: merged-playwright-report
+          path: merged-report/
+          retention-days: 30
+
+  deploy-report:
+    name: Deploy Report to GitHub Pages
+    if: always()
+    needs: merge-reports
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download merged report
+        uses: actions/download-artifact@v4
+        with:
+          name: merged-playwright-report
+          path: merged-report
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: merged-report
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -8,7 +8,8 @@ export default defineConfig({
   // globalTimeout: 60 * 60 * 1000,
   timeout: 10 * 60 * 1000,
   reporter: process.env.CI === "true"
-  ? [
+  ? [ 
+      ["line"],
       ["blob"], 
       ["html", { 
         outputFolder: 'playwright-report',  // Fixed folder name for CI
@@ -32,7 +33,7 @@ export default defineConfig({
     ignoreHTTPSErrors: true,
     screenshot: "only-on-failure",
     video: "on-first-retry",
-    trace: process.env.CI === "true" ? "retain-on-failure" : "on",
+    trace: process.env.CI === "true" ? "retain-on-first-failure" : "on",
     headless: true,
     launchOptions: {
       logger: {

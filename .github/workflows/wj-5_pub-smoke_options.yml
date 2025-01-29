@@ -1,0 +1,426 @@
+name: WJ-V Pub Smoke options
+
+on:
+  # Keep existing triggers
+  # pull_request:
+  #   branches: [main, master]
+  # push:
+  #   branches: [ main ]
+  # schedule:
+  #   - cron: "0 3 * * *"
+  # Add workflow_dispatch for manual triggers with options
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Test environment"
+        required: true
+        type: choice
+        default: "stage"
+        options:
+          - "stage"
+          - "qa"
+          - "prod"
+      test_group_1:
+        description: "First test group"
+        required: false
+        type: choice
+        options:
+          - "none"
+          - "derivedScores"
+          - "testDe"
+          - "singleTable"
+      test_group_2:
+        description: "Second test group"
+        required: false
+        type: choice
+        options:
+          - "none"
+          - "derivedScores"
+          - "testDe"
+          - "singleTable"
+      test_group_3:
+        description: "Third test group"
+        required: false
+        type: choice
+        options:
+          - "none"
+          - "derivedScores"
+          - "testDe"
+          - "singleTable"
+
+env:
+  TEST_ENV: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'stage' }}
+  NUM_RETRIES: 2
+  SLOW_MODE_DELAY_IN_MS: 100
+  CI: "true"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  prepare-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      test-groups: ${{ steps.set-matrix.outputs.test-groups }}
+    steps:
+      - id: set-matrix
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # For manual triggers, build array from selected options
+            GROUPS=()
+            if [ "${{ inputs.test_group_1 }}" != "none" ]; then
+              GROUPS+=("\"${{ inputs.test_group_1 }}\"")
+            fi
+            if [ "${{ inputs.test_group_2 }}" != "none" ]; then
+              GROUPS+=("\"${{ inputs.test_group_2 }}\"")
+            fi
+            if [ "${{ inputs.test_group_3 }}" != "none" ]; then
+              GROUPS+=("\"${{ inputs.test_group_3 }}\"")
+            fi
+            
+            # If no groups selected, use default groups
+            if [ ${#GROUPS[@]} -eq 0 ]; then
+              echo "test-groups=[\"derivedScores\",\"testDe\",\"singleTable\"]" >> $GITHUB_OUTPUT
+            else
+              echo "test-groups=[${GROUPS[*]}]" >> $GITHUB_OUTPUT
+            fi
+          else
+            # For automated triggers, use all groups
+            echo "test-groups=[\"derivedScores\",\"testDe\",\"singleTable\"]" >> $GITHUB_OUTPUT
+          fi
+
+  test:
+    needs: prepare-matrix
+    name: Run Playwright Tests (${{ matrix.test-group }})
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.44.1-focal
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        test-group: ${{ fromJson(needs.prepare-matrix.outputs.test-groups) }}
+        include:
+          - test-group: "derivedScores"
+            grep-pattern: "(?=.*@derivedScores)(?=.*@smoke)"
+          - test-group: "testDe"
+            grep-pattern: "(?=.*@testDe)(?=.*@smoke)"
+          - test-group: "singleTable"
+            grep-pattern: "(?=.*@singleTable)(?=.*@smoke)"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright
+        run: npx playwright install chrome
+
+      - name: Run Playwright tests
+        id: run_tests
+        continue-on-error: true
+        run: |
+          export PLAYWRIGHT_WORKERS=1
+          npx cross-env test=${{ env.TEST_ENV }} npx playwright test \
+            --grep "${{ matrix.grep-pattern }}" \
+            --project=chrome \
+            --workers=1
+
+      - name: Upload test results
+        if: always() # Upload results whether tests pass or fail
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.test-group }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 30
+
+      - name: Create status file
+        if: always()
+        run: |
+          mkdir -p test-status
+          echo "${{ steps.run_tests.outcome }}" > test-status/status.txt
+
+      - name: Upload status
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-status-${{ matrix.test-group }}
+          path: test-status/
+          retention-days: 30
+
+  merge-reports:
+    name: Merge Reports
+    if: always()
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-artifacts
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Create merged report directory
+        run: |
+          mkdir -p merged-report
+          current_date=$(date +%Y-%m-%d_%H-%M-%S)
+
+          cat << EOF > merged-report/index.html
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Playwright Test Reports</title>
+            <style>
+              :root {
+                --primary-color: #0366d6;
+                --success-color: #28a745;
+                --failure-color: #dc3545;
+                --neutral-color: #6c757d;
+              }
+              
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+                line-height: 1.6;
+                margin: 0;
+                padding: 20px;
+                background: #f8f9fa;
+                color: #24292e;
+              }
+              
+              .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                background: white;
+                padding: 2rem;
+                border-radius: 10px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+              }
+              
+              h1 {
+                color: var(--primary-color);
+                border-bottom: 2px solid #eaecef;
+                padding-bottom: 0.5rem;
+                margin-bottom: 1.5rem;
+              }
+              
+              .meta-info {
+                background: #f6f8fa;
+                padding: 1rem;
+                border-radius: 6px;
+                margin: 1rem 0;
+                border: 1px solid #eaecef;
+              }
+              
+              .meta-info p {
+                margin: 0.5rem 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              }
+              
+              .meta-info strong {
+                color: var(--neutral-color);
+              }
+              
+              .report-container {
+                margin: 2rem 0;
+              }
+              
+              .report-wrapper {
+                margin: 1rem 0;
+                position: relative;
+              }
+              
+              .report-link {
+                display: block;
+                padding: 1rem;
+                background: white;
+                border: 1px solid #e1e4e8;
+                border-radius: 6px;
+                text-decoration: none;
+                color: var(--primary-color);
+                position: relative;
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+              }
+              
+              .report-link:hover {
+                border-color: var(--primary-color);
+                background: #f6f8fa;
+              }
+              
+              .expand-btn {
+                background: none;
+                border: none;
+                cursor: pointer;
+                font-size: 1.2rem;
+                transition: transform 0.3s ease;
+                padding: 0.5rem;
+              }
+              
+              .expand-btn.active {
+                transform: rotate(90deg);
+              }
+              
+              .report-details {
+                display: none;
+                margin-top: 0.5rem;
+                border: 1px solid #e1e4e8;
+                border-radius: 0 0 6px 6px;
+                overflow: hidden;
+              }
+              
+              .report-details.show {
+                display: block;
+              }
+              
+              .report-details iframe {
+                width: 100%;
+                height: 600px;
+                border: none;
+              }
+              
+              .status-badge {
+                padding: 0.25rem 0.75rem;
+                border-radius: 2rem;
+                font-size: 0.875rem;
+                font-weight: 500;
+                text-transform: uppercase;
+              }
+              
+              .status-success {
+                background: #e6ffed;
+                color: var(--success-color);
+              }
+              
+              .status-failure {
+                background: #ffeef0;
+                color: var(--failure-color);
+              }
+              
+              .status-neutral {
+                background: #f6f8fa;
+                color: var(--neutral-color);
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>Playwright Test Reports</h1>
+              <div class="meta-info">
+                <p><strong>Environment:</strong> ${{ env.TEST_ENV }}</p>
+                <p><strong>Total Test Groups:</strong> 3</p>
+                <p><strong>Last Updated:</strong> $current_date</p>
+              </div>
+              <div class="report-container">
+          EOF
+
+          # Process each report directory
+          for test_group in "derivedScores" "testDe" "singleTable"; do
+            report_source="all-artifacts/playwright-report-$test_group"
+            status_file="all-artifacts/test-status-$test_group/status.txt"
+            
+            if [ -d "$report_source" ]; then
+              mkdir -p "merged-report/$test_group"
+              cp -r "$report_source"/* "merged-report/$test_group/"
+              
+              status="N/A"
+              status_class="status-neutral"
+              if [ -f "$status_file" ]; then
+                status=$(cat "$status_file")
+                if [ "$status" = "success" ]; then
+                  status_class="status-success"
+                else
+                  status_class="status-failure"
+                fi
+              fi
+              
+              echo "
+              <div class='report-wrapper'>
+                <div class='report-link'>
+                  <span>$test_group Test Group</span>
+                  <div>
+                    <span class='status-badge ${status_class}'>$status</span>
+                    <button class='expand-btn' data-group='$test_group'>➤</button>
+                  </div>
+                </div>
+                <div class='report-details' id='$test_group-details'>
+                  <iframe src='./$test_group/playwright-report/index.html'></iframe>
+                </div>
+              </div>" >> merged-report/index.html
+            fi
+          done
+
+          # Add JavaScript for interactivity
+          echo "
+          <script>
+            document.querySelectorAll('.report-link').forEach(link => {
+              link.addEventListener('click', (e) => {
+                const groupName = e.currentTarget.querySelector('.expand-btn').dataset.group;
+                const detailsContainer = document.getElementById(groupName + '-details');
+                const expandBtn = e.currentTarget.querySelector('.expand-btn');
+                
+                if (e.target.classList.contains('expand-btn')) {
+                  detailsContainer.classList.toggle('show');
+                  expandBtn.classList.toggle('active');
+                } 
+                else if (!e.target.classList.contains('expand-btn')) {
+                  window.open('./' + groupName + '/playwright-report/index.html', '_blank');
+                }
+              });
+            });
+          </script>
+          </div></div></body></html>" >> merged-report/index.html
+
+      - name: Upload merged report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: merged-playwright-report
+          path: merged-report/
+          retention-days: 30
+
+  deploy-report:
+    name: Deploy Report to GitHub Pages
+    if: always()
+    needs: merge-reports
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download merged report
+        uses: actions/download-artifact@v4
+        with:
+          name: merged-playwright-report
+          path: merged-report
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: merged-report
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
