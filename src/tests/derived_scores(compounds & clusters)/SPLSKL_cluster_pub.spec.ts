@@ -26,7 +26,7 @@ test.describe(" SPLSKL cluster Derived Export Automation ", () => {
       await setFilePathes(data.lookUpModel);
     });
     test(
-      `For ${data.typeOfTest} Complete The PHGRKN cluster & generate report`,
+      `For ${data.typeOfTest} Complete The SPLSKL cluster & generate report`,
       { tag: ["@SPLSKL", "@reg", "@derivedScores"] },
       async (
         {

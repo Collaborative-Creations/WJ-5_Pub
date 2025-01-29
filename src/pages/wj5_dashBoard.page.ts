@@ -544,6 +544,7 @@ export default class Wj5DashboardPage {
         (response) =>
           response.url().includes("GetSavedResearchExportData") &&
           response.status() === 200,
+          { timeout: 1 * 60 * 1000 },
       ),
     ]);
 

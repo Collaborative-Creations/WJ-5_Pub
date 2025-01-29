@@ -26,7 +26,7 @@ test.describe(" PHNMAN cluster Derived Export Automation ", () => {
       await setFilePathes(data.lookUpModel);
     });
     test(
-      `For ${data.typeOfTest} Complete The PHGRKN cluster & generate report`,
+      `For ${data.typeOfTest} Complete The PHNMAN cluster & generate report`,
       { tag: ["@PHNMAN", "@reg", "@derivedScores"] },
       async (
         {

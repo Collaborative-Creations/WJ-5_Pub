@@ -1861,6 +1861,7 @@ export default class wj5TestPage {
 
     console.log(`Type Of test ${typeOfTest} \n`);
     while (await this.plainNextButtonOrEndButton.isVisible()) {
+      await this.page.waitForTimeout(1500);
       const itemDetails: string = (await this.itemDetails.textContent())!;
       console.log(itemDetails);
       const correctlocator: Locator = this.corectOptionButton.first();
@@ -1944,10 +1945,10 @@ export default class wj5TestPage {
         );
       }
 
-      await this.plainNextButtonOrEndButton.click();
+      await this.plainNextButtonOrEndButton.first().click();
 
       if (
-        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
       ) {
         break;
       }

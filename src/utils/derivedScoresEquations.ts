@@ -438,7 +438,6 @@ export function getStdScore_Computed(): number[] | null {
   stdScoreComputed = 100 + Z_ScoreRaw * 15;
   const _stdScoreComputed = Math.round(stdScoreComputed * 100) / 100;
   return [_stdScoreComputed, stdScoreComputed];
-  return [_stdScoreComputed, stdScoreComputed];
 }
 
 export function getStdScore_Display(StdScore_Computed: number): string {
@@ -684,7 +683,7 @@ export async function getCompositeW_abil(
 
   // return (Number(sumOfWabil.toFixed(2)) / testsStemForm.length).toFixed(2);
   const comp_Wabil = sumOfWabil / testsStemForm.length;
-  return applyRoundToEvenRule(comp_Wabil);
+  return (applyRoundToEvenRule(comp_Wabil)).toFixed(2);
 }
 
 export async function getCompositeSEMW(
@@ -786,6 +785,6 @@ export function applyRoundToEvenRule(value: number): number {
       return (integerPart + 1) / 100;
     }
   } else {
-    return Math.round(shiftedValue) / 100;
+    return shiftedValue / 100;
   }
 }

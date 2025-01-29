@@ -53,7 +53,7 @@ export const testData: TestData[] = [
     testStemForm: ["SNDBLN.W5PA", "SEGMNT.W5PA"],
     taskStem: ["SNDBLN", "SEGMNT"],
     blockName: "Form A",
-    examineeAge: 5,
+    examineeAge: 8,
     examineeGrade: "1.9",
     normBasis: "K12",
     SSP: ["Ages 4 to 6", "Ages 4 to 5"],

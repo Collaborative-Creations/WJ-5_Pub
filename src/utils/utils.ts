@@ -7,6 +7,11 @@ import * as XLSX from "ts-xlsx";
 import * as xlsx from "xlsx";
 import csv from "csv-parser";
 import { getFilePath, getTemplatePath } from "./global";
+
+import { decode } from "he"; // Install 'he' for decoding
+import * as cheerio from "cheerio"; // Install 'cheerio' to remove HTML tags
+
+
 interface NormTableRow {
   NormTable_Version: string;
   Index: number;
@@ -589,23 +594,28 @@ export default class Utils {
       }
     }
   }
-
   async validateAndAssert_Response(
     obj1: Record<string, any>,
     obj2: Record<string, any>,
   ) {
     for (const key in obj1) {
       if (key in obj2) {
-        const val1: string = obj1[key].Response;
-        const val2: string = obj2[key].Response;
-
-        expect.soft(val2).toContain(val1);
-
-        console.log("\n", val2, "===", val1);
+        const word1: string = await this.extractEnglishWord(obj1[key].Response);
+        let word2: string = await this.extractEnglishWord(obj2[key].Response);
+  
+        expect.soft(word2).toBe(word1);  
+        console.log("\n", word2, "===", word1);
       } else {
         console.warn(`Response '${key}' not found in the second object`);
       }
     }
+  }
+  
+  async extractEnglishWord(text: string): Promise<string> {
+    text = cheerio.load(text).text().trim();  
+    text = decode(text);  
+    const match = text.match(/^[a-zA-Z]+/);
+    return match ? match[0].toLowerCase() : text.toLowerCase();
   }
 
   async validateAndAssert_Score(

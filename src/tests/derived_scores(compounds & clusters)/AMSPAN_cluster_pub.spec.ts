@@ -26,7 +26,7 @@ test.describe(" AMSPAN cluster Derived Export Automation ", () => {
       await setFilePathes(data.lookUpModel);
     });
     test(
-      `For ${data.typeOfTest} Complete The PHGRKN cluster & generate report`,
+      `For ${data.typeOfTest} Complete The AMSPAN cluster & generate report`,
       { tag: ["@AMSPAN", "@reg", "@derivedScores"] },
       async (
         {
