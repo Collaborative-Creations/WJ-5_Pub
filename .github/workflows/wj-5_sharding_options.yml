@@ -120,7 +120,7 @@ jobs:
           echo "Running shard ${{ matrix.shard }} of ${{ github.event.inputs.shard_count }}"
 
           npx cross-env test=${{ env.TEST_ENV }} npx playwright test \
-            --grep --% "${{ github.event.inputs.test_pattern }}" \
+            --grep '${{ github.event.inputs.test_pattern }}' \
             --project=${{ github.event.inputs.browser }} \
             --shard=${{ matrix.shard }}/${{ github.event.inputs.shard_count }} \
             --workers=1 \
