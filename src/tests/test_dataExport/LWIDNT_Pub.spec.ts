@@ -12,6 +12,14 @@ interface TestRunTimeData {
     Score: number;
   };
 }
+
+interface ExamineeData {
+  examinee_ID: string;
+  dateOfBirth: string;
+}
+
+let pRetry;
+
 let txtFileContent: { [key: string]: { [key: string]: string } };
 
 test.describe.configure({ mode: "default" });
@@ -20,6 +28,7 @@ let score: TestRunTimeData;
 test.describe("LWIDNT.W5PA Test Data Export Automation ", () => {
   testData.forEach((data) => {
     test.beforeAll(async () => {
+      pRetry = (await import("p-retry")).default;
       await setFilePathes(data.lookUpModel);
     });
     test(
@@ -36,23 +45,42 @@ test.describe("LWIDNT.W5PA Test Data Export Automation ", () => {
           wj5examinerUtils,
           browser,
         },
-        testInfo
+        testInfo,
       ) => {
         test.setTimeout(8 * 60 * 1000);
 
-        await wj5examiner.gotoUrl(getSiteUrl() + "home");
-        const { examinee_ID, dateOfBirth } =
-          await wj5ExaminerDashPage.addNewExamineeAndUpdateTheTemplate(
-            getSiteUrl(),
-            data.examineeAge,
-            data.location,
-            data.testStemForm
-          );
-        await wj5ExaminerDashPage.createTestAssignmentFromExamineeManagement(
-          data.blockName,
-          examinee_ID,
-          data.examineeGrade
+        const examineeData = await pRetry(
+          async (): Promise<ExamineeData> => {
+            await wj5examiner.gotoUrl(getSiteUrl() + "home");
+            const result =
+              await wj5ExaminerDashPage.addNewExamineeAndUpdateTheTemplate(
+                getSiteUrl(),
+                data.examineeAge,
+                data.location,
+                data.testStemForm,
+              );
+            await wj5ExaminerDashPage.createTestAssignmentFromExamineeManagement(
+              data.blockName,
+              result.examinee_ID,
+              data.examineeGrade,
+            );
+
+            return result;
+          },
+          {
+            retries: 2,
+            onFailedAttempt: (error) => {
+              console.warn(
+                `Attempt ${error.attemptNumber} for adding and assigning test to an examinee has failed. ${error.retriesLeft} retries left.`,
+                error.message,
+              );
+            },
+            minTimeout: 2000,
+            maxTimeout: 5000,
+          },
         );
+
+        const { examinee_ID, dateOfBirth } = examineeData;
 
         const ipad7 = devices["iPad (gen 7) landscape"];
         const sessionid = await wj5ExaminerDashPage.getSessionID();
@@ -65,17 +93,17 @@ test.describe("LWIDNT.W5PA Test Data Export Automation ", () => {
         await wj5examinerTestPage.pickTheTestNeeded(data.testName);
         await wj5examinerTestPage.clickOnLetsBeginButtonAndStartTest(
           data.testName,
-          data.SSP
+          data.SSP,
         );
 
         score =
           await wj5examinerTest_dataExportPage.completeTheTakenTestForTestDataExportForLWIDNTTest(
             data.typeOfTest,
-            wj5examineepage
+            wj5examineepage,
           );
         if (
           data.typeOfTest.match(
-            /SampleItems (correct|incorrect)|Answer (correct|incorrect) But No Basel|Attain Basel but not ceiling/i
+            /SampleItems (correct|incorrect)|Answer (correct|incorrect) But No Basel|Attain Basel but not ceiling/i,
           )
         ) {
           await wj5examinerTestPage.breakTheLogicOut();
@@ -90,40 +118,55 @@ test.describe("LWIDNT.W5PA Test Data Export Automation ", () => {
         await wj5AhDashPage.welcomeTextToBeVisable();
         if (
           data.typeOfTest.match(
-            /SampleItems (correct|incorrect)|Answer (correct|incorrect) But No Basel|Attain Basel but not ceiling/i
+            /SampleItems (correct|incorrect)|Answer (correct|incorrect) But No Basel|Attain Basel but not ceiling/i,
           )
         ) {
           await wj5AhDashPage.forceSubmitExamineeTest(examinee_ID);
         }
 
-        // await wj5AhDashPage.setTheDownloadAndFilePaths(); // Need to develop s/t when we pass aparam in scenario it should set the file names at global level
+        await pRetry(
+          async () => {
+            await wj5ah.gotoUrl(getSiteUrl() + "home");
+            await wj5AhDashPage.welcomeTextToBeVisable();
+            await wj5AhDashPage.uploadExportTemplete(data.lookUpModel);
+            await wj5AhDashPage.clickOnTheResportToDownload(testInfo);
+            await wj5AhDashPage.extractTheDownloadedZipFile();
+            const requiredFileName =
+              await wj5AhDashPage.printAllThedatafromTheFileRequired(
+                data.testStemForm,
+                "testDataExports",
+              );
 
-        await wj5AhDashPage.uploadExportTemplete(data.lookUpModel);
-        await wj5AhDashPage.clickOnTheResportToDownload(testInfo);
-        await wj5AhDashPage.extractTheDownloadedZipFile();
-        const requiredFileName =
-          await wj5AhDashPage.printAllThedatafromTheFileRequired(
-            data.testStemForm,
-            "testDataExports"
-          );
+            console.log(`requiredFileName`, requiredFileName);
 
-        console.log(`requiredFileName`, requiredFileName);
-
-        txtFileContent =
-          await wj5examinerUtils.readAllTxtContentFromTestDataExport(
-            requiredFileName
-          );
-        console.log(`returnValues = `, txtFileContent);
-        await wj5examinerTest_dataExportPage.validateTheDownloadedReportWithRunTimeData(
-          requiredFileName,
-          txtFileContent,
-          examinee_ID,
-          dateOfBirth,
-          score,
-          data.testStemForm,
-          data.testSchemaFileName
+            txtFileContent =
+              await wj5examinerUtils.readAllTxtContentFromTestDataExport(
+                requiredFileName,
+              );
+            console.log(`returnValues = `, txtFileContent);
+            await wj5examinerTest_dataExportPage.validateTheDownloadedReportWithRunTimeData(
+              requiredFileName,
+              txtFileContent,
+              examinee_ID,
+              dateOfBirth,
+              score,
+              data.testStemForm,
+              data.testSchemaFileName,
+            );
+          },
+          {
+            retries: 2,
+            onFailedAttempt: (error) => {
+              console.warn(
+                `Attempt ${error.attemptNumber} for fetching the report failed. ${error.retriesLeft} retries left.`,
+                error.message,
+              );
+            },
+            minTimeout: 2000,
+            maxTimeout: 5000,
+          },
         );
-      }
+      },
     );
   });
 });

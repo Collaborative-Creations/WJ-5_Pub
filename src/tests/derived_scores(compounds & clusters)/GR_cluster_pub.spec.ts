@@ -26,7 +26,7 @@ test.describe(" GR cluster Derived Export Automation ", () => {
       await setFilePathes(data.lookUpModel);
     });
     test(
-      `For ${data.typeOfTest} Complete The PHGRKN cluster & generate report`,
+      `For ${data.typeOfTest} Complete The GR cluster & generate report`,
       { tag: ["@GR", "@reg", "@derivedScores"] },
       async (
         {
