@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Page, Locator, expect } from "../base/basePageFixtures";
 import fs from "fs";
 import path from "path";
@@ -601,7 +602,7 @@ export default class Utils {
     for (const key in obj1) {
       if (key in obj2) {
         const word1: string = await this.extractEnglishWord(obj1[key].Response);
-        let word2: string = await this.extractEnglishWord(obj2[key].Response);
+        const word2: string = await this.extractEnglishWord(obj2[key].Response);
   
         expect.soft(word2).toBe(word1);  
         console.log("\n", word2, "===", word1);
@@ -697,182 +698,11 @@ export default class Utils {
     return output;
   }
 
-  // async extractUniqueAlphabetsOfBlocks(
-  //   map: Map<string, string | number>,
-  //   stemForm: string,
-  // ): Promise<string> {
-  //   let result = new Set<string>();
-
-  //   if (stemForm.match("MATRCZ.W5PA")) {
-  //     for (let [key, value] of map.entries()) {
-  //       if (value === "1" || value === "0") {
-  //         const match = (key as string).match(/Block\s([A-G])/);
-  //         if (match) {
-  //           result.add(match[1]);
-  //         }
-  //       }
-  //     }
-  //     return Array.from(result).join("");
-  //   } else if (stemForm.match("ANLSYN.W5PA")) {
-  //     const ranges = [
-  //       { range: [1, 7], result: "A" },
-  //       { range: [8, 19], result: "AB" },
-  //       { range: [20, 25], result: "ABC" },
-  //       { range: [26, 31], result: "ABCD" },
-  //       { range: [32, 35], result: "ABCDE" },
-  //     ];
-
-  //     let lastKeyWithValue = -1;
-
-  //     map.forEach((value, key) => {
-  //       const itemNumber = parseInt(key.replace("Item ", ""), 10);
-  //       if ((value === "0" || value === "1") && !isNaN(itemNumber)) {
-  //         lastKeyWithValue = itemNumber;
-  //       }
-  //     });
-
-  //     if (lastKeyWithValue === -1) {
-  //       return "";
-  //     }
-
-  //     for (const range of ranges) {
-  //       if (
-  //         lastKeyWithValue >= range.range[0] &&
-  //         lastKeyWithValue <= range.range[1]
-  //       ) {
-  //         return range.result;
-  //       }
-  //     }
-
-  //     return "Out of range";
-  //   } else if (stemForm.match("BLKROT.W5PA")) {
-  //     const ranges = [
-  //       { range: [1, 9], result: "A" },
-  //       { range: [10, 28], result: "AB" },
-  //     ];
-
-  //     let lastKeyWithValue = -1;
-
-  //     map.forEach((value, key) => {
-  //       const itemNumber = parseInt(key.replace("Item ", ""), 10);
-  //       if ((value === "0" || value === "1") && !isNaN(itemNumber)) {
-  //         lastKeyWithValue = itemNumber;
-  //       }
-  //     });
-
-  //     if (lastKeyWithValue === -1) {
-  //       return "";
-  //     }
-
-  //     for (const range of ranges) {
-  //       if (
-  //         lastKeyWithValue >= range.range[0] &&
-  //         lastKeyWithValue <= range.range[1]
-  //       ) {
-  //         return range.result;
-  //       }
-  //     }
-
-  //     return "Out of range";
-  //   } else if (stemForm.match("LWIDNT.W5PA")) {
-  //     const ranges = [
-  //       { range: [1, 4], result: "A" },
-  //       { range: [5, 15], result: "AB" },
-  //       { range: [16, 89], result: "ABC" },
-  //     ];
-
-  //     let lastKeyWithValue = -1;
-
-  //     map.forEach((value, key) => {
-  //       const itemNumber = parseInt(key.replace("Item ", ""), 10);
-  //       if ((value === "0" || value === "1") && !isNaN(itemNumber)) {
-  //         lastKeyWithValue = itemNumber;
-  //       }
-  //     });
-
-  //     if (lastKeyWithValue === -1) {
-  //       return "";
-  //     }
-
-  //     for (const range of ranges) {
-  //       if (
-  //         lastKeyWithValue >= range.range[0] &&
-  //         lastKeyWithValue <= range.range[1]
-  //       ) {
-  //         return range.result;
-  //       }
-  //     }
-
-  //     return "Out of range";
-  //   } else if (stemForm.match("PSGCMP.W5PA")) {
-  //     const ranges = [
-  //       { range: [1, 7], result: "A" },
-  //       { range: [8, 38], result: "AB" },
-  //     ];
-
-  //     let lastKeyWithValue = -1;
-
-  //     map.forEach((value, key) => {
-  //       const itemNumber = parseInt(key.replace("Item ", ""), 10);
-  //       if ((value === "0" || value === "1") && !isNaN(itemNumber)) {
-  //         lastKeyWithValue = itemNumber;
-  //       }
-  //     });
-
-  //     if (lastKeyWithValue === -1) {
-  //       return "";
-  //     }
-
-  //     for (const range of ranges) {
-  //       if (
-  //         lastKeyWithValue >= range.range[0] &&
-  //         lastKeyWithValue <= range.range[1]
-  //       ) {
-  //         return range.result;
-  //       }
-  //     }
-
-  //     return "Out of range";
-  //   } else if (stemForm.match("WRDATK.W5PA")) {
-  //     const ranges = [
-  //       { range: [1, 3], result: "A" },
-  //       { range: [4, 10], result: "AB" },
-  //       { range: [11, 62], result: "ABC" },
-  //     ];
-
-  //     let lastKeyWithValue = -1;
-
-  //     map.forEach((value, key) => {
-  //       const itemNumber = parseInt(key.replace("Item ", ""), 10);
-  //       if ((value === "0" || value === "1") && !isNaN(itemNumber)) {
-  //         lastKeyWithValue = itemNumber;
-  //       }
-  //     });
-
-  //     if (lastKeyWithValue === -1) {
-  //       return "";
-  //     }
-
-  //     for (const range of ranges) {
-  //       if (
-  //         lastKeyWithValue >= range.range[0] &&
-  //         lastKeyWithValue <= range.range[1]
-  //       ) {
-  //         return range.result;
-  //       }
-  //     }
-
-  //     return "Out of range";
-  //   } else {
-  //     throw new Error('No matched with the stemform "' + stemForm + '"');
-  //   }
-  // }
-
   async extractUniqueAlphabetsOfBlocks(
     map: Map<string, string | number>,
     stemForm: string,
   ): Promise<string> {
-    let result = new Set<string>();
+    const result = new Set<string>();
 
     const patterns = [
       { regex: /MATRCZ\.W5PA/, ranges: null, blockMatch: /Block\s([A-G])/ },
@@ -1001,7 +831,7 @@ export default class Utils {
     for (const pattern of patterns) {
       if (stemForm.match(pattern.regex)) {
         if (pattern.blockMatch) {
-          for (let [key, value] of map.entries()) {
+          for (const [key, value] of map.entries()) {
             if (value === "2" || value === "1" || value === "0") {
               const match = (key as string).match(pattern.blockMatch);
               if (match) {
