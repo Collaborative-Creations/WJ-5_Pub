@@ -10,7 +10,7 @@ on:
       test_pattern:
         description: "Test pattern (e.g., @smoke, (?=.*@testDe)(?=.*@smoke))"
         required: true
-        default: "@smoke"
+        default: "@smoke or (?=.*@RDGBAS)(?=.*@derivedScores) or (?=.*@derivedScores)(?=.*(@PHNMAN|@RDGBAS))"
       shard_count:
         description: "Number of shards"
         required: true
