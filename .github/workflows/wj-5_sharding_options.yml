@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Test environment (stage/qa)"
+        description: "Test environment (prodCanada/prod/stage/qa)"
         required: true
         default: "stage"
       test_pattern:
-        description: "Test pattern (e.g., @smoke, (?=.*@testDe)(?=.*@smoke))"
+        description: "Test pattern (e.g., @smoke , (?=.*@RDGBAS)(?=.*@derivedScores) , (?=.*@derivedScores)(?=.*(@PHNMAN|@RDGBAS)))"
         required: true
         default: "@smoke or (?=.*@RDGBAS)(?=.*@derivedScores) or (?=.*@derivedScores)(?=.*(@PHNMAN|@RDGBAS))"
       shard_count:

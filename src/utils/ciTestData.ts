@@ -10,7 +10,8 @@ export function getWj5CIUserData(shardNumber: number) {
       { userName: 'S07PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S07PwAut25Ex_01' },
       { userName: 'S08PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S08PwAut25Ex_01' },
       { userName: 'S09PwAut25Ex_02', passWord: 'STest@100', examinerID: 'S09PwAut25Ex_02' },
-      { userName: 'S10PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S10PwAut25Ex_01' }
+      { userName: 'S10PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S10PwAut25Ex_01' },
+      { userName: 'S11PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S11PwAut25Ex_01' }
     ],
     accountHolder: [
       { userName: 'S01PwAut25AH', passWord: 'STest@100' }, // ca
@@ -22,7 +23,8 @@ export function getWj5CIUserData(shardNumber: number) {
       { userName: 'S07PwAut25AH', passWord: 'STest@100' },
       { userName: 'S08PwAut25AH', passWord: 'STest@100' },
       { userName: 'S09PwAut25AH', passWord: 'STest@100' },
-      { userName: 'S10PwAut25AH', passWord: 'STest@100' }
+      { userName: 'S10PwAut25AH', passWord: 'STest@100' },
+      { userName: 'S11PwAut25AH', passWord: 'STest@100' } // stage orgs
     ]
   };  
 
