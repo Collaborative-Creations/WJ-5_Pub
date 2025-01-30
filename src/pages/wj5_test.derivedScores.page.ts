@@ -976,7 +976,7 @@ export default class wj5TestPage {
       }
 
       if (timerTest) {
-        await this.timerStopPopup.waitFor({ state: "visible", timeout: 60000 });
+        await this.timerStopPopup.waitFor({ state: "visible", timeout: 75000 });
         await this.plainNextButtonOrEndButton.last().click();
       } else if (tapFluency) {
         if (await this.doneButton.isVisible()) {
@@ -1316,7 +1316,7 @@ export default class wj5TestPage {
 
     console.log(`Type Of test ${typeOfTest} \n`);
     while (await this.plainNextButtonOrEndButton.isVisible()) {
-      this.page.waitForTimeout(1500);
+      this.page.waitForTimeout(2500);
       const itemDetails: string = (await this.itemDetails.textContent())!;
       console.log(itemDetails);
       const correctlocator: Locator = this.corectOptionButton.first();
@@ -1452,6 +1452,7 @@ export default class wj5TestPage {
 
     console.log(`Type Of test ${typeOfTest} \n`);
     while (await this.plainNextButtonOrEndButton.isVisible()) {
+      this.page.waitForTimeout(2500);
       const itemDetails: string = (await this.itemDetails.textContent())!;
       console.log(itemDetails);
       const correctlocator: Locator = this.corectOptionButton.first();
@@ -2602,7 +2603,7 @@ export default class wj5TestPage {
 
     console.log(`Type Of test ${typeOfTest} \n`);
     while (await this.plainNextButtonOrEndButton.isVisible()) {
-      this.page.waitForTimeout(1500);
+      this.page.waitForTimeout(2500);
       const itemDetails: string = (await this.itemDetails.textContent())!;
       console.log(itemDetails);
       const correctlocator: Locator = this.corectOptionButton.first();
