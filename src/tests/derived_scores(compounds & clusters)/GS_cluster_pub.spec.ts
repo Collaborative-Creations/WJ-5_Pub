@@ -93,8 +93,8 @@ test.describe(" GS cluster Derived Export Automation ", () => {
               );
             },
 
-            minTimeout: 2000,
-            maxTimeout: 5000,
+            minTimeout: 3000,
+            maxTimeout: 10000,
           },
         );
 
@@ -226,8 +226,8 @@ test.describe(" GS cluster Derived Export Automation ", () => {
               );
             },
 
-            minTimeout: 2000,
-            maxTimeout: 5000,
+            minTimeout: 3000,
+            maxTimeout: 10000,
           },
         );
 

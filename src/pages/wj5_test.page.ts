@@ -277,14 +277,9 @@ export default class wj5TestPage {
 
     // if((await this.administrationOverviewPageTestName.textContent()).includes(testName)) return;
 
-    try {
-      if (await this.page.locator(".top-line").isVisible()) {
-        await this.page.locator(".blue-button").getByText("Letʼs Begin").click({timeout: 5000});
-      }      
-    } catch (error) {
-      console.error("Cant click on Let's Begin");
+    if (await this.page.locator(".top-line").isVisible() && this.page.locator(".blue-button").getByText("Letʼs Begin").isVisible()) {
+      await this.page.locator(".blue-button").getByText("Letʼs Begin").click();
     }
-    
     await expect(this.plainNextButtonOrEndButton).toBeVisible();
 
     while (await this.plainNextButtonOrEndButton.isVisible()) {
