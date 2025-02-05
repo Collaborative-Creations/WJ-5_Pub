@@ -10,6 +10,8 @@ export function getSiteUrl() {
       return "https://riversidescore.com/";
     case "prodCanada":
       return "https://ca.riversidescore.com/";
+    case "prodTest":
+      return "https://testrs.riversidescore.com/";
   }
 }
 export function getAdminUrl() {
@@ -37,7 +39,7 @@ export function getExamineeURL() {
     case "prod":
       return "https://riversidescore.com/examinee";
     case "prodTest":
-      return "https://testrs.riversidescore.com/";
+      return "https://testrs.riversidescore.com/examinee/";
     case "prodCanada":
       return "https://ca.riversidescore.com/examinee";
   }
