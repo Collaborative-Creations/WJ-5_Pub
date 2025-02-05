@@ -53,7 +53,7 @@ interface TestData {
       testStemForm: ["SEMRET.W5PA", "PHNRET.W5PA"],
       taskStem: ["SEMRET", "PHNRET"],
       blockName: "Form A",
-      examineeAge: 5,
+      examineeAge: 7,
       examineeGrade: "1.9",
       normBasis: "K12",
       SSP: ["All Examinees", "All Examinees"],

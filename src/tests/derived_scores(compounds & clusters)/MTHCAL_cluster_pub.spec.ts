@@ -83,8 +83,8 @@ test.describe(" MTHCAL cluster Derived Export Automation ", () => {
                 error.message,
               );
             },
-            minTimeout: 2000,
-            maxTimeout: 5000,
+            minTimeout: 3000,
+            maxTimeout: 10000,
           },
         );
 
@@ -210,8 +210,8 @@ test.describe(" MTHCAL cluster Derived Export Automation ", () => {
                 error.message,
               );
             },
-            minTimeout: 2000,
-            maxTimeout: 5000,
+            minTimeout: 3000,
+            maxTimeout: 10000,
           },
         );
 

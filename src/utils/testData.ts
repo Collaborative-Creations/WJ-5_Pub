@@ -8,12 +8,6 @@ export function getSiteUrl() {
       return "https://clinical-uat.rsiapps.com/";
     case "prod":
       return "https://riversidescore.com/";
-    case "qaCanada":
-      return "";
-    case "stageCanada":
-      return "";
-    case "uatCanada":
-      return "";
     case "prodCanada":
       return "https://ca.riversidescore.com/";
   }
@@ -28,12 +22,6 @@ export function getAdminUrl() {
       return "http://clinicaluat.rsiapps.com/";
     case "prod":
       return "https://admin.riversidescore.com";
-    case "qaCanada":
-      return "";
-    case "stageCanada":
-      return "";
-    case "uatCanada":
-      return "";
     case "prodCanada":
       return "http://caadmin.riversidescore.com/";
   }
@@ -57,8 +45,16 @@ export function getExamineeURL() {
 export function getWj5UserData() {
   return {
     examiner: [
-      { userName: 'S01PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S01PwAut25Ex_01' },
-      { userName: 'S02PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S02PwAut25Ex_01' },
+      {
+        userName: "PubExaminer02",
+        passWord: "Test@100",
+        examinerID: `PubExaminer01`,
+      },
+      {
+        userName: "MediumTestsExamiiner",
+        passWord: "Test123!",
+        examinerID: `786`,
+      },
       {
         userName: "MaximumTestsExaminer",
         passWord: "Test123!",
@@ -69,8 +65,8 @@ export function getWj5UserData() {
       { userName: "ProdExaminer01.B74", passWord: "Prod100" },
     ],
     accountHolder: [
-      { userName: 'S01PwAut25AH', passWord: 'STest@100' }, // ca
-      { userName: 'S02PwAut25AH', passWord: 'STest@100' }, // ca
+      { userName: `PublicationsOrg01`, passWord: `Test@100` },
+      { userName: `Stage098`, passWord: `Test123!` },
       { userName: `WjvTestsMedium`, passWord: `Test123!` },
       { userName: `WjvTestsMaximum`, passWord: `Test123!` },
       { userName: `SuperQ23`, passWord: `Tes00` },

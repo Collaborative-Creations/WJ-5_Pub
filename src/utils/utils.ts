@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Page, Locator, expect } from "../base/basePageFixtures";
 import fs from "fs";
 import path from "path";
@@ -8,10 +7,8 @@ import * as XLSX from "ts-xlsx";
 import * as xlsx from "xlsx";
 import csv from "csv-parser";
 import { getFilePath, getTemplatePath } from "./global";
-
-import { decode } from "he"; // Install 'he' for decoding
-import * as cheerio from "cheerio"; // Install 'cheerio' to remove HTML tags
-
+import { decode } from "he";
+import * as cheerio from "cheerio";
 
 interface NormTableRow {
   NormTable_Version: string;
@@ -595,6 +592,7 @@ export default class Utils {
       }
     }
   }
+
   async validateAndAssert_Response(
     obj1: Record<string, any>,
     obj2: Record<string, any>,
@@ -602,8 +600,8 @@ export default class Utils {
     for (const key in obj1) {
       if (key in obj2) {
         const word1: string = await this.extractEnglishWord(obj1[key].Response);
-        const word2: string = await this.extractEnglishWord(obj2[key].Response);
-  
+        let word2: string = await this.extractEnglishWord(obj2[key].Response);
+
         expect.soft(word2).toBe(word1);  
         console.log("\n", word2, "===", word1);
       } else {
@@ -611,7 +609,7 @@ export default class Utils {
       }
     }
   }
-  
+
   async extractEnglishWord(text: string): Promise<string> {
     text = cheerio.load(text).text().trim();  
     text = decode(text);  
@@ -696,13 +694,13 @@ export default class Utils {
       }
     }
     return output;
-  }
+  }  
 
   async extractUniqueAlphabetsOfBlocks(
     map: Map<string, string | number>,
     stemForm: string,
   ): Promise<string> {
-    const result = new Set<string>();
+    let result = new Set<string>();
 
     const patterns = [
       { regex: /MATRCZ\.W5PA/, ranges: null, blockMatch: /Block\s([A-G])/ },
@@ -831,7 +829,7 @@ export default class Utils {
     for (const pattern of patterns) {
       if (stemForm.match(pattern.regex)) {
         if (pattern.blockMatch) {
-          for (const [key, value] of map.entries()) {
+          for (let [key, value] of map.entries()) {
             if (value === "2" || value === "1" || value === "0") {
               const match = (key as string).match(pattern.blockMatch);
               if (match) {
