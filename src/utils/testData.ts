@@ -48,6 +48,8 @@ export function getExamineeURL() {
       return "";
     case "prod":
       return "https://riversidescore.com/examinee";
+    case "prodTest":
+      return "https://testrs.riversidescore.com/";
     case "prodCanada":
       return "https://ca.riversidescore.com/examinee";
   }
