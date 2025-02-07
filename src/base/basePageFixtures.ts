@@ -46,6 +46,14 @@ import wj5OralVocabularyAntonymPage from "../pages/WJV_UI_Regression/wj5_OVANT.p
 import wj5GeneralInfoPage from "../pages/WJV_UI_Regression/wj5_GIWHAT.page";
 import wj5GeneralInfoWHERPage from "../pages/WJV_UI_Regression/wj5_GIWHER.page";
 import wj5NonwordRepetitionPage from "../pages/WJV_UI_Regression/wj5_NWDREP.page";
+import wj5VrbanlPage from "../pages/WJV_UI_Regression/wj5_VRBANL.page";
+import wj5StycmpPage from "../pages/WJV_UI_Regression/wj5_STYCMP.page";
+import wj5WrdgflPage from "../pages/WJV_UI_Regression/wj5_WRDGFL.page";
+import wj5MatrczPage from "../pages/WJV_UI_Regression/wj5_MATRCZ.page";
+import WJ5_ScoreReportPage from "../pages/wj5_scoreReports.page";
+
+import { getUserAuthFilePath } from "../utils/auth/UserAuthentication";
+import { registerUserForTokenRefresh, startTokenRefreshLoop } from "../utils/auth/TokenRefreshManager";
 
 
 type Fixtures = {
@@ -102,7 +110,11 @@ type Fixtures = {
   wj5examinerTest_GIWHATPage: wj5GeneralInfoPage;
   wj5examinerTest_GIWHERPage: wj5GeneralInfoWHERPage;
   wj5examinerTest_NWDREPPage: wj5NonwordRepetitionPage;
-
+  wj5examinerTest_vrbanlPage: wj5VrbanlPage;
+  wj5examinerTest_stycmpPage: wj5StycmpPage;
+  wj5examinerTest_wrdgflPage: wj5WrdgflPage;
+  wj5examinerTest_matrczPage: wj5MatrczPage;
+  wj5Test_ScoreReportsPage: WJ5_ScoreReportPage;
 };
 
 let wj5ahNewPage: Page;
@@ -116,27 +128,39 @@ export const test = base.extend<Fixtures>({
   },
 
   wj5ah: async ({ browser }, use) => {
-    const context = await browser.newContext({
-      storageState: "src/.auth/ah.json",
-    });
-    wj5ahNewPage = await context.newPage();
-    const wj5ah = new Wj5LoginPage(wj5ahNewPage);
-    await use(wj5ah);
-    await context.close();
+      try {
+        const authFilePath = getUserAuthFilePath("accountHolder");
+        const context = await browser.newContext({
+          storageState: authFilePath,
+        });
+        wj5ahNewPage = await context.newPage();
+        const wj5ah = new Wj5LoginPage(wj5ahNewPage);
+
+        // Register user and start refresh loop only once per shard
+        // registerUserForTokenRefresh(authFilePath);
+        // startTokenRefreshLoop();
+        await use(wj5ah);
+        await context.close();
+      } catch (error) {
+        console.error(`Error creating new wj5ah page: ${error}`);
+      }
   },
 
   wj5examiner: async ({ browser }, use) => {
-    const context = await browser.newContext({
-      // storageState: "src/.auth/examiner.json",
-      storageState: "src/.auth/examiner.json",
-    });
-    await context.grantPermissions(["microphone"]);
-    wj5examinerNewPage = await context.newPage();
-
-    const wj5examiner = new Wj5LoginPage(wj5examinerNewPage);
-
-    await use(wj5examiner);
-    await context.close();
+      try {
+        const authFilePath = getUserAuthFilePath("examiner");
+        const context = await browser.newContext({
+          storageState: authFilePath,
+        });
+        await context.grantPermissions(["microphone"]);
+        wj5examinerNewPage = await context.newPage();
+        const wj5examiner = new Wj5LoginPage(wj5examinerNewPage);
+        // registerUserForTokenRefresh(authFilePath);
+        await use(wj5examiner);
+        await context.close();
+      } catch (error) {
+        console.error(`Error creating new wj5examiner page: ${error}`);
+      }
   },
 
   wj5AhDashPage: async ({ context }, use) => {
@@ -321,6 +345,25 @@ wj5examinerTest_rpdletPage: async ({ context }, use) => {
     await use(new wj5NonwordRepetitionPage(wj5examinerNewPage));
   },
 
+  wj5examinerTest_vrbanlPage: async ({ context }, use) => {
+    await use(new wj5VrbanlPage(wj5examinerNewPage));
+  },
+
+wj5examinerTest_stycmpPage: async ({ context }, use) => {
+    await use(new wj5StycmpPage(wj5examinerNewPage));
+  },
+
+wj5examinerTest_wrdgflPage: async ({ context }, use) => {
+    await use(new wj5WrdgflPage(wj5examinerNewPage));
+  },
+
+wj5examinerTest_matrczPage: async ({ context }, use) => {
+    await use(new wj5MatrczPage(wj5examinerNewPage));
+  },
+
+  wj5Test_ScoreReportsPage: async ({ context }, use) => {
+    await use(new WJ5_ScoreReportPage(wj5ahNewPage));
+  },
 
 });
 

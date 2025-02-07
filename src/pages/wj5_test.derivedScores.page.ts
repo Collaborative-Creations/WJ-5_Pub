@@ -38,7 +38,7 @@ import wj5ExamineePage from "./wj5_examinee.page";
 import { format } from "date-fns";
 
 export default class wj5TestPage {
-  private readonly page;
+  private readonly page: Page;
   private utils: Utils;
 
   readonly itemMap: Map<string, Map<string, string | number>>;
@@ -271,12 +271,12 @@ export default class wj5TestPage {
 
     console.log(`await topLine.isVisible() : ${await topLine.isVisible()}`);
 
-    if (
-      (await topLine.isVisible()) &&
-      !(await this.getPageUrl()).includes("stage")
-    ) {
-      await this.page.locator(".blue-button").getByText("Letʼs Begin").click();
-    }
+    // if (
+    //   (await topLine.isVisible()) &&
+    //   !(await this.getPageUrl()).includes("stage")
+    // ) {
+    //   await this.page.locator(".blue-button").getByText("Letʼs Begin").click();
+    // }
 
     await this.page.waitForTimeout(2000);
 
@@ -295,25 +295,42 @@ export default class wj5TestPage {
       return;
     }
   }
-  
+
   async clickOnLetsBeginButtonAndStartTest(
     testName: string,
     ssp: string,
-    i: number,
+    i: number
   ) {
-    expect(await this.testNameAtAdminOverview.textContent(), {
-      message: "The test name didnt match at Administration Overview page",
-    }).toContain(testName);
-    console.log(await this.testNameAtAdminOverview.textContent());
-    // if (i == 0)
+    // Validate the test name at the Administration Overview page
+    console.log("Validating test name...");
+    await expect(this.testNameAtAdminOverview).toBeVisible({ timeout: 10000 });
+    const textContent = await this.testNameAtAdminOverview.textContent();
+    console.log(`Text content: "${textContent}"`);
+    expect(textContent?.trim(), {
+      message: "The test name didn't match at Administration Overview page",
+    }).toContain(testName.trim());
+  
+    // Ensure the "Let's Begin" button is visible and enabled before clicking
+    console.log("Waiting for 'Let's Begin' button...");
+    await expect(this.letsBeginButton).toBeVisible({ timeout: 10000 });
+    await expect(this.letsBeginButton).toBeEnabled({ timeout: 10000 });
+  
+    console.log("Clicking 'Let's Begin' button...");
     await this.letsBeginButton.click();
+  
+    // Handle the SSP selection logic and click the "Start Test" button
     if (ssp === "All Examinees") {
+      console.log("Clicking 'Start Test' button...");
+      await expect(this.startTestButton).toBeVisible({ timeout: 10000 });
       await this.startTestButton.click();
     } else {
+      console.log(`Setting SSP to: ${ssp}`);
       await this.setTheSSPto(ssp);
+      console.log("Clicking 'Start Test' button...");
+      await expect(this.startTestButton).toBeVisible({ timeout: 10000 });
       await this.startTestButton.click();
     }
-  }
+  }  
 
   async setTheSSPto(sspOption: string) {
     await expect(this.startTestButton).toBeVisible({ timeout: 10000 });
@@ -830,7 +847,7 @@ export default class wj5TestPage {
         .locator(".items-container div span.item-text")
         .last()
         .textContent();
-      const itemNumber: number = lastItemNumber.split(" ")[1];
+      const itemNumber: number = parseInt(lastItemNumber.split(" ")[1], 10);
       console.log(`the last item number is = ${itemNumber}`);
       this.scoreMap.clear();
       this.scoreMap.set(` `, "^");
@@ -1033,7 +1050,7 @@ export default class wj5TestPage {
         .locator(".items-container div span.item-text")
         .last()
         .textContent();
-      const itemNumber: number = lastItemNumber.split(" ")[1];
+      const itemNumber: number = parseInt(lastItemNumber.split(" ")[1], 10);
       console.log(`the last item number is = ${itemNumber}`);
       this.scoreMap.clear();
       this.scoreMap.set(` `, "^");
@@ -1167,7 +1184,7 @@ export default class wj5TestPage {
         .locator(".items-container div span.item-text")
         .last()
         .textContent();
-      const itemNumber: number = lastItemNumber.split(" ")[1];
+      const itemNumber: number = parseInt(lastItemNumber.split(" ")[1], 10);
       console.log(`the last item number is = ${itemNumber}`);
       this.scoreMap.clear();
       this.scoreMap.set(` `, "^");
@@ -1304,7 +1321,7 @@ export default class wj5TestPage {
         .locator(".items-container div span.item-text")
         .last()
         .textContent();
-      const itemNumber: number = lastItemNumber.split(" ")[1];
+      const itemNumber: number = parseInt(lastItemNumber.split(" ")[1], 10);
       console.log(`the last item number is = ${itemNumber}`);
       this.scoreMap.clear();
       this.scoreMap.set(` `, "^");
@@ -1439,7 +1456,7 @@ export default class wj5TestPage {
         .locator(".items-container div span.item-text")
         .last()
         .textContent();
-      const itemNumber: number = lastItemNumber.split(" ")[1];
+      const itemNumber: number = parseInt(lastItemNumber.split(" ")[1], 10);
       console.log(`the last item number is = ${itemNumber}`);
       this.scoreMap.clear();
       this.scoreMap.set(` `, "^");
@@ -1567,7 +1584,7 @@ export default class wj5TestPage {
         .locator(".items-container div span.item-text")
         .last()
         .textContent();
-      const itemNumber: number = lastItemNumber.split(" ")[1];
+      const itemNumber: number = parseInt(lastItemNumber.split(" ")[1], 10);
       console.log(`the last item number is = ${itemNumber}`);
       this.scoreMap.clear();
       this.scoreMap.set(` `, "^");
@@ -1705,7 +1722,7 @@ export default class wj5TestPage {
         .locator(".items-container div span.item-text")
         .last()
         .textContent();
-      const itemNumber: number = lastItemNumber.split(" ")[1];
+      const itemNumber: number = parseInt(lastItemNumber.split(" ")[1], 10);
       console.log(`the last item number is = ${itemNumber}`);
       this.scoreMap.clear();
       this.scoreMap.set(` `, "^");
@@ -1852,7 +1869,7 @@ export default class wj5TestPage {
         .locator(".items-container div span.item-text")
         .last()
         .textContent();
-      const itemNumber: number = lastItemNumber.split(" ")[1];
+      const itemNumber: number = parseInt(lastItemNumber.split(" ")[1], 10);
       console.log(`the last item number is = ${itemNumber}`);
       this.scoreMap.clear();
       this.scoreMap.set(` `, "^");
@@ -1987,7 +2004,7 @@ export default class wj5TestPage {
         .locator(".items-container div span.item-text")
         .last()
         .textContent();
-      const itemNumber: number = lastItemNumber.split(" ")[1];
+      const itemNumber: number = parseInt(lastItemNumber.split(" ")[1], 10);
       console.log(`the last item number is = ${itemNumber}`);
       this.scoreMap.clear();
       this.scoreMap.set(` `, "^");
@@ -2130,7 +2147,7 @@ export default class wj5TestPage {
         .locator(".items-container div span.item-text")
         .last()
         .textContent();
-      const itemNumber: number = lastItemNumber.split(" ")[1];
+      const itemNumber: number = parseInt(lastItemNumber.split(" ")[1], 10);
       console.log(`the last item number is = ${itemNumber}`);
       this.scoreMap.clear();
       this.scoreMap.set(` `, "^");
@@ -2311,7 +2328,7 @@ export default class wj5TestPage {
         .locator(".items-container div span.item-text")
         .last()
         .textContent();
-      const itemNumber: number = lastItemNumber.split(" ")[1];
+      const itemNumber: number = parseInt(lastItemNumber.split(" ")[1], 10);
       console.log(`the last item number is = ${itemNumber}`);
       this.scoreMap.clear();
       this.scoreMap.set(` `, "^");
@@ -2441,7 +2458,7 @@ export default class wj5TestPage {
         .locator(".items-container div span.item-text")
         .last()
         .textContent();
-      const itemNumber: number = lastItemNumber.split(" ")[1];
+      const itemNumber: number = parseInt(lastItemNumber.split(" ")[1], 10);
       console.log(`the last item number is = ${itemNumber}`);
       this.scoreMap.clear();
       this.scoreMap.set(` `, "^");
@@ -2578,7 +2595,7 @@ export default class wj5TestPage {
         .locator(".items-container div span.item-text")
         .last()
         .textContent();
-      const itemNumber: number = lastItemNumber.split(" ")[1];
+      const itemNumber: number = parseInt(lastItemNumber.split(" ")[1], 10);
       console.log(`the last item number is = ${itemNumber}`);
       this.scoreMap.clear();
       this.scoreMap.set(` `, "^");
@@ -2685,6 +2702,302 @@ export default class wj5TestPage {
     return this.scoreMap;
   }
 
+  async completeTheTakenTestForDerivedScoresForGLCluster(
+    typeOfTest: string,
+    stemForm: string,
+    BbyC: number,
+    flag: string
+  ): Promise<Map<string, string>> {
+    let correctCount: number = 1;
+    let inCorrectCount: number = 1;
+
+    this.scoreMap.clear();
+      if (stemForm.includes("STYCMP.W5PA")){
+       this.scoreMap = await this.utils.getRowDataOfSpecifiedColumnFromSchemaFiles(
+        "STYCMP.W5PA_TestSchema.xlsx",
+        "/Heading/"
+      ); 
+    } else {
+      const lastItemNumber = await this.page
+        .locator(".items-container div span.item-text")
+        .last()
+        .textContent();
+      const itemNumber: number = parseInt(lastItemNumber.split(" ")[1]);
+      console.log(`the last item number is = ${itemNumber}`);
+      this.scoreMap.clear();
+      this.scoreMap.set(` `, "^");
+      for (let index = 1; index <= itemNumber; index++) {
+        if (stemForm.includes("STYREC.W5PA")) {
+          this.scoreMap.set(`Story ${index}`, "x");
+        } else {
+          this.scoreMap.set(`Item ${index}`, "x");
+        }
+      }
+    }
+
+    console.log(`Type Of test ${typeOfTest} \n`);
+    while (await this.plainNextButtonOrEndButton.isVisible()) {
+      await this.page.waitForTimeout(3000);
+      const itemDetails: string = (await this.itemDetails.textContent())!;
+      console.log(itemDetails);
+      const correctlocator: Locator = this.corectOptionButton.first();
+      const incorrectlocator: Locator = this.incorrectOptionButton.first();
+      const correctlocatorsAll: Promise<Locator[]> =this.corectOptionButton.all();
+
+      if (itemDetails.startsWith("Introduction")) {
+      } else if (itemDetails.match(/Presentation/)) {
+          await this.playAudio();
+      } else if (typeOfTest.match(/All correct scenario/i)) {
+        if (stemForm.includes("STYREC.W5PA")) {
+          await this.clickAllCorrectOption(correctlocatorsAll, itemDetails);
+        }
+        else if (itemDetails.match(/(Item|Sample|Story)\s/)) {
+          await this.clickCorrectOption(correctlocator, itemDetails);
+        }
+      } else if (typeOfTest.match(/Quick Basal Ceiling/i)) {
+        if (BbyC && itemDetails.startsWith("Item ")) {
+          if (correctCount <= BbyC) {
+            await this.clickCorrectOption(correctlocator, itemDetails);
+            correctCount++;
+          } else if (inCorrectCount <= BbyC) {
+            await this.clickInCorrectOption(incorrectlocator, itemDetails);
+            inCorrectCount++;
+          }
+        } else {
+          await this.clickCorrectOption(correctlocator, itemDetails);
+        }
+      } else if (typeOfTest.match(/Attain Basel but not ceiling/i)) {
+        if (BbyC && itemDetails.startsWith("Item ")) {
+          if (correctCount <= BbyC) {
+            await this.clickCorrectOption(correctlocator, itemDetails);
+            correctCount++;
+          } else if (inCorrectCount <= BbyC) {
+            await this.clickInCorrectOption(incorrectlocator, itemDetails);
+            inCorrectCount++;
+          }
+          if (inCorrectCount === BbyC) {
+            break;
+          }
+        } else {
+          await this.clickCorrectOption(correctlocator, itemDetails);
+        }
+      } else if (typeOfTest.match(/SampleItems correct/i)) {
+        if (itemDetails.startsWith("Item")) {
+          this.scoreMap.clear();
+          break;
+        }
+        await this.clickCorrectOption(correctlocator, itemDetails);
+      } else if (typeOfTest.match(/SampleItems incorrect/i)) {
+        if (itemDetails.startsWith("Item")) {
+          this.scoreMap.clear();
+          break;
+        }
+        await this.clickInCorrectOption(incorrectlocator, itemDetails);
+      } else if (
+        typeOfTest.match(/All incorrect scenario/i) &&
+        itemDetails.startsWith("Sample ")
+      ) {
+        await this.clickCorrectOption(correctlocator, itemDetails);
+      } else if (typeOfTest.match(/All incorrect scenario/i)) {
+        await this.clickInCorrectOption(incorrectlocator, itemDetails);
+      } else if (typeOfTest.match(/Answer Correct But No Basel/i)) {
+        if (correctCount === BbyC) {
+          break;
+        } else if (
+          BbyC &&
+          itemDetails.startsWith("Item ") &&
+          correctCount <= BbyC
+        ) {
+          await this.clickCorrectOption(correctlocator, itemDetails);
+          correctCount++;
+        } else await this.clickCorrectOption(correctlocator, itemDetails);
+      } else if (typeOfTest.match(/Answer InCorrect But No Basel/i)) {
+        if (itemDetails === "Item 1") {
+          break;
+        } else if (
+          BbyC &&
+          itemDetails.startsWith("Item ") &&
+          correctCount <= BbyC
+        ) {
+          await this.clickInCorrectOption(incorrectlocator, itemDetails);
+          correctCount++;
+        } else await this.clickCorrectOption(correctlocator, itemDetails);
+      } else {
+        throw new Error(
+          `The ${typeOfTest} didnt match with any of the conditions provided`,
+        );
+      }
+
+      await this.plainNextButtonOrEndButton.click();
+
+      if (
+        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
+      ) {
+        break;
+      }
+    }
+    console.log(this.scoreMap);
+    return this.scoreMap;
+  }
+
+  async completeTheTakenTestForDerivedScoresForORLANGCluster(
+    typeOfTest: string,
+    stemForm: string,
+    BbyC: number,
+    flag: string,
+  ): Promise<Map<string, string>> {
+    let correctCount: number = 1;
+    let inCorrectCount: number = 1;
+
+      if (stemForm.includes("STYCMP.W5PA")) {
+        this.scoreMap.clear();
+        this.scoreMap =
+          await this.utils.getRowDataOfSpecifiedColumnFromSchemaFiles(
+            "STYCMP.W5PA_TestSchema.xlsx",
+            "/Heading/",
+          );
+      } else if (stemForm.includes("ORLCMP.W5PA")) {
+        this.scoreMap.clear();
+        this.scoreMap =
+          await this.utils.getRowDataOfSpecifiedColumnFromSchemaFiles(
+            "ORLCMP.W5PA_TestSchema.xlsx",
+            "/Heading/",
+          );
+      } else if (stemForm.includes("ORLSMP.W5PA")) {
+        this.scoreMap.clear();
+        this.scoreMap =
+          await this.utils.getRowDataOfSpecifiedColumnFromSchemaFiles(
+            "ORLSMP.W5PA_TestSchema.xlsx",
+            "/Heading/",
+          );
+      }
+    else {
+      const lastItemNumber = await this.page
+        .locator(".items-container div span.item-text")
+        .last()
+        .textContent();
+      const itemNumber: number = parseInt(lastItemNumber.split(" ")[1]);
+      console.log(`the last item number is = ${itemNumber}`);
+      this.scoreMap.clear();
+      this.scoreMap.set(` `, "^");
+      for (let index = 1; index <= itemNumber; index++) {
+        this.scoreMap.set(`Item ${index}`, "x");
+      }
+    }
+
+    console.log(`Type Of test ${typeOfTest} \n`);
+    while (await this.plainNextButtonOrEndButton.isVisible()) {
+      await this.page.waitForTimeout(3000);
+      const itemDetails: string = (await this.itemDetails.textContent())!;
+      console.log(itemDetails);
+      const correctlocator: Locator = this.corectOptionButton.first();
+      const incorrectlocator: Locator = this.incorrectOptionButton.first();
+
+      if (itemDetails.startsWith("Introduction")) {
+      } else if (itemDetails.match(/Presentation/)) {
+          await this.playAudio();
+      } else if (typeOfTest.match(/All correct scenario/i)) {
+        if (itemDetails.match(/(Item|Sample)\s/)) {
+          await this.clickCorrectOption(correctlocator, itemDetails);
+        }
+      } else if (typeOfTest.match(/Quick Basal Ceiling/i)) {
+        if (BbyC && itemDetails.startsWith("Item ")) {
+          if (correctCount <= BbyC) {
+            await this.clickCorrectOption(correctlocator, itemDetails);
+            correctCount++;
+          } else if (inCorrectCount <= BbyC) {
+            await this.clickInCorrectOption(incorrectlocator, itemDetails);
+            inCorrectCount++;
+          }
+        } else {
+          await this.clickCorrectOption(correctlocator, itemDetails);
+        }
+      } else if (typeOfTest.match(/Attain Basel but not ceiling/i)) {
+        if (BbyC && itemDetails.startsWith("Item ")) {
+          if (correctCount <= BbyC) {
+            await this.clickCorrectOption(correctlocator, itemDetails);
+            correctCount++;
+          } else if (inCorrectCount <= BbyC) {
+            await this.clickInCorrectOption(incorrectlocator, itemDetails);
+            inCorrectCount++;
+          }
+          if (inCorrectCount === BbyC) {
+            break;
+          }
+        } else {
+          await this.clickCorrectOption(correctlocator, itemDetails);
+        }
+      } else if (typeOfTest.match(/SampleItems correct/i)) {
+        if (itemDetails.startsWith("Item")) {
+          this.scoreMap.clear();
+          break;
+        }
+        await this.clickCorrectOption(correctlocator, itemDetails);
+      } else if (typeOfTest.match(/SampleItems incorrect/i)) {
+        if (itemDetails.startsWith("Item")) {
+          this.scoreMap.clear();
+          break;
+        }
+        await this.clickInCorrectOption(incorrectlocator, itemDetails);
+      } else if (
+        typeOfTest.match(/All incorrect scenario/i) &&
+        itemDetails.startsWith("Sample ")
+      ) {
+        await this.clickCorrectOption(correctlocator, itemDetails);
+      } else if (typeOfTest.match(/All incorrect scenario/i)) {
+        await this.clickInCorrectOption(incorrectlocator, itemDetails);
+        await this.sideNavLock.waitFor({ state: "detached" });
+      } else if (typeOfTest.match(/Answer Correct But No Basel/i)) {
+        if (correctCount === BbyC) {
+          break;
+        } else if (
+          BbyC &&
+          itemDetails.startsWith("Item ") &&
+          correctCount <= BbyC
+        ) {
+          await this.clickCorrectOption(correctlocator, itemDetails);
+          correctCount++;
+        } else await this.clickCorrectOption(correctlocator, itemDetails);
+      } else if (typeOfTest.match(/Answer InCorrect But No Basel/i)) {
+        if (itemDetails === "Item 1") {
+          break;
+        } else if (
+          BbyC &&
+          itemDetails.startsWith("Item ") &&
+          correctCount <= BbyC
+        ) {
+          await this.clickInCorrectOption(incorrectlocator, itemDetails);
+          correctCount++;
+        } else await this.clickCorrectOption(correctlocator, itemDetails);
+      } else {
+        throw new Error(
+          `The ${typeOfTest} didnt match with any of the conditions provided`,
+        );
+      }
+
+      await this.plainNextButtonOrEndButton.click();
+
+      if (
+        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
+      ) {
+        break;
+      }
+    }
+    console.log(this.scoreMap);
+    return this.scoreMap;
+  } 
+
+  async playAudio() {
+    if (await this.audioPlayer.isVisible()) {
+      await this.audioPlayButton.click();
+      await this.plainNextButtonOrEndButton.waitFor({
+        state: "visible",
+        timeout: 50000,
+      });
+      await this.page.waitForTimeout(3000);
+    }
+  }
+
   async jumpToNextTest(testName: string) {
     let nextTestName: string = await this.nextTestSelectValue.textContent();
     if (nextTestName.match(testName)) {
@@ -2745,14 +3058,15 @@ export default class wj5TestPage {
 
     const excelFileData = ExcelFileData;
 
-    // const excelFileData = await this.utils.getExcelSheetData(normTableFilePath);
-
-    if(examineeID == "" || examineeID == undefined || examineeID == null || examineeID.includes("No examinees meet the criteria specified.")){
-      throw new Error("The Examinee ID assertion failed, probable cause the Report could be empty.");
-    }
+    // const excelFileData = await this.utils.getExcelSheetData(normTableFilePath);    
 
     const txtData = txtFileContent[testStemForm];
     softAssertPrint(examineeID, txtData.Examinee_ID, "Examinee ID");
+
+    if(txtData.Examinee_ID == "" || txtData.Examinee_ID == undefined || txtData.Examinee_ID == null || txtData.Examinee_ID.includes("No examinees meet the criteria specified.")){
+      throw new Error("The Examinee ID assertion failed, probable cause the Report could be empty.");
+    }
+
     softAssertPrint(taskStem, txtData.TaskStem, "Task Stem");
     softAssertPrint(testStemForm, txtData.TaskStemForm, "TaskStemForm");
 

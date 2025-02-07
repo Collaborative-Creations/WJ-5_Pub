@@ -33,7 +33,7 @@ test.describe("OVSYN.W5PA Test Data Export Automation ", () => {
     });
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
-      { tag: ["@OVSYN", "@testDe", "@smoke", "@testDe_OVSYN"] },
+      { tag: ["@OVSYN", "@testDe", "@smoke"] },
       async (
         {
           wj5ah,

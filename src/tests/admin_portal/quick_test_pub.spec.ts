@@ -7,7 +7,6 @@ test.describe('Basic Tests', () => {
         async ({ page }) => {
         // Navigate to a simple page
         await page.goto('https://example.com');
-        
         // Perform a simple assertion
         const title = await page.title();
         expect(title).toBe('Example Domain');

@@ -1,0 +1,63 @@
+Orlexp's Score Report
+Name: Orlexp Max
+ID: 5
+DOB: 1/09/2018
+Age: 7 years, 0 months
+Examiner: ScoreReports ScoreReports
+Grade: 1.5
+Date(s) of Testing: 1/16/2025
+(Norms based on Age 7 years, 0 months)
+Woodcock-Johnson V Tests of Achievement
+Oral Expression (Gc; Gl)
+Development
+Proficiency
+Relative Standing
+W Score(95% Confidence Band)
+AgeEquivalent
+W DifferenceScore
+Relative ProficiencyIndex
+StandardScore(95% Confidence Band)
+PercentileRank(95% Confidence Band)
+Oral Expression (Gc; Gl)
+560(540-580)
+>29y
+74
+100/90
+>160(>160->160)
+>99(>99->99)
+Test Name
+W Score(95% Confidence Band)
+AgeEquivalent
+W DifferenceScore
+Relative ProficiencyIndex
+StandardScore(95% Confidence Band)
+PercentileRank(95% Confidence Band)
+Picture Vocabulary
+585(555-614)
+>29y
+100
+100/90
+>160(>160->160)
+>99(>99->99)
+Oral Language Samples
+535(508-563)
+>29y
+48
+100/90
+>160(133->160)
+>99(99->99)
+SESSION-LEVEL NOTES:
+(1/21/2025)
+Orlexp Max with Grade and first SSP
+SESSION-LEVEL OBSERVATIONS:
+Conversational Proficiency: Very advanced; initiated and sustained conversations
+Cooperation: Was exceptionally cooperative throughout the examination
+Activity: Seemed lethargic
+Attention and Concentration: Displayed good attention throughout
+Self-Confidence: Appeared confident and self-assured
+Care in Responding: Responded deliberately and assuredly
+Response to Difficult Items: Persevered on difficult items
+Motivation: Was highly engaged with tasks
+Technology: Was very capable using the tablet
+Fair Estimate: Yes
+Modifications: No

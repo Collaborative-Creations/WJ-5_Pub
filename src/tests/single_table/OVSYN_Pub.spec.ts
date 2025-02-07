@@ -25,7 +25,7 @@ test.describe("OVSYN.W5PA single table lookUp Scoring Export Automation", () => 
     });
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
-      { tag: ["@OVSYN", "@singleTable", "@reg"] },
+      { tag: ["@OVSYN", "@singleTable", "@smoke"] },
       async (
         {
           wj5ah,

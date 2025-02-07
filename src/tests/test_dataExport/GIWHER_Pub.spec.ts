@@ -22,7 +22,9 @@ test.describe(" GIWHER.W5PA Test Data Export Automation ", () => {
     test.beforeAll(async () => {
       await setFilePathes(data.lookUpModel);
     });
-    test(`@Test_De For ${data.typeOfTest} login as AH Conduct test as Examiner and generate reports`, async ({
+    test(`@Test_De For ${data.typeOfTest} login as AH Conduct test as Examiner and generate reports`,
+      { tag: ["@GIWHER", "@testDe", "@reg"] },
+       async ({
       wj5ah,
       wj5AhDashPage,
       wj5examiner,

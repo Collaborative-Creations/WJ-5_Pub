@@ -19,18 +19,10 @@ type ScoreObject = {
 };
 type ScoresRecord = Record<string, ScoreObject>;
 const scores: ScoresRecord = {};
-let excelFileData;
-
-interface ExamineeData {
-  examinee_ID: string;
-  dateOfBirth: string;
-}
-let pRetry;
 
 test.describe(" AWKMEM cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test.beforeAll(async () => {
-      pRetry = (await import("p-retry")).default;
       await setFilePathes(data.lookUpModel);
     });
     test(
@@ -51,41 +43,22 @@ test.describe(" AWKMEM cluster Derived Export Automation ", () => {
         test.setTimeout(20 * 60 * 1000);
 
         const url = getSiteUrl() + "home";
-        const examineeData = await pRetry(
-          async (): Promise<ExamineeData> => {
-            await wj5examiner.gotoUrl(url);
-            const result =
-              await wj5ExaminerDashPage.addNewExamineeAndUpdateTheTemplate(
-                getSiteUrl(),
-                data.examineeAge,
-                undefined,
-                undefined,
-                data.normBasis,
-                data.examineeGrade,
-              );
+        await wj5examiner.gotoUrl(url);
+        const { examinee_ID, dateOfBirth } =
+          await wj5ExaminerDashPage.addNewExamineeAndUpdateTheTemplate(
+            getSiteUrl(),
+            data.examineeAge,
+            undefined,
+            undefined,
+            data.normBasis,
+            data.examineeGrade,
+          );
 
-            await wj5ExaminerDashPage.createTestAssignmentFromExamineeManagement(
-              data.blockName,
-              result.examinee_ID,
-              data.examineeGrade,
-            );
-
-            return result;
-          },
-          {
-            retries: 2, // Number of retries
-            onFailedAttempt: (error) => {
-              console.warn(
-                `Attempt ${error.attemptNumber} for adding and assigning test to an examinee has failed. ${error.retriesLeft} retries left.`,
-                error.message,
-              );
-            },
-            minTimeout: 3000,
-            maxTimeout: 10000,
-          },
+        await wj5ExaminerDashPage.createTestAssignmentFromExamineeManagement(
+          data.blockName,
+          examinee_ID,
+          data.examineeGrade,
         );
-
-        const { examinee_ID, dateOfBirth } = examineeData;
 
         const ipad7 = devices["iPad (gen 7) landscape"];
         const sessionid = await wj5ExaminerDashPage.getSessionID();
@@ -166,51 +139,34 @@ test.describe(" AWKMEM cluster Derived Export Automation ", () => {
           }
         }
 
-        await pRetry(
-          async () => {
-            await wj5ah.gotoUrl(url);
-            await wj5AhDashPage.welcomeTextToBeVisable();
-            await wj5AhDashPage.uploadExportTemplete("derived scores");
-            await wj5AhDashPage.clickOnTheResportToDownload(testInfo);
-            await wj5AhDashPage.extractTheDownloadedZipFile();
-            await wj5AhDashPage.printAllThedatafromTheFileRequired(
-              "Derived_Score",
-              "derived scores",
-            );
-            txtFileContent = await wj5examinerUtils.readAllTxtContentToObj();
-            console.log(`returnValues = `, txtFileContent);
-            // console.log(`score MAp = `, score);
-            excelFileData =
-              await wj5examnrTest_derivedScoresPage.getExcelFileDate(
-                "WJV NormTable",
-              );
-
-            for (let i = 0; i < data.testName.length; i++) {
-              await wj5examnrTest_derivedScoresPage.validateTheDownloadedDerivedScoresReportWithRunTimeData(
-                txtFileContent,
-                examinee_ID,
-                data.taskStem[i],
-                data.testStemForm[i],
-                dateOfBirth,
-                data.examineeGrade,
-                scores,
-                excelFileData,
-                data.normBasis,
-              );
-            }
-          },
-          {
-            retries: 2, // Number of retries
-            onFailedAttempt: (error) => {
-              console.warn(
-                `Attempt ${error.attemptNumber} for fetching the report failed. ${error.retriesLeft} retries left.`,
-                error.message,
-              );
-            },
-            minTimeout: 3000,
-            maxTimeout: 10000,
-          },
+        await wj5AhDashPage.uploadExportTemplete("derived scores");
+        await wj5AhDashPage.clickOnTheResportToDownload(testInfo);
+        await wj5AhDashPage.extractTheDownloadedZipFile();
+        await wj5AhDashPage.printAllThedatafromTheFileRequired(
+          "Derived_Score",
+          "derived scores",
         );
+        txtFileContent = await wj5examinerUtils.readAllTxtContentToObj();
+        console.log(`returnValues = `, txtFileContent);
+        // console.log(`score MAp = `, score);
+        const excelFileData =
+          await wj5examnrTest_derivedScoresPage.getExcelFileDate(
+            "WJV NormTable",
+          );
+
+        for (let i = 0; i < data.testName.length; i++) {
+          await wj5examnrTest_derivedScoresPage.validateTheDownloadedDerivedScoresReportWithRunTimeData(
+            txtFileContent,
+            examinee_ID,
+            data.taskStem[i],
+            data.testStemForm[i],
+            dateOfBirth,
+            data.examineeGrade,
+            scores,
+            excelFileData,
+            data.normBasis,
+          );
+        }
 
         for (let i = 0; i < data.compositesOrClustersTaskStemForm.length; i++) {
           const compositesOrClustersTaskStem: string =

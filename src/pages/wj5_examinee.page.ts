@@ -1,7 +1,7 @@
 import { test, expect, Page, Locator } from "../base/basePageFixtures";
 
 export default class wj5ExamineePage {
-  private readonly page;
+  private readonly page: Page;
   private $sessionID: string = "";
 
   private readonly sessionIdInputBox: Locator;
@@ -28,13 +28,20 @@ export default class wj5ExamineePage {
     this.item1correctAnswerLWIDNTTest = this.page.locator("//div[@class='examinee-secondary' and text()='W']");
   }
 
+  maxRetries = 10; // Maximum retries for clicking the join button
+
   async joinSessionusingSessionID() {
     await this.page.bringToFront();
+  
     try {
+      // Fill the session ID
+      console.log("Filling the session ID input box...");
+      await this.page.waitForLoadState("load", { timeout: 60000 });
       await this.sessionIdInputBox.fill(this.$sessionID, { timeout: 60000 });
     } catch {
+      console.log("Session ID input failed, reloading the page...");
       await this.page.reload({ waitUntil: "load" });
-      await this.sessionIdInputBox.fill(this.$sessionID);
+      await this.sessionIdInputBox.fill(this.$sessionID, { timeout: 60000 });
     }
 
     while (!(await this.acceptButton.isVisible())) {

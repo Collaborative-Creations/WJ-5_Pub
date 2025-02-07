@@ -1835,6 +1835,127 @@ export default class wj5MultiPage {
 
     return this.scoreMap;
   }
+
+  async completeTheTakenTestForWlookUpScoresForSEGMNTTest(
+    typeOfTest: string,
+    BbyC: number
+  ): Promise<Map<string, string>> {
+    const itemNumber: number = Number(
+      await this.page.locator(".items-container div span").last().textContent()
+    );
+
+    while (await this.plainNextButtonOrEndButton.isVisible()) {
+      const itemDetails: string = (await this.itemDetails.textContent())!;
+      console.log(itemDetails);
+      const correctlocator: Locator = this.corectOptionButton.first();
+      const incorrectlocator: Locator = this.incorrectOptionButton.first();
+
+      if (itemDetails.startsWith("Introduction")) {
+      } else if (typeOfTest.match(/All correct scenario|Block B and Block C correct scenario/i)) {
+        if (itemDetails.startsWith("Sample")) {
+          await correctlocator.click();
+        } else if (itemDetails.startsWith("Item")) {
+          await correctlocator.click();
+        }
+      }else if (typeOfTest.match(/All Incorrect scenario/i)) {
+        if (itemDetails.startsWith("Sample")) {
+          await correctlocator.click();
+        } else if (itemDetails.startsWith("Item")) {
+          await incorrectlocator.click();
+        }
+      } else if (typeOfTest.match(/Answer only Sample Items/i)) {
+        if (itemDetails.startsWith("Sample Item A, Trial 1")) {
+          await correctlocator.click();
+        } else if (itemDetails.startsWith("Sample Item B, Trial 1")) {
+          break;
+        }
+      } else if (typeOfTest.match(/Discontinue Scenario/i)) {
+        if (itemDetails.startsWith("Introduction")) {
+        } else if (itemDetails.startsWith("Sample")) {
+          await incorrectlocator.click();
+        }
+      } else {
+        throw new Error(
+          `The ${typeOfTest} didnt match with any of the conditions provided`
+        );
+      }
+
+      await this.plainNextButtonOrEndButton.click();
+
+      if (
+        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+      ) {
+        break;
+      }
+    }
+
+    console.log(this.scoreMap);
+
+    return this.scoreMap;
+  }
+
+  async completeTheTakenTestForWlookUpScoresForSENREPTest(
+    typeOfTest: string,
+    BbyC: number
+  ): Promise<Map<string, string>> {
+    const itemNumber: number = Number(
+      await this.page.locator(".items-container div span").last().textContent()
+    );
+
+    while (await this.plainNextButtonOrEndButton.isVisible()) {
+      const itemDetails: string = (await this.itemDetails.textContent())!;
+      console.log(itemDetails);
+      const correctlocator: Locator = this.corectOptionButton.first();
+      const incorrectlocator: Locator = this.incorrectOptionButton.first();
+
+      if (itemDetails.startsWith("Introduction")) {
+      } else if (typeOfTest.match(/Block A All Incorrect Scenario/i)) {
+        if (itemDetails.startsWith("Sample")) {
+          await correctlocator.click();
+        } else if (itemDetails.startsWith("Item")) {
+          await incorrectlocator.click();
+        }
+      } else if (typeOfTest.match(/Block B All Correct scenario/i)) {
+        if (itemDetails.startsWith("Sample")) {
+          await correctlocator.click();
+        } else if (itemDetails.startsWith("Item")) {
+          await correctlocator.click();
+        }
+      } else if (typeOfTest.match(/Block B Basal and Ceiling Scenario/i)) {
+        if (itemDetails.startsWith("Sample")) {
+          await correctlocator.click();
+        } else if (/^Item (9|10|11|12)/.test(itemDetails)) {
+          await correctlocator.click();
+        } else if (/^Item (13|14|15|16)/.test(itemDetails)) {
+          await incorrectlocator.click();
+        }
+      } else if (typeOfTest.match(/Answer only Sample Items/i)) {
+        if (itemDetails.startsWith("Introduction")) {
+        } else if (itemDetails.startsWith("Sample Item A, Trial 1")) {
+          await incorrectlocator.click();
+        } else if (itemDetails.startsWith("Sample Item A, Trial 2")) {
+          break;
+        }
+      } else {
+        throw new Error(
+          `The ${typeOfTest} didnt match with any of the conditions provided`
+        );
+      }
+
+      await this.plainNextButtonOrEndButton.click();
+
+      if (
+        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+      ) {
+        break;
+      }
+    }
+
+    console.log(this.scoreMap);
+
+    return this.scoreMap;
+  }
+  
   async clickCorrectOption(correctlocator: Locator, itemDetails: string) {
     try {
       await correctlocator.click();

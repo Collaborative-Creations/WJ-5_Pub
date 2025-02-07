@@ -16,7 +16,7 @@ test.describe(" NWDREP UI Automation ", () => {
       });
     test(
       `@Regression For ${data.typeOfTest} login as AH Conduct test as Examiner and End the test`,
-      { tag: ["@NWDREPUIReg"] },
+      { tag: ["@NWDREPUIReg", "@smoke", "@UI"] },
       async (
         {
           wj5ah,

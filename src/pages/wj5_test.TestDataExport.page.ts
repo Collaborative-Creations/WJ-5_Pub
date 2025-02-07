@@ -6,8 +6,6 @@ import { getCAMOS } from "../utils/derivedScoresEquations";
 import { getWj5UserData } from "../utils/testData";
 import wj5ExamineePage from "./wj5_examinee.page";
 
-const examinerData = getWj5UserData().examiner[0];
-
 interface TestRunTimeData {
   [key: string]: {
     RT: number;
@@ -654,15 +652,17 @@ export default class wj5TestDataExportPage {
         console.error("Error:", error);
       });
 
-      if(examineeID == "" || examineeID == undefined || examineeID == null || examineeID.includes("No examinees meet the criteria specified.")){
-        throw new Error("The Examinee ID assertion failed, probable cause the Report could be empty.");
-      }
-
     softAssertPrint(
       examineeID,
       await this.utils.filterTheValues(Examinee_ID),
       "Examinee ID",
     );
+
+    const textDataExaminee_ID: string = await this.utils.filterTheValues(Examinee_ID);
+    
+    if(textDataExaminee_ID == "" || textDataExaminee_ID == undefined || textDataExaminee_ID == null || textDataExaminee_ID.includes("No examinees meet the criteria specified.")){
+      throw new Error("The Examinee ID assertion failed, probable cause the Report could be empty.");
+    }
 
     const EDOT = await this.utils.getTheDOByearsBAck(0, "new Yark");
     const { camos } = getCAMOS(examineeDOB, EDOT);
@@ -671,15 +671,6 @@ export default class wj5TestDataExportPage {
       await this.utils.filterTheValues(Examinee_CAMOS),
       "Examinee_CAMOS",
     );
-
-    // CLINICAL-25333
-    /**
-     *  softAssertPrint(
-      examinerData.examinerID,
-      await this.utils.filterTheValues(Examiner_ID),
-      "Examiner_ID",
-    );
-     */
 
     softAssertPrint(
       testStemForm,

@@ -3,7 +3,7 @@ import { testData } from "../../scenarios/Admin/Admin.scenarios";
 import { setFilePathes } from "../../utils/global";
 import { getWj5UserData } from "../../utils/testData";
 
-const adminData = getWj5UserData().admin[0];
+const adminData = getWj5UserData().admin;
 
 test.describe.configure({ mode: "default" });
 

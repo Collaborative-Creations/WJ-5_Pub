@@ -1,9 +1,8 @@
-import { Locator, Page, expect } from "@playwright/test";
+import { Locator, Page } from "@playwright/test";
 import { getSiteUrl } from "../utils/testData";
 
 export default class Wj5LoginPage {
-  private readonly page;
-
+  private readonly page: Page;
   private readonly userName: Locator;
   private readonly password: Locator;
   private readonly signinButton: Locator;
@@ -25,9 +24,6 @@ export default class Wj5LoginPage {
     await this.signinButton.click();
     await this.page.waitForLoadState();
     await this.wj5Tyle.click({ delay: 200, clickCount: 2, timeout: 60000 });
-
-    // await this.page.waitForTimeout(2000);
-
     console.log(`Login successful ... \n`);
   }
 
@@ -42,9 +38,14 @@ export default class Wj5LoginPage {
 
   async reloginIfneeded(username: string | any, password: string | any) {
     try {
-      await this.page
-        .locator("text= My Test Assignments")
-        .waitFor({ state: "visible", timeout: 30000 });
+      await this.page.waitForLoadState();
+
+      if(!await this.page.locator("text= My Test Assignments").isVisible() 
+      && !await this.page.locator("class='examinee'").isVisible()) {
+        console.log("Relogging to Riverside Score ...");
+        await this.loginToRiversideScore(username, password);
+        return;
+      }
     } catch (error) {
       console.warn(`Login page either blank or not in dashboard ${error}`);
       await this.loginToRiversideScore(username, password);
