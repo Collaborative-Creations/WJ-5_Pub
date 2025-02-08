@@ -1,6 +1,6 @@
 import wj5ExamineePage from "../../pages/wj5_examinee.page";
 import { devices, test } from "../../base/basePageFixtures";
-import { testData } from "../../scenarios/Left_Nav/PICVOC_Pub.scenarios";
+import { testData } from "../../scenarios/Left_Nav/PICVOC_pub.scenarios";
 import { getExamineeURL, getSiteUrl } from "../../utils/testData";
 import { setFilePathes } from "../../utils/global";
 
