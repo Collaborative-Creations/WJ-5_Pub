@@ -153,3 +153,9 @@ playwright.configcopy.ts
 WJ5_Publications/package-lock.json
 dataFiles/*Template.csv
 # src/tests/basalAndCeiling/basalAndCeiling_pub.spec.ts-snapshots
+
+
+# CHARLIE ignore 
+user
+auth
+src/utils/environment.ts
