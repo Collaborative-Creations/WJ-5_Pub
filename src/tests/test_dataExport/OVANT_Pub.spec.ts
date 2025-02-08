@@ -33,7 +33,7 @@ test.describe("OVANT.W5PA Test Data Export Automation ", () => {
     });
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
-      { tag: ["@OVANT", "@testDe", "@smoke", "@testDe_OVANT"] },
+      { tag: ["@OVANT", "@testDe"] },
       async (
         {
           wj5ah,

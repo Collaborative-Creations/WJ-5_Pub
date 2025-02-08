@@ -69,6 +69,7 @@ export default class wj5DecilePage {
   private readonly doneButton: Locator;
   private readonly listOfInCorrectAnswers: Locator;
   private readonly reviewButton: Locator;
+  private readonly sampleinCorrectAnswerButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -226,6 +227,9 @@ export default class wj5DecilePage {
       "//button[@class='plain-button blue-button']"
     );
     this.reviewButton = this.page.locator("//button[text()='Review']");
+    this.sampleinCorrectAnswerButton = this.page.locator(
+      "//button[@class='select-option']"
+    );
   }
 
   async selectThecheckBox(radioButton: number, info?: string) {
@@ -437,6 +441,129 @@ export default class wj5DecilePage {
           }
         }
       } else {
+        throw new Error(
+          `The ${typeOfTest} didnt match with any of the conditions provided`
+        );
+      }
+      await this.plainNextButtonOrEndButton.click();
+
+      if (
+        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+      ) {
+        break;
+      }
+    }
+      console.log(this.scoreMap);
+      return this.scoreMap;
+  }
+
+  async completeTheTakenTestForWlookUpScoresForRPDLETTest(
+    typeOfTest: string,
+    BbyC: number
+  ): Promise<Map<string, string>> {
+    let correctCount: number = 1;
+    let inCorrectCount: number = 1;
+    const itemNumber: number = Number(
+      await this.page.locator(".items-container div span").last().textContent()
+    );
+
+    while (await this.plainNextButtonOrEndButton.isVisible()) {
+      const itemDetails: string = (await this.itemDetails.textContent())!;
+      const correctlocator: Locator = this.corectOptionButton.first();
+      const incorrectlocator: Locator = this.incorrectOptionButton.first();
+
+      if (typeOfTest.match(/All correct scenario/i)) {
+        if (itemDetails.startsWith("Sample")) {
+          await this.doneButton.click();
+        } else if (itemDetails.match(/^Item Set [1-8]/)) {
+          await this.plainNextButtonOrEndButton.waitFor({ state: "visible" });
+        }
+      } else if (typeOfTest.match(/Test Items 10 Incorrect scenario/i)) {
+      if (itemDetails.startsWith("Sample")) {
+          await this.doneButton.click();
+        }else if (itemDetails.startsWith("Introduction")) {
+        } else if (itemDetails.match(/^Item Set [1-8]/)) {
+          for(let i=0;i<=9;i++){
+          await this.listOfInCorrectAnswers.nth(i).click();
+          } 
+       }
+      }else if (typeOfTest.match(/Answer only sample item/i)) {
+         if (itemDetails.startsWith("Sample Item A, Trial 1")) {
+          await this.doneButton.click();
+        } else if (itemDetails.startsWith("Sample Item B, Trial 1")) {
+          this.scoreMap.clear();
+          break;
+        }
+      }else if (typeOfTest.match(/Discontinue Scenario/i)) {
+        if (itemDetails.startsWith("Sample")) {
+          if (itemDetails.startsWith("Sample Item A, Trial 2")) {
+            await this.doneButton.click();
+          } else {
+            await this.listOfInCorrectAnswers.nth(0).click();
+            await this.doneButton.click();
+          }
+        }
+      } else {
+        throw new Error(
+          `The ${typeOfTest} didnt match with any of the conditions provided`
+        );
+      }
+      await this.plainNextButtonOrEndButton.click();
+
+      if (
+        (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
+      ) {
+        break;
+      }
+    }
+      console.log(this.scoreMap);
+      return this.scoreMap;
+  }
+
+  async completeTheTakenTestForWlookUpScoresForRPDPICTest(
+    typeOfTest: string,
+    BbyC: number
+  ): Promise<Map<string, string>> {
+    let correctCount: number = 1;
+    let inCorrectCount: number = 1;
+    const itemNumber: number = Number(
+      await this.page.locator(".items-container div span").last().textContent()
+    );
+    const sampleinCorrectAnswer: Locator =
+        this.sampleinCorrectAnswerButton.nth(0);
+
+    while (await this.plainNextButtonOrEndButton.isVisible()) {
+      const itemDetails: string = (await this.itemDetails.textContent())!;
+      const correctlocator: Locator = this.corectOptionButton.first();
+      const incorrectlocator: Locator = this.incorrectOptionButton.first();
+
+      if (typeOfTest.match(/All correct scenario/i)) {
+        if (itemDetails.startsWith("Sample")) {
+          await this.doneButton.click();
+        } else if (itemDetails.match(/^Item Set [1-8]/)) {
+          await this.plainNextButtonOrEndButton.waitFor({ state: "visible" });
+        }
+      } else if (typeOfTest.match(/Test Items 10 Incorrect scenario/i)) {
+      if (itemDetails.startsWith("Sample")) {
+          await this.doneButton.click();
+        }else if (itemDetails.startsWith("Introduction")) {
+        } else if (itemDetails.match(/^Item Set [1-8]/)) {
+          for(let i=0;i<=9;i++){
+          await this.listOfInCorrectAnswers.nth(i).click();
+          } 
+       }
+      }else if (typeOfTest.match(/Answer only sample item/i)) {
+         if (itemDetails.startsWith("Sample Item A, Trial 1")) {
+          await this.doneButton.click();
+          this.scoreMap.clear();
+          break;
+        }
+      }else if (typeOfTest.match(/Discontinue Scenario/i)) {
+          if (itemDetails.startsWith("Sample")) {
+            await sampleinCorrectAnswer.click();
+            await this.doneButton.click();
+          }
+        } else {
         throw new Error(
           `The ${typeOfTest} didnt match with any of the conditions provided`
         );

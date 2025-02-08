@@ -16,7 +16,7 @@ test.describe(" MTHFLU UI Automation ", () => {
     });
     test(
       `@Regression For ${data.typeOfTest} login as AH Conduct test as Examiner and End the test`,
-      { tag: ["@MTHFLUUIReg"] },
+      { tag: ["@MTHFLUUIReg", "@smoke", "@UI"] },
       async (
         {
           wj5ah,

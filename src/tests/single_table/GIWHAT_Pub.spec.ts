@@ -16,7 +16,7 @@ test.describe("GIWHAT.W5PA single table lookUp Scoring Export Automation ", () =
     });
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
-      { tag: ["@GIWHAT", "@singleTable", "@reg"] },
+      { tag: ["@GIWHAT", "@singleTable", "@smoke"] },
       async (
         {
           wj5ah,

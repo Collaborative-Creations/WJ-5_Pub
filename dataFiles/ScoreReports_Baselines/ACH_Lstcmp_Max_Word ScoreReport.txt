@@ -1,0 +1,63 @@
+Lstcmp's Score Report
+Name: Lstcmp Max
+ID: 4
+DOB: 1/09/2013
+Age: 12 years, 0 months
+Examiner: ScoreReports ScoreReports
+Grade: 1.5
+Date(s) of Testing: 1/16/2025
+(Norms based on Age 12 years, 0 months)
+Woodcock-Johnson V Tests of Achievement
+Listening Comprehension (Gc)
+Development
+Proficiency
+Relative Standing
+W Score(95% Confidence Band)
+AgeEquivalent
+W DifferenceScore
+Relative ProficiencyIndex
+StandardScore(95% Confidence Band)
+PercentileRank(95% Confidence Band)
+Listening Comprehension (Gc)
+538(516-559)
+>29y
+34
+100/90
+>160(123->160)
+>99(94->99)
+Test Name
+W Score(95% Confidence Band)
+AgeEquivalent
+W DifferenceScore
+Relative ProficiencyIndex
+StandardScore(95% Confidence Band)
+PercentileRank(95% Confidence Band)
+Oral Comprehension
+558(526-589)
+>29y
+54
+100/90
+>160(132->160)
+>99(98->99)
+Story Comprehension
+518(489-547)
+>29y
+15
+98/90
+122(79->160)
+93(9->99)
+SESSION-LEVEL NOTES:
+(1/21/2025)
+Max- First SSP - Garde
+SESSION-LEVEL OBSERVATIONS:
+Conversational Proficiency: Very advanced; initiated and sustained conversations
+Cooperation: Was exceptionally cooperative throughout the examination
+Activity: Seemed lethargic
+Attention and Concentration: Displayed good attention throughout
+Self-Confidence: Appeared confident and self-assured
+Care in Responding: Responded deliberately and assuredly
+Response to Difficult Items: Persevered on difficult items
+Motivation: Was highly engaged with tasks
+Technology: Was very capable using the tablet
+Fair Estimate: Yes
+Modifications: No

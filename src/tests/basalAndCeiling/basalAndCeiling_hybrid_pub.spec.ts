@@ -31,7 +31,7 @@ test.describe(" Automating the basal and ceiling hybrid tests", () => {
 
     test(
       `For ${data.testName} Complete The basal and ceiling hybrid test`,
-      { tag: ["@smoke", "@hybridBasalAndCeiling"] },
+      { tag: ["@reg", "@hybridBasalAndCeiling"] },
       async (
         {
           wj5ah,

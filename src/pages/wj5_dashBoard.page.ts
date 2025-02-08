@@ -8,7 +8,6 @@ import { faker } from "@faker-js/faker";
 import wj5TestPage from "./wj5_test.st_page";
 import { softAssertPrint } from "../utils/assertions";
 import Wj5LoginPage from "./wj5_login.page";
-import { getWj5UserData } from "../utils/testData";
 import { getWabil_and_SEMW } from "../utils/derivedScoresEquations";
 import {
   getExtractedZipFilePath,
@@ -16,9 +15,15 @@ import {
   getTemplatePath,
   getZipFilePath,
 } from "../utils/global";
+import { getWj5UserData } from "../utils/testData";
+import { getUserData } from "../utils/userData";
 
-const ahData = getWj5UserData().accountHolder[0];
-const examinerData = getWj5UserData().examiner[0];
+// import {ahData, examinerData } from "../tests/auth.setup";
+
+// const { accountHolder, examiner } = getWj5UserData();
+
+// const ahData = getUserData().accountHolder[0];
+// const examinerData = getUserData().examiner[0];
 
 type DataItem = {
   testStemFormKey: string;
@@ -33,7 +38,6 @@ export default class Wj5DashboardPage {
   private utils: Utils;
   private $jsonData: DataItem[];
   private $WlookUp: number;
-  private examinerData;
   private readonly page: Page;
   private static childPage: Page;
   private sessionID: any;
@@ -81,14 +85,20 @@ export default class Wj5DashboardPage {
   private readonly joinSessionButton: Locator;
   private wj5examineePage: wj5ExamineePage;
 
+  // Creds Data
+  private readonly ahData ;
+  private readonly examinerData ;
+
   constructor(page: Page) {
     this.page = page;
     this.utils = new Utils(this.page);
-    this.examinerData = getWj5UserData().examiner[0];
     this.reqColumnsMap = new Map();
     this.reqWlookUpMap = new Map();
     this.$WlookUp = 0;
     this.sessionID = this.sessionID;
+
+    getUserData();
+
     this.loadingIcon = this.page
       .locator("//div[@class='loading-inner']")
       .first();
@@ -158,6 +168,9 @@ export default class Wj5DashboardPage {
         name: "Save",
       }));
     this.ExaminerloadingIcon = this.page.getByText("Getting things ready...");
+
+    this.ahData = getUserData().accountHolder[0];
+    this.examinerData = getUserData().examiner[0];
   }
 
   static examineeID: string;
@@ -174,7 +187,7 @@ export default class Wj5DashboardPage {
     dateOfBirth: string;
   }> {
     const relogging = new Wj5LoginPage(this.page);
-    await relogging.reloginIfneeded(examinerData.userName, examinerData.passWord);
+    await relogging.reloginIfneeded(this.examinerData.userName, this.examinerData.passWord);
 
     console.log(`Trying to add an Examinee \n`);
 
@@ -227,15 +240,10 @@ export default class Wj5DashboardPage {
       Wj5DashboardPage.examineeID,
       testStemForm,
     );
-    if (
-      await this.examineeSaveButton.isEnabled({
-        timeout: Number(3000),
-      })
-    ) {
-      await this.examineeSaveButton.click({ timeout: 30000 });
-      await this.examineeSaveOkButton.click({ timeout: 30000 });
+    if (await this.examineeSaveButton.isEnabled({ timeout: 3000 })) {
+      await this.saveExaminee();
     } else {
-      console.error("Save Button IS Not Enabled To Save A NEw Examinee");
+      console.error("Save Button IS Not Enabled");
     }
     console.log(
       `Successfully added an Examinee  ID =${Wj5DashboardPage.examineeID} FirstName=${firstName} LastName =${Wj5DashboardPage.examineeID} Age = ${dateOfBirth}`,
@@ -244,13 +252,19 @@ export default class Wj5DashboardPage {
     return { examinee_ID: Wj5DashboardPage.examineeID, dateOfBirth };
   }
 
+  async saveExaminee() {
+    await this.examineeSaveButton.click();
+    await this.examineeSaveOkButton.waitFor({ state: "visible", timeout: 30000 });
+    await this.examineeSaveOkButton.click();
+  }
+
   async addTestAssignmentBlock(blockName: string, studentID: string) {
     await this.goToTheMainMenuChildPage(
       "Test Set Management",
       "Test Assignment",
     );
     await this.selectExaminee(studentID);
-    await this.selectExaminer(examinerData.examinerID);
+    await this.selectExaminer(this.examinerData.examinerID);
     await this.selectTestBlock(blockName);
     await this.testAssignmentSaveButton.isEnabled();
     await this.testAssignmentSaveButton.click();
@@ -439,11 +453,11 @@ export default class Wj5DashboardPage {
     }
     return true;
   }
-
   async welcomeTextToBeVisable() {
     await this.page.bringToFront();
     const relogging = new Wj5LoginPage(this.page);
-    await relogging.reloginIfneeded(ahData.userName, ahData.passWord);
+    await relogging.reloginIfneeded(this.ahData.userName, this.ahData.passWord);
+    // console.log("welcomeTextToBeVisable called");
   }
 
   async clickOnAddExaminerPlusButton() {
@@ -463,8 +477,8 @@ export default class Wj5DashboardPage {
   async clickOnTheRecentExamineeOnceFullyLoaded(studentID: string) {
     const relogging = new Wj5LoginPage(this.page);
     await relogging.reloginIfneeded(
-      examinerData.userName,
-      examinerData.passWord,
+      this.examinerData.userName,
+      this.examinerData.passWord,
     );
     await this.page.waitForTimeout(5000);
 
@@ -485,11 +499,11 @@ export default class Wj5DashboardPage {
     await this.page.getByText("Sign Out").first().click();
     await expect(this.page.locator(".login-riverside-logo")).toBeVisible();
     await this.page.getByPlaceholder("Username").click();
-    await this.page.getByPlaceholder("Username").fill(examinerData.userName);
-    await this.page.getByPlaceholder("Username").fill(examinerData.userName);
+    await this.page.getByPlaceholder("Username").fill(this.examinerData.userName);
+    await this.page.getByPlaceholder("Username").fill(this.examinerData.userName);
     await this.page.getByPlaceholder("Password").click();
-    await this.page.getByPlaceholder("Password").fill(examinerData.passWord);
-    await this.page.getByPlaceholder("Password").fill(examinerData.passWord);
+    await this.page.getByPlaceholder("Password").fill(this.examinerData.passWord);
+    await this.page.getByPlaceholder("Password").fill(this.examinerData.passWord);
     await this.page.getByPlaceholder("Password").press("Enter");
     await this.page.getByLabel("WJ 5 Researcher,").click();
     await expect(
@@ -1169,7 +1183,7 @@ export default class Wj5DashboardPage {
     const mapasJSON: string = JSON.stringify([...this.reqWlookUpMap]);
     console.log("reqWlookUpMap - - >" + mapasJSON);
 
-    softAssertPrint(examinerid, examinerData.examinerID, "Examiner ID");
+    softAssertPrint(examinerid, this.examinerData.examinerID, "Examiner ID");
     softAssertPrint(examineeid, Wj5DashboardPage.examineeID, "Examinee ID");
     try {
       softAssertPrint(

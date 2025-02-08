@@ -16,7 +16,7 @@ test.describe(" BLKROT UI Automation ", () => {
     });
     test(
       `@Regression For ${data.typeOfTest} login as AH Conduct test as Examiner and End the test`,
-      { tag: ["@BLKROTUIReg"] },
+      { tag: ["@BLKROTUIReg", "@smoke", "@UI"] },
       async (
         {
           wj5ah,

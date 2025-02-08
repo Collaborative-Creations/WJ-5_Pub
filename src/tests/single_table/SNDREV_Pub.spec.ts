@@ -16,7 +16,7 @@ test.describe("SNDREV.W5PA single table lookUp Scoring Export Automation", () =>
     });
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
-      { tag: ["@SNDREV", "@singleTable", "@reg"] },
+      { tag: ["@SNDREV", "@singleTable", "@smoke"] },
       async (
         {
           wj5ah,

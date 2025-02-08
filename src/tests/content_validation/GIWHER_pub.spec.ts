@@ -28,7 +28,7 @@ test.describe(" Automating the content tests", () => {
 
     test(
       `For ${data.testName} do content validation`,
-      { tag: ["@smoke", "@GIWHER", "@content"] },
+      { tag: ["@reg", "@GIWHER", "@content"] },
       async ({
         wj5ah,
         wj5AhDashPage,

@@ -27,7 +27,7 @@ test.describe(" GFGC cluster Derived Export Automation ", () => {
     });
     test(
       `For ${data.typeOfTest} Complete The GFGC cluster & generate report`,
-      { tag: ["@GFGC", "@reg", "@derivedScores"] },
+      { tag: ["@GFGC", "@reg", "@derivedScores", "@smoke"] },
       async (
         {
           wj5ah,
