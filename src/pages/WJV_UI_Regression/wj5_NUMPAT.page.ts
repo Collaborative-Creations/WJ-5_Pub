@@ -49,7 +49,7 @@ export default class wj5NumberPatternMatchingPage {
     );
     this.itemDetails = this.page.locator(".introduction b.semibold, b").first();
     this.listOfPracticeExerciseItems = this.page.locator("//div[@class='examinee-view']//child::div[@class='fluency-mc']");
-    this.introductionError = this.page.locator("//div[@class='introduction error']//child::*[@class='error-icon']");
+    this.introductionError = this.page.locator("//div[@class='introduction  error']//child::*[@class='error-icon']");
     this.inCorrectAnswerErrorMessage = this.page.locator("(//div[@class='intro-text']//child::span)");
     this.IDK = this.page.locator("//button[text()='I Donʼt Know']");
     this.listOfOptionsForNumberPatternMatching = this.page.locator(

@@ -159,3 +159,4 @@ dataFiles/*Template.csv
 user
 auth
 src/utils/environment.ts
+**.json
