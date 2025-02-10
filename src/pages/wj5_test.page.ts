@@ -277,9 +277,9 @@ export default class wj5TestPage {
 
     // if((await this.administrationOverviewPageTestName.textContent()).includes(testName)) return;
 
-    if (await this.page.locator(".top-line").isVisible() && this.page.locator(".blue-button").getByText("Letʼs Begin").isVisible()) {
-      await this.page.locator(".blue-button").getByText("Letʼs Begin").click();
-    }
+    // if (await this.page.locator(".top-line").isVisible() && this.page.locator(".blue-button").getByText("Letʼs Begin").isVisible()) {
+    //   await this.page.locator(".blue-button").getByText("Letʼs Begin").click();
+    // }
     await expect(this.plainNextButtonOrEndButton).toBeVisible();
 
     while (await this.plainNextButtonOrEndButton.isVisible()) {
@@ -1921,7 +1921,7 @@ export default class wj5TestPage {
     await this.notesDropdown.click();
     await expect(this.notesDropdownOptions.nth(0)).toHaveText("Item");
     await expect(this.notesDropdownOptions.nth(1)).toHaveText("Test");
-    await expect(this.notesDropdownOptions.nth(2)).toHaveText("Test Block");
+    await expect(this.notesDropdownOptions.nth(2)).toHaveText("Test Set");
     await this.notesDropdown.click();
     await expect(this.flagForLater).toBeVisible();
     await expect(this.closeNotes).toBeVisible();
@@ -2853,7 +2853,17 @@ export default class wj5TestPage {
         .soft(await this.EndTestPopUpElements.nth(14).textContent())
         .toContain(OutcomeMsg);
       await this.EndTestPopUpElements.nth(18).click();
-    } else if (testNames1.includes(testStemForm)){
+    } else if(
+      (testStemForm === 'WRDGFL.W5PA' && typeOfTest.match(/Sample Item EndTest Flow when RS is (0|1)|Practice Exercise All Incorrect|Test Items (All Correct|All Incorrect|6 Correct)/i))
+    ){
+      expect
+      .soft(await this.EndTestPopUpElements.nth(9).textContent())
+      .toContain(FlagsText);
+      expect
+        .soft(await this.EndTestPopUpElements.nth(14).textContent())
+        .toContain(OutcomeMsg);
+      await this.EndTestPopUpElements.nth(17).click();
+    }else if (testNames1.includes(testStemForm)){
       expect
         .soft(await this.EndTestPopUpElements.nth(11).textContent())
         .toContain(FlagsText);
@@ -2873,7 +2883,11 @@ export default class wj5TestPage {
          await this.EndTestPopUpElements.nth(17).click();
        } else if  (testNames2.includes(testStemForm)) {
           await this.EndTestPopUpElements.nth(18).click();
-       } else {
+       } else if (
+        (testStemForm === 'STYCMP.W5PA' && typeOfTest.match(/Sample Item EndTest Flow when RS is (0|1)/i))
+      ) {
+        await this.EndTestPopUpElements.nth(16).click();
+      }else {
          await this.EndTestPopUpElements.nth(17).click();
        }
     }
@@ -2899,7 +2913,12 @@ export default class wj5TestPage {
       await this.EndTestPopUpElements.nth(18).click();
     } else if  (testNames1.includes(testStemForm)) {
       await this.EndTestPopUpElements.nth(19).click();
-    } else {
+    } else if (
+      (testStemForm === 'STYCMP.W5PA' && typeOfTest.match(/Sample Item EndTest Flow when RS is (0|1)/i))
+      
+    ) {
+      await this.EndTestPopUpElements.nth(16).click();
+    }else {
       await this.EndTestPopUpElements.nth(17).click();
     }
     await this.page.waitForTimeout(2000);

@@ -16,7 +16,7 @@ test.describe(" SPLSND UI Automation ", () => {
     });
     test(
       `@Regression For ${data.typeOfTest} login as AH Conduct test as Examiner and End the test`,
-      { tag: ["@SPLSNDUIReg"] },
+      { tag: ["@SPLSNDUIReg", "@smoke", "@UI"] },
       async (
         {
           wj5ah,

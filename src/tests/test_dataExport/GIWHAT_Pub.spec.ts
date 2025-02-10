@@ -24,7 +24,7 @@ test.describe("GIWHAT.W5PA Test Data Export Automation ", () => {
     });
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
-      { tag: ["@GIWHAT", "@testDe", "@reg"] },
+      { tag: ["@GIWHAT", "@testDe", "@smoke"] },
       async (
         {
           wj5ah,

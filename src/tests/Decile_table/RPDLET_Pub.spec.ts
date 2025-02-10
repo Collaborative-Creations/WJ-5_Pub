@@ -1,6 +1,6 @@
 import wj5ExamineePage from "../../pages/wj5_examinee.page";
 import { devices, test } from "../../base/basePageFixtures";
-import { testData } from "../../scenarios/Left_Nav/PSGCMP_pub.scenarios";
+import { testData } from "../../scenarios/decile_table/RPDLET_Pub.scenarios";
 import { getExamineeURL, getSiteUrl } from "../../utils/testData";
 import { setFilePathes } from "../../utils/global";
 
@@ -9,14 +9,14 @@ test.describe.configure({ mode: "default" });
 let score: Map<string, string>;
 let txtFileContent: { [key: string]: { [key: string]: string } };
 
-test.describe(" LeftNav Automation ", () => {
+test.describe(" RPDLET.W5PA WlookUp Scoring Export Automation ", () => {
   testData.forEach((data) => {
     test.beforeAll(async () => {
       await setFilePathes(data.lookUpModel);
     });
     test(
-      `@Regression For ${data.typeOfTest} login as AH Conduct test as Examiner and End the test`,
-      { tag: ["@reg", "@PSGCMPLN", "@leftnav"] },
+      `@wLookUpE2e @Regression For ${data.typeOfTest} login as AH Conduct test as Examiner and generate reports`,
+      { tag: ["@RPDLET", "@decileTable", "@reg"] },
       async (
         {
           wj5ah,
@@ -24,7 +24,8 @@ test.describe(" LeftNav Automation ", () => {
           wj5examiner,
           wj5ExaminerDashPage,
           wj5examinerTestPage,
-          wj5examinerTest_leftnavPage,
+          wj5examinerTest_decileTablePage,
+          wj5examinerUtils,
           browser,
         },
         testInfo,
@@ -60,17 +61,16 @@ test.describe(" LeftNav Automation ", () => {
         );
 
         score =
-        await wj5examinerTest_leftnavPage.completeTheLeftNavValidationForPSGCMPTest(
+          await wj5examinerTest_decileTablePage.completeTheTakenTestForWlookUpScoresForRPDLETTest(
             data.typeOfTest,
+            data.BbyC,
           );
+
           if (
-            data.typeOfTest.match(
-              /SSP item check for PSGCMP SSP3|SSP item check for PSGCMP SSP4|SSP item check for PSGCMP SSP5|Flagged,expanded and collapsed for PSGCMP SSP6/i
-                             
-            )
+            data.typeOfTest.match(/Answer only sample item/i)
           ) {
-            await wj5examinerTestPage.breakTheLogicOut(
-            );
+            await wj5examinerTestPage.breakTheLogicOutAndForceSubmitTheTestFromMainNavigation();
+            await wj5examinerTestPage.completeTSObservationsandClickNext();
             await $examineePage.close();
           } else {
             await wj5examinerTestPage.endSessionRSB();
@@ -78,7 +78,37 @@ test.describe(" LeftNav Automation ", () => {
             await $examineePage.close();
             await wj5examinerTestPage.completeTSObservationsandClickNext();
           }
-      },
-    );
+          await wj5ah.gotoUrl(getSiteUrl() + "home");
+          await wj5AhDashPage.welcomeTextToBeVisable();
+  
+          await wj5AhDashPage.uploadExportTemplete(data.lookUpModel);
+          await wj5AhDashPage.clickOnTheResportToDownload(testInfo);
+          await wj5AhDashPage.extractTheDownloadedZipFile();
+          const requiredFileName =
+            await wj5AhDashPage.printAllThedatafromTheFileRequired(
+              "Score_DataExport_AutoFilter_Template_WLookup",
+            );
+  
+          console.log(`requiredFileName`, requiredFileName);
+  
+          await wj5AhDashPage.validateTheDownloadedReportWithRunTimeDataForSingleAndMulti(
+            score,
+            data.testName,
+            data.SumOfItemScores,
+            data.BasalCredit,
+            data.WlookUp,
+            data.Wscore,
+            data.semW,
+            data.WlkpAdminItems,
+            data.ScoreString,
+            data.testStemForm,
+            data.lookUpModel,
+            data.totalItems,
+            data.scoreFlag,
+            data.typeOfTest,
+            data.negation!,
+          );
+        },
+      );
+    });
   });
-});

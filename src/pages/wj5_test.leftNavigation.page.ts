@@ -815,225 +815,10 @@ import {
     }
 
 
-  async completeTheLeftNavValidationForPICVOCTest(
-      typeOfTest: string,
-  
-    ): Promise<Map<string, string>> {
-      let correctCount: number = 0;
-      let inCorrectCount: number = 0;
-  
-      const lastItemNumber = await this.page
-        .locator(".item-text")
-        .last()
-        .textContent();
-  
-      const itemNumber: number = lastItemNumber.split(" ")[1];
-      console.log(`the last item number is = ${itemNumber}`);
-  
-      this.scoreTrail.set(` `, "^");
-  
-      console.log(`Type Of test ${typeOfTest} \n`);
-      while (await this.plainNextButtonOrEndButton.isVisible()) {
-        const testNames: string[] = [
-          "PICVOC.W5PA"
-  
-        ];
-        await this.page.waitForTimeout(1000);
-        const itemDetails: string = (await this.itemDetails.textContent())!;
-        console.log(itemDetails);
-        const correctlocator: Locator = await this.correctLocator();
-        const incorrectlocator: Locator = await this.inCorrectLocator();
-        const iDontKnow: Locator = this.IDK;
-  
-        if (typeOfTest.match(/basal and ceiling for SSP1/i)) {
-  
-          if (itemDetails.match(/^Item ([1-9]|[1-3][0-9]|4[0-2])\b/)) {
-            await correctlocator.click();
-          }
-          else if (itemDetails.match(/^Item (4[3-7])\b/)) {
-            if (itemDetails.match(/^Item 46\b/)) {
-              await iDontKnow.click();
-            }
-            else {
-              await incorrectlocator.click();
-            }
-          }
-  
-          const itemNumber: number = Number(itemDetails.split(" ")[1]);
-          const indexToHover = itemNumber - 1;
-          await this.leftNavItems.nth(indexToHover).hover();
-          await this.assertWithScreenShots();
-        
-        } else if (typeOfTest.match(/left Nav when items are flagged for SSP2/i)) {
-          if (itemDetails.startsWith("Item 10")) {
-            await correctlocator.click();
-            await this.flagIcon.click();
-          } else if (itemDetails.startsWith("Item 11")) {
-            await iDontKnow.click();
-            await this.flagIcon.click();
-            await this.plainNextButtonOrEndButton.click();
-            await this.page.waitForTimeout(300);
-            await this.leftNavItems.nth(9).hover();
-            await this.page.waitForTimeout(300);
-            await this.assertWithScreenShots();
-            await this.leftNavItems.nth(10).hover();
-            await this.page.waitForTimeout(300);
-            await this.assertWithScreenShots();
-            await this.EndOfItems.scrollIntoViewIfNeeded();
-            await this.page.waitForTimeout(300);
-            await this.assertWithScreenShots();
-            return;
-          }
-          } else if (typeOfTest.match(/left Nav when items are flagged,expanded and collapsed for SSP3/i)) {
-  
-            if (itemDetails.startsWith("Item 14")) {
-              await correctlocator.click();
-              await this.flagIcon.click();
-            } else if (itemDetails.startsWith("Item 15")) {
-              await incorrectlocator.click();
-              await this.flagIcon.click();
-              await this.plainNextButtonOrEndButton.click();
-              await this.page.waitForTimeout(300);
-              await this.leftNavItems.nth(13).hover();
-              await this.page.waitForTimeout(300);
-              await this.assertWithScreenShots();
-              await this.leftNavItems.nth(14).hover();
-              await this.page.waitForTimeout(300);
-              await this.assertWithScreenShots();
-              await this.EndOfItems.scrollIntoViewIfNeeded();
-              await this.page.waitForTimeout(300);
-              await this.assertWithScreenShots();
-              await this.leftNavExpandIcon.click();
-              await this.assertWithScreenShots();
-              await this.leftNavExpandIcon.click();
-              await this.assertWithScreenShots();
-              return;
-            }
-            } else if (typeOfTest.match(/left Nav when items are flagged,expanded and collapsed for SSP4/i)) {
-              if (itemDetails.startsWith("Item 16")) {
-                await correctlocator.click();
-                await this.flagIcon.click();
-              } else if (itemDetails.startsWith("Item 17")) {
-                await incorrectlocator.click();
-                await this.flagIcon.click();
-                await this.plainNextButtonOrEndButton.click();
-                await this.leftNavItems.nth(15).hover();
-                await this.page.waitForTimeout(300);
-                await this.assertWithScreenShots();
-                await this.leftNavItems.nth(16).hover();
-                await this.page.waitForTimeout(300);
-                await this.assertWithScreenShots();
-                await this.EndOfItems.scrollIntoViewIfNeeded();
-                await this.page.waitForTimeout(300);
-                await this.assertWithScreenShots();
-                await this.leftNavExpandIcon.click();
-                await this.assertWithScreenShots();
-                await this.leftNavExpandIcon.click();
-                await this.assertWithScreenShots();
-                return;
-              }
-              } else if (typeOfTest.match(/left Nav when items are flagged,expanded and collapsed for SSP5/i)) {
-                if (itemDetails.startsWith("Item 18")) {
-                  await correctlocator.click();
-                  await this.flagIcon.click();
-              } else if (itemDetails.startsWith("Item 19")) {
-                  await incorrectlocator.click();
-                  await this.flagIcon.click();
-                  await this.plainNextButtonOrEndButton.click();
-                  await this.leftNavItems.nth(17).hover();
-                  await this.page.waitForTimeout(300);
-                  await this.assertWithScreenShots();
-                  await this.leftNavItems.nth(18).hover();
-                  await this.page.waitForTimeout(300);
-                  await this.assertWithScreenShots();
-                  await this.EndOfItems.scrollIntoViewIfNeeded();
-                  await this.page.waitForTimeout(300);
-                  await this.assertWithScreenShots();
-                  await this.leftNavExpandIcon.click();
-                  await this.assertWithScreenShots();
-                  await this.leftNavExpandIcon.click();
-                  await this.assertWithScreenShots();
-                  return;
-              }
-              } else if (typeOfTest.match(/left Nav when items are flagged,expanded and collapsed for SSP6/i)) {
-              if (itemDetails.startsWith("Item 22")) {
-                await correctlocator.click();
-                await this.flagIcon.click();
-                } else if (itemDetails.startsWith("Item 23")) {
-                  await incorrectlocator.click();
-                  await this.flagIcon.click();
-                  await this.plainNextButtonOrEndButton.click();
-                  await this.page.waitForTimeout(300);
-                  await this.leftNavItems.nth(21).hover();
-                  await this.page.waitForTimeout(300);
-                  await this.assertWithScreenShots();
-                  await this.leftNavItems.nth(22).hover();
-                  await this.page.waitForTimeout(300);
-                  await this.assertWithScreenShots();
-                  await this.EndOfItems.scrollIntoViewIfNeeded();
-                  await this.page.waitForTimeout(300);
-                  await this.assertWithScreenShots();
-                  await this.leftNavExpandIcon.click();
-                  await this.assertWithScreenShots();
-                  await this.leftNavExpandIcon.click();
-                  await this.assertWithScreenShots();
-                  return;
-                }
-              } else if (typeOfTest.match(/left Nav when items are flagged,expanded and collapsed for SSP7/i)) {
-                  if (itemDetails.startsWith("Item 28")) {
-                    await correctlocator.click();
-                    await this.flagIcon.click();
-                  } else if (itemDetails.startsWith("Item 29")) {
-                    await incorrectlocator.click();
-                    await this.flagIcon.click();
-                    await this.plainNextButtonOrEndButton.click();
-                    await this.page.waitForTimeout(300);
-                    await this.leftNavItems.nth(27).hover();
-                    await this.page.waitForTimeout(300);
-                    await this.assertWithScreenShots();
-                    await this.leftNavItems.nth(28).hover();
-                    await this.page.waitForTimeout(300);
-                    await this.assertWithScreenShots();
-                    await this.EndOfItems.scrollIntoViewIfNeeded();
-                    await this.page.waitForTimeout(300);
-                    await this.assertWithScreenShots();
-                    await this.leftNavExpandIcon.click();
-                    await this.assertWithScreenShots();
-                    await this.leftNavExpandIcon.click();
-                    await this.assertWithScreenShots();
-                    return;
-  
-                    }
-                  }
-                     
-                  else {
-                    throw new Error(
-                      `The ${typeOfTest} didnt match with any of the conditions provided`
-                    );
-                  }
-  
-                  await this.plainNextButtonOrEndButton.click();
-  
-                  if (
-                    (await this.plainNextButtonOrEndButton.textContent()) === "End Test"
-                  ) {
-                    break;
-                  }
-                }
-  
-                console.log(`The Scores Trail = `, this.scoreTrail);
-  
-                return this.scoreTrail;
-              
-    }
-
-
-    async completeTheLeftNavValidationForAPPROBTest(
+    async completeTheLeftNavValidationForPICVOCTest(
       typeOfTest: string
     ): Promise<Map<string, string>> {
-      let correctCount: number = 0;
-      let inCorrectCount: number = 0;
-
+      
       const lastItemNumber = await this.page
         .locator(".item-text")
         .last()
@@ -1049,35 +834,33 @@ import {
 
       console.log(`Type Of test ${typeOfTest} \n`);
       while (await this.plainNextButtonOrEndButton.isVisible()) {
-        const testNames: string[] = ["APPROB.W5PA"];
-        await this.page.waitForTimeout(1000);
+        const testNames: string[] = ["PICVOC.W5PA"];
         const itemDetails: string = (await this.itemDetails.textContent())!;
         console.log(itemDetails);
         const correctlocator: Locator = await this.correctLocator();
-        const incorrectlocator: Locator = await this.inCorrectLocator();
         const iDontKnow: Locator = this.IDK;
 
         const ItemsArray: number[] = [
           0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
           20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36,
-          37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+          37, 38, 39, 40, 41, 42, 43, 44, 45, 46
         ];
 
-        if (typeOfTest.match(/All correct scenario for APPROB SSP1/i)) {
-          if (itemDetails.match(/^Item (4[0-8]|[123]?[0-9]|[1-9])\b/)) {
+        if (typeOfTest.match(/All correct scenario for PICVOC SSP1/i)) {
+          if (itemDetails.match(/^Item (4[0-7]|[123]?[0-9]|[1-9])\b/)) {
             const itemNumber = parseInt(itemDetails.match(/\d+/)![0], 10);
             const indexToHover = itemNumber - 1;
             const nthindex = ItemsArray[indexToHover];
             await correctlocator.click();
-            await this.page.waitForTimeout(1000);
             await this.leftNavItems.nth(nthindex).hover();
+            await this.page.waitForTimeout(1000);
             await this.assertWithScreenShots();
           }
-        } else if (typeOfTest.match(/bbyc for APPROB SSP2/i)) {
-          if (itemDetails.match(/^Item ([5-9])\b/)) {
+        } else if (typeOfTest.match(/bbyc for PICVOC SSP2/i)) {
+          if (itemDetails.match(/^Item (1[0-4])\b/)) {
             await correctlocator.click();
-          } else if (itemDetails.match(/^Item (1[0-4])\b/)) {
-            if (itemDetails === "Item 14") {
+          } else if (itemDetails.match(/^Item (1[5-9])\b/)) {
+            if (itemDetails === "Item 19") {
               await iDontKnow.click();
               await this.assertWithScreenShots();
               await this.EndOfItems.scrollIntoViewIfNeeded();
@@ -1086,55 +869,50 @@ import {
               await iDontKnow.click();
             }
           }
-        } else if (typeOfTest.match(/SSP item check for APPROB SSP3/i)) {
-          if (itemDetails === "Item 10") {
-            await this.assertWithScreenShots();
-            await this.EndOfItems.scrollIntoViewIfNeeded();
-            await this.assertWithScreenShots();
-            return;
-          }
-        } else if (typeOfTest.match(/SSP item check for APPROB SSP4/i)) {
+        } else if (typeOfTest.match(/SSP item check for PICVOC SSP3/i)) {
           if (itemDetails === "Item 14") {
             await this.assertWithScreenShots();
             await this.EndOfItems.scrollIntoViewIfNeeded();
             await this.assertWithScreenShots();
             return;
           }
-        } else if (typeOfTest.match(/SSP item check for APPROB SSP5/i)) {
+        } else if (typeOfTest.match(/SSP item check for PICVOC SSP4/i)) {
           if (itemDetails === "Item 16") {
             await this.assertWithScreenShots();
             await this.EndOfItems.scrollIntoViewIfNeeded();
             await this.assertWithScreenShots();
             return;
           }
-        } else if (typeOfTest.match(/SSP item check for APPROB SSP6/i)) {
+        } else if (typeOfTest.match(/SSP item check for PICVOC SSP5/i)) {
           if (itemDetails === "Item 18") {
             await this.assertWithScreenShots();
             await this.EndOfItems.scrollIntoViewIfNeeded();
             await this.assertWithScreenShots();
             return;
           }
-        } else if (typeOfTest.match(/SSP item check for APPROB SSP7/i)) {
-          if (itemDetails === "Item 20") {
+        } else if (typeOfTest.match(/SSP item check for PICVOC SSP6/i)) {
+          if (itemDetails === "Item 22") {
             await this.assertWithScreenShots();
             await this.EndOfItems.scrollIntoViewIfNeeded();
             await this.assertWithScreenShots();
             return;
           }
         } else if (
-          typeOfTest.match(/Flagged,expanded and collapsed for APPROB SSP8/i)
+          typeOfTest.match(/Flagged,expanded and collapsed for PICVOC SSP7/i)
         ) {
-          if (itemDetails === "Item 22") {
+          if (itemDetails === "Item 28") {
             await correctlocator.click();
             await this.flagIcon.click();
-          } else if (itemDetails === "Item 23") {
+          } else if (itemDetails === "Item 29") {
             await iDontKnow.click();
             await this.flagIcon.click();
-          } else if (itemDetails === "Item 18") {
+          } else if (itemDetails === "Item 24") {
             await this.assertWithScreenShots();
-            await this.leftNavItems.nth(21).hover();
+            await this.leftNavItems.nth(27).hover();
+            await this.page.waitForTimeout(1000);
             await this.assertWithScreenShots();
-            await this.leftNavItems.nth(22).hover();
+            await this.leftNavItems.nth(28).hover();
+            await this.page.waitForTimeout(1000);
             await this.assertWithScreenShots();
             await this.leftNavExpandIcon.click();
             await this.assertWithScreenShots();
@@ -1162,7 +940,6 @@ import {
 
       return this.scoreTrail;
     }
-
 
 async  completeTheLeftNavValidationForCALCTest(
       typeOfTest: string
