@@ -1,6 +1,6 @@
 import wj5ExamineePage from "../../pages/wj5_examinee.page";
 import { devices, test } from "../../base/basePageFixtures";
-import { testData } from "../../scenarios/Left_Nav/PSGCMP_pub.scenarios";
+import { testData } from "../../scenarios/Left_Nav/PICVOC_pub.scenarios";
 import { getExamineeURL, getSiteUrl } from "../../utils/testData";
 import { setFilePathes } from "../../utils/global";
 
@@ -16,7 +16,7 @@ test.describe(" LeftNav Automation ", () => {
     });
     test(
       `@Regression For ${data.typeOfTest} login as AH Conduct test as Examiner and End the test`,
-      { tag: ["@reg", "@PSGCMPLN", "@leftnav"] },
+      { tag: ["@reg", "@PICVOCLN", "@leftnav"] },
       async (
         {
           wj5ah,
@@ -60,24 +60,22 @@ test.describe(" LeftNav Automation ", () => {
         );
 
         score =
-        await wj5examinerTest_leftnavPage.completeTheLeftNavValidationForPSGCMPTest(
+          await wj5examinerTest_leftnavPage.completeTheLeftNavValidationForPICVOCTest(
             data.typeOfTest,
           );
-          if (
-            data.typeOfTest.match(
-              /SSP item check for PSGCMP SSP3|SSP item check for PSGCMP SSP4|SSP item check for PSGCMP SSP5|Flagged,expanded and collapsed for PSGCMP SSP6/i
-                             
-            )
-          ) {
-            await wj5examinerTestPage.breakTheLogicOut(
-            );
-            await $examineePage.close();
-          } else {
-            await wj5examinerTestPage.endSessionRSB();
-            await wj5examineepage.swithToTheChildScreenAndWaitUntilToSeeTheJoinSessionButton();
-            await $examineePage.close();
-            await wj5examinerTestPage.completeTSObservationsandClickNext();
-          }
+        if (
+          data.typeOfTest.match(
+            /SSP item check for PICVOC SSP3|SSP item check for PICVOC SSP4|SSP item check for PICVOC SSP5|SSP item check for PICVOC SSP6|Flagged,expanded and collapsed for PICVOC SSP7/i
+          )
+        ) {
+          await wj5examinerTestPage.breakTheLogicOut();
+          await $examineePage.close();
+        } else {
+          await wj5examinerTestPage.endSessionRSB();
+          await wj5examineepage.swithToTheChildScreenAndWaitUntilToSeeTheJoinSessionButton();
+          await $examineePage.close();
+          await wj5examinerTestPage.completeTSObservationsandClickNext();
+        }
       },
     );
   });
