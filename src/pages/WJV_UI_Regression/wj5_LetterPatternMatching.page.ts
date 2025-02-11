@@ -94,7 +94,7 @@ export default class wj5LetterPatternMatchingPage {
     this.rawScoreText = this.page.locator("//div[@class='raw-score']");
     this.endTest = this.page.locator("//button[text()='End Test']");
     this.listOfPracticeExerciseItems = this.page.locator("//div[@class='examinee-view']//child::div[@class='fluency-mc']");
-    this.introductionError = this.page.locator("//div[@class='introduction error']//child::*[@class='error-icon']");
+    this.introductionError = this.page.locator("//div[@class='introduction  error']//child::*[@class='error-icon']");
     this.inCorrectAnswerErrorMessage = this.page.locator("(//div[@class='intro-text']//child::span)");
     this.checkBoxNoneOfTheabove = this.page.getByRole("checkbox", {
       name: "None of the above",

@@ -311,6 +311,7 @@ export default class wj5SentenceWritingFluencyPage {
           await correctlocator.click();
         } else if (itemDetails.startsWith("Test Introduction")) {
           await this.startPracticeAndStartTimerButton.click();
+          await this.page.waitForTimeout(1000);
           expect(await this.stopTimerIntroText.nth(1).textContent()).toContain("An alert will appear at the 2-minute mark to determine whether testing should continue.");
           await this.stopTimerAlertMessage.waitFor({ state: "visible" });
           expect(await this.stopTimerAlertMessage.textContent()).toContain("If the examinee has not written at least one correct sentence or refuses to continue, end the test by clicking the Stop Timer button.");

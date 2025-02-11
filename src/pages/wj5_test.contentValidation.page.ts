@@ -1193,7 +1193,7 @@ export default class wj5TestContentValidationPage {
         await this.assertWithScreenShots();
       } else if (itemDetails.startsWith("Introduction")) {
         await this.assertWithScreenShots();
-      } else if (itemDetails.match(/^Item [1-7]/)) {
+      } else if (itemDetails.match(/^Item Set [1-7]/)) {
         await this.page.waitForTimeout(3000);
         await this.assertWithScreenShotsForTimerTests();
       } else if (itemDetails === "Item Set 8") {

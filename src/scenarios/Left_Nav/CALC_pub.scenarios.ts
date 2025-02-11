@@ -93,7 +93,7 @@ export const testData: TestData[] = [
     lookUpModel: "basal and ceiling",
     blockName: "Form A",
     examineeAge: 4,
-    SSP: "Ages 14 to Above Average Adult",
+    SSP: "Ages 14 to Adult",
     location: "PVP",
     examineeGrade: "Grade 4",
   },

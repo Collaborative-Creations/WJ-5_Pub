@@ -1430,7 +1430,7 @@ export default class wj5ReroutingPage {
           await correctlocator.click();
 
           await expect
-            .soft(this.itemDetails1.nth(5))
+            .soft(this.itemDetails1.nth(4))
             .toHaveText("Test Routing Change");
           await this.page.waitForTimeout(2000);
           await this.reroutingContinue.click();

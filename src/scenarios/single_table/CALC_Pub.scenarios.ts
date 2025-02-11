@@ -161,13 +161,13 @@ export const testData: TestData[] = [
   },
   {
     typeOfTest:
-      "Ages 14 to Above Average Adult - Attain Quick Basal Ceiling scenario",
+      "Ages 14 to Adult - Attain Quick Basal Ceiling scenario",
     testName: "Calculation",
     testStemForm: "CALC.W5PA",
     lookUpModel: "SingleTable",
     blockName: "Form A",
     examineeAge: 4,
-    SSP: "Ages 14 to Above Average Adult",
+    SSP: "Ages 14 to Adult",
     totalItems: 10,
     scoreFlag: "",
     BbyC: 5,
