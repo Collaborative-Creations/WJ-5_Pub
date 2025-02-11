@@ -67,7 +67,7 @@ export default class wj5MultiPage {
   private readonly EndTestCloseIcon: Locator;
   private readonly IDK: Locator;
   private readonly parcmpdonebtn: Locator;
-
+  private readonly replayButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -81,6 +81,9 @@ export default class wj5MultiPage {
     this.lestBeginButton = this.page.locator("//button[text()='Letʼs Begin']");
     this.startTestButton = this.page.locator("//button[text()='Start Test']");
     this.videoPlayButton = this.page.locator("//button[@class='large-play']");
+    this.replayButton = this.page.locator(
+      '//button[@class="plain-button replay-button"]',
+    );
     this.plainNextButtonOrEndButton = this.page.locator(
       "button.plain-button.next-item-button, button.plain-button.nav-button"
     );
@@ -1365,7 +1368,8 @@ export default class wj5MultiPage {
     );
 
     while (await this.plainNextButtonOrEndButton.isVisible()) {
-       
+      await this.page.waitForLoadState("load");
+      await this.page.waitForTimeout(2500);       
       const itemDetails: string = (await this.itemDetails.textContent())!;
       const correctlocator: Locator = this.corectOptionButton.first();
       const incorrectlocator: Locator = this.incorrectOptionButton.first();
@@ -1405,6 +1409,7 @@ export default class wj5MultiPage {
       ) {
         if (/^Introduction (1|2)/.test(itemDetails)) {
           await this.videoPlayButton.click();
+          await expect(this.replayButton).toBeVisible({ timeout: 2 * 60 * 1000 });
           await this.plainNextButtonOrEndButton.waitFor({ state: "visible" });
         } else if (itemDetails.match(/Sample Item A, Trial 1/i)) {
           await correctlocator.click();
