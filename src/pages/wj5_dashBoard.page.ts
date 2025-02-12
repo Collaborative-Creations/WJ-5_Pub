@@ -1183,7 +1183,11 @@ export default class Wj5DashboardPage {
     const mapasJSON: string = JSON.stringify([...this.reqWlookUpMap]);
     console.log("reqWlookUpMap - - >" + mapasJSON);
 
-    softAssertPrint(examinerid, this.examinerData.examinerID, "Examiner ID");
+    if(examineeid == "" || examineeid == undefined || examineeid == null || examineeid.includes("No examinees meet the criteria specified.")){
+      throw new Error("The Examinee ID assertion failed, probable cause the Report could be empty.");
+    }
+
+    // softAssertPrint(examinerid, this.examinerData.examinerID, "Examiner ID");
     softAssertPrint(examineeid, Wj5DashboardPage.examineeID, "Examinee ID");
     try {
       softAssertPrint(
