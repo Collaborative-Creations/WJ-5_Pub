@@ -260,9 +260,9 @@ export default class wj5MultiPage {
     await this.page.bringToFront();
     await this.page.waitForTimeout(Number(2000));
 
-    if (await this.page.locator(".top-line").isVisible()) {
-      await this.page.locator(".blue-button").getByText("Letʼs Begin").click();
-    }
+    // if (await this.page.locator(".top-line").isVisible()) {
+    //   await this.page.locator(".blue-button").getByText("Letʼs Begin").click();
+    // }
 
     await this.page.locator(".plain-button.menu-button").click();
     await this.page.locator(".main .plain-button:nth-child(3)").click();
