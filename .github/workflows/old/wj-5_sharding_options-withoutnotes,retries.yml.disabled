@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Test environment (prodCanada/ prod/ prodTest/ stage/ qa)"
+        description: "Test environment (prodCanada/prod/stage/qa)"
         required: true
         default: "stage"
       test_pattern:
-        description: "Test pattern (e.g., @smoke, @testDe|@derivedScores)"
+        description: "Test pattern (e.g., @smoke , (?=.*@RDGBAS)(?=.*@derivedScores) , (?=.*@derivedScores)(?=.*(@PHNMAN|@RDGBAS)))"
         required: true
-        default: "(?=.*@RDGBAS)(?=.*@derivedScores)"
+        default: "@smoke or (?=.*@RDGBAS)(?=.*@derivedScores) or (?=.*@derivedScores)(?=.*(@PHNMAN|@RDGBAS))"
       shard_count:
         description: "Number of shards"
         required: true
@@ -23,7 +23,7 @@ on:
           - "6"
           - "8"
           - "10"
-          - "15"
+          - "15"  # Added new shard option
       browser:
         description: "Browser to run tests on"
         required: true
@@ -33,24 +33,10 @@ on:
           - "chrome"
           - "firefox"
           - "webkit"
-      num_retries:
-        description: "Number of test retries"
-        required: true
-        default: "2"
-        type: choice
-        options:
-          - "0"
-          - "1"
-          - "2"
-          - "3"
-      pre_run_notes:
-        description: "Notes before running the tests (purpose, context, etc.)"
-        required: false
-        type: string
 
 env:
   TEST_ENV: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'stage' }}
-  NUM_RETRIES: ${{ github.event.inputs.num_retries }}
+  NUM_RETRIES: 2
   SLOW_MODE_DELAY_IN_MS: 0
   CI: "true"
   PLAYWRIGHT_WORKERS: 1
@@ -96,20 +82,6 @@ jobs:
               ;;
           esac
 
-      - name: Save pre-run notes
-        if: inputs.pre_run_notes != ''
-        run: |
-          mkdir -p run-metadata
-          echo "${{ inputs.pre_run_notes }}" > run-metadata/pre-run-notes.txt
-
-      - name: Upload pre-run notes
-        if: inputs.pre_run_notes != ''
-        uses: actions/upload-artifact@v4
-        with:
-          name: run-metadata
-          path: run-metadata/
-          retention-days: 30
-
   test:
     needs: prepare
     name: "Shard ${{ matrix.shard }}"
@@ -126,21 +98,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-
-      - name: Collect System Information
-        run: |
-          mkdir -p system-info
-          echo "=== System Information for Shard ${{ matrix.shard }} ===" > system-info/specs.txt
-          echo "CPU Information:" >> system-info/specs.txt
-          lscpu >> system-info/specs.txt
-          echo -e "\nMemory Information:" >> system-info/specs.txt
-          free -h >> system-info/specs.txt
-          echo -e "\nDisk Information:" >> system-info/specs.txt
-          df -h >> system-info/specs.txt
-          echo -e "\nSystem Load:" >> system-info/specs.txt
-          uptime >> system-info/specs.txt
-          echo -e "\nContainer Information:" >> system-info/specs.txt
-          cat /etc/os-release >> system-info/specs.txt
 
       - name: Set up Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
@@ -181,7 +138,6 @@ jobs:
           path: |
             playwright-report/
             test-results/
-            system-info/
           retention-days: 30
 
       - name: Create status file
@@ -193,7 +149,6 @@ jobs:
           echo "Environment: ${{ github.event.inputs.environment }}" >> test-status/status.txt
           echo "Browser: ${{ github.event.inputs.browser }}" >> test-status/status.txt
           echo "Test Pattern: ${{ github.event.inputs.test_pattern }}" >> test-status/status.txt
-          echo "Retries: ${{ env.NUM_RETRIES }}" >> test-status/status.txt
 
       - name: Upload status
         if: always()
@@ -224,7 +179,6 @@ jobs:
           mkdir -p merged-report
           current_date=$(date +%Y-%m-%d_%H-%M-%S)
 
-          # Start of HTML file
           cat << EOF > merged-report/index.html
           <!DOCTYPE html>
           <html lang="en">
@@ -366,92 +320,25 @@ jobs:
                 background: #f6f8fa;
                 color: var(--neutral-color);
               }
-              
-              .system-info {
-                background: #f8f9fa;
-                padding: 1rem;
-                border-radius: 6px;
-                margin-top: 1rem;
-                font-family: monospace;
-                white-space: pre-wrap;
-                max-height: 400px;
-                overflow-y: auto;
-              }
-              
-              .notes-section {
-                background: #fff3cd;
-                border: 1px solid #ffeeba;
-                padding: 1rem;
-                border-radius: 6px;
-                margin: 1rem 0;
-              }
-              
-              .notes-section h3 {
-                color: #856404;
-                margin-top: 0;
-              }
-              
-              .post-notes-form {
-                background: #e9ecef;
-                padding: 1rem;
-                border-radius: 6px;
-                margin: 1rem 0;
-              }
-              
-              .post-notes-form textarea {
-                width: 100%;
-                min-height: 100px;
-                margin: 0.5rem 0;
-                padding: 0.5rem;
-                border: 1px solid #ced4da;
-                border-radius: 4px;
-              }
-              
-              .post-notes-form button {
-                background: var(--primary-color);
-                color: white;
-                border: none;
-                padding: 0.5rem 1rem;
-                border-radius: 4px;
-                cursor: pointer;
-              }
-              
-              .post-notes-form button:hover {
-                background: #0056b3;
-              }
             </style>
           </head>
           <body>
             <div class="container">
               <h1>Playwright Test Reports</h1>
-          EOF
-
-          # Add pre-run notes if they exist
-          if [ -f "all-artifacts/run-metadata/pre-run-notes.txt" ]; then
-            echo "
-              <div class='notes-section'>
-                <h3>Pre-Run Notes</h3>
-                <p>$(cat all-artifacts/run-metadata/pre-run-notes.txt)</p>
-              </div>" >> merged-report/index.html
-          fi
-
-          # Add meta information
-          echo "
-              <div class='meta-info'>
+              <div class="meta-info">
                 <p><strong>Environment:</strong> ${{ inputs.environment }}</p>
                 <p><strong>Browser:</strong> ${{ inputs.browser }}</p>
                 <p><strong>Test Pattern:</strong> ${{ inputs.test_pattern }}</p>
                 <p><strong>Total Shards:</strong> ${{ inputs.shard_count }}</p>
-                <p><strong>Retries:</strong> ${{ inputs.num_retries }}</p>
                 <p><strong>Last Updated:</strong> $current_date</p>
               </div>
-              <div class='report-container'>" >> merged-report/index.html
+              <div class="report-container">
+          EOF
 
-          # Process each shard's report and system info
+          # Process each shard's report
           for ((i=1; i<=${{ inputs.shard_count }}; i++)); do
             report_source="all-artifacts/playwright-report-shard-$i"
             status_file="all-artifacts/test-status-shard-$i/status.txt"
-            system_info_file="$report_source/system-info/specs.txt"
             
             if [ -d "$report_source" ]; then
               mkdir -p "merged-report/shard-$i"
@@ -468,12 +355,6 @@ jobs:
                 fi
               fi
               
-              # Read system info
-              system_info="System information not available"
-              if [ -f "$system_info_file" ]; then
-                system_info=$(cat "$system_info_file")
-              fi
-              
               echo "
               <div class='report-wrapper'>
                 <div class='report-link'>
@@ -484,25 +365,11 @@ jobs:
                   </div>
                 </div>
                 <div class='report-details' id='shard-$i-details'>
-                  <div class='system-info'>
-                    <h3>System Information</h3>
-                    <pre>$system_info</pre>
-                  </div>
                   <iframe src='./shard-$i/playwright-report/index.html'></iframe>
                 </div>
               </div>" >> merged-report/index.html
             fi
           done
-
-          # Add post-notes form
-          echo "
-              <div class='post-notes-form'>
-                <h3>Add Post-Run Notes</h3>
-                <form id='postNotesForm'>
-                  <textarea id='postNotes' placeholder='Enter your observations and notes about this test run...'></textarea>
-                  <button type='submit'>Save Notes</button>
-                </form>
-              </div>" >> merged-report/index.html
 
           # Add JavaScript for interactivity
           echo "
@@ -522,51 +389,6 @@ jobs:
                 else if (!e.target.classList.contains('expand-btn')) {
                   window.open('./shard-' + shardNum + '/playwright-report/index.html', '_blank');
                 }
-              });
-            });
-
-            // Handle post-run notes
-            document.getElementById('postNotesForm').addEventListener('submit', function(e) {
-              e.preventDefault();
-              const notes = document.getElementById('postNotes').value;
-              
-              // Save notes to localStorage with timestamp
-              const savedNotes = {
-                text: notes,
-                timestamp: new Date().toISOString(),
-                runId: '${{ github.run_id }}'
-              };
-              
-              const allNotes = JSON.parse(localStorage.getItem('playwrightTestNotes') || '[]');
-              allNotes.push(savedNotes);
-              localStorage.setItem('playwrightTestNotes', JSON.stringify(allNotes));
-              
-              // Show saved notes
-              const notesSection = document.createElement('div');
-              notesSection.className = 'notes-section';
-              notesSection.innerHTML = '<h3>Post-Run Notes</h3><p>' + notes + '</p>';
-              
-              const form = document.querySelector('.post-notes-form');
-              form.parentNode.insertBefore(notesSection, form);
-              
-              // Clear the form
-              document.getElementById('postNotes').value = '';
-              
-              alert('Notes saved successfully!');
-            });
-
-            // Load existing notes for this run
-            window.addEventListener('load', function() {
-              const allNotes = JSON.parse(localStorage.getItem('playwrightTestNotes') || '[]');
-              const runNotes = allNotes.filter(note => note.runId === '${{ github.run_id }}');
-              
-              runNotes.forEach(note => {
-                const notesSection = document.createElement('div');
-                notesSection.className = 'notes-section';
-                notesSection.innerHTML = '<h3>Post-Run Notes</h3><p>' + note.text + '</p>';
-                
-                const form = document.querySelector('.post-notes-form');
-                form.parentNode.insertBefore(notesSection, form);
               });
             });
           </script>
