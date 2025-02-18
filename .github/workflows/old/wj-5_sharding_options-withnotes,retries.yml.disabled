@@ -8,7 +8,7 @@ on:
         required: true
         default: "stage"
       test_pattern:
-        description: "Test pattern (e.g., @smoke, @testDe|@derivedScores, (?=.*@RDGBAS)(?=.*@derivedScores), (?=.*@derivedScores)(?=.*(@PHNMAN|@RDGBAS)))"
+        description: "Test pattern (e.g., @smoke, @testDe|@derivedScores)"
         required: true
         default: "(?=.*@RDGBAS)(?=.*@derivedScores)"
       shard_count:
