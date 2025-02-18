@@ -652,17 +652,18 @@ export default class wj5TestDataExportPage {
         console.error("Error:", error);
       });
 
+      const textDataExaminee_ID: string = await this.utils.filterTheValues(Examinee_ID);
+    
+      if(textDataExaminee_ID == "" || textDataExaminee_ID == undefined || textDataExaminee_ID == null || textDataExaminee_ID.includes("No examinees meet the criteria specified.")){
+        throw new Error("The Examinee ID assertion failed, probable cause the Report could be empty.");
+      }
+
     softAssertPrint(
       examineeID,
       await this.utils.filterTheValues(Examinee_ID),
       "Examinee ID",
     );
-
-    const textDataExaminee_ID: string = await this.utils.filterTheValues(Examinee_ID);
-    
-    if(textDataExaminee_ID == "" || textDataExaminee_ID == undefined || textDataExaminee_ID == null || textDataExaminee_ID.includes("No examinees meet the criteria specified.")){
-      throw new Error("The Examinee ID assertion failed, probable cause the Report could be empty.");
-    }
+  
 
     const EDOT = await this.utils.getTheDOByearsBAck(0, "new Yark");
     const { camos } = getCAMOS(examineeDOB, EDOT);

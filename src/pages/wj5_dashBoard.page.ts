@@ -558,7 +558,7 @@ export default class Wj5DashboardPage {
         (response) =>
           response.url().includes("GetSavedResearchExportData") &&
           response.status() === 200,
-          { timeout: 1 * 60 * 1000 },
+        { timeout: 1 * 60 * 1000 },
       ),
     ]);
 
@@ -1039,8 +1039,15 @@ export default class Wj5DashboardPage {
       }
     }
 
-    if(examineeid == "" || examineeid == undefined || examineeid == null || examineeid.includes("No examinees meet the criteria specified.")){
-      throw new Error("The Examinee ID assertion failed, probable cause the Report could be empty.");
+    if (
+      examineeid == "" ||
+      examineeid == undefined ||
+      examineeid == null ||
+      examineeid.includes("No examinees meet the criteria specified.")
+    ) {
+      throw new Error(
+        "The Examinee ID assertion failed, probable cause the Report could be empty.",
+      );
     }
 
     // softAssertPrint(examinerid, examinerData.examinerID, "Examiner ID"); // NO more examiner ID needed as of 25 Sep 2024
@@ -1183,11 +1190,18 @@ export default class Wj5DashboardPage {
     const mapasJSON: string = JSON.stringify([...this.reqWlookUpMap]);
     console.log("reqWlookUpMap - - >" + mapasJSON);
 
-    if(examineeid == "" || examineeid == undefined || examineeid == null || examineeid.includes("No examinees meet the criteria specified.")){
-      throw new Error("The Examinee ID assertion failed, probable cause the Report could be empty.");
+    if (
+      examineeid == "" ||
+      examineeid == undefined ||
+      examineeid == null ||
+      examineeid.includes("No examinees meet the criteria specified.")
+    ) {
+      throw new Error(
+        "The Examinee ID assertion failed, probable cause the Report could be empty.",
+      );
     }
 
-    // softAssertPrint(examinerid, this.examinerData.examinerID, "Examiner ID");
+    // softAssertPrint(examinerid, examiner.examinerID, "Examiner ID");
     softAssertPrint(examineeid, Wj5DashboardPage.examineeID, "Examinee ID");
     try {
       softAssertPrint(

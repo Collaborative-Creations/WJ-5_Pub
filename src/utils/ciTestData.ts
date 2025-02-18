@@ -11,7 +11,12 @@ export function getWj5CIUserData(shardNumber: number) {
       { userName: 'S08PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S08PwAut25Ex_01' },
       { userName: 'S09PwAut25Ex_02', passWord: 'STest@100', examinerID: 'S09PwAut25Ex_02' },
       { userName: 'S10PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S10PwAut25Ex_01' },
-      { userName: 'S11PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S11PwAut25Ex_01' }
+      { userName: 'S11PwAut25Ex_01', passWord: 'STest@100', examinerID: 'S11PwAut25Ex_01' },
+      { userName: '06PwAut25Ex_01', passWord: 'Test@100', examinerID: '06PwAut25Ex_01', accountType: 'examiner' },
+      { userName: '07PwAut25Ex_01', passWord: 'Test@100', examinerID: '07PwAut25Ex_01', accountType: 'examiner' },
+      { userName: '08PwAut25Ex_01', passWord: 'Test@100', examinerID: '08PwAut25Ex_01', accountType: 'examiner' },
+      { userName: '09PwAut25Ex_01', passWord: 'Test@100', examinerID: '09PwAut25Ex_01', accountType: 'examiner' },
+      { userName: '10PwAut25Ex_01', passWord: 'Test@100', examinerID: '10PwAut25Ex_01', accountType: 'examiner' }
     ],
     accountHolder: [
       { userName: 'S01PwAut25AH', passWord: 'STest@100' }, // ca
@@ -24,7 +29,12 @@ export function getWj5CIUserData(shardNumber: number) {
       { userName: 'S08PwAut25AH', passWord: 'STest@100' },
       { userName: 'S09PwAut25AH', passWord: 'STest@100' },
       { userName: 'S10PwAut25AH', passWord: 'STest@100' },
-      { userName: 'S11PwAut25AH', passWord: 'STest@100' } // stage orgs
+      { userName: 'S11PwAut25AH', passWord: 'STest@100' }, // stage orgs
+      { userName: '06PwAut25AH', passWord: 'Test@100', accountType: 'accountHolder' },
+      { userName: '07PwAut25AH', passWord: 'Test@100', accountType: 'accountHolder' },
+      { userName: '08PwAut25AH', passWord: 'Test@100', accountType: 'accountHolder' },
+      { userName: '09PwAut25AH', passWord: 'Test@100', accountType: 'accountHolder' },
+      { userName: '10PwAut25AH', passWord: 'Test@100', accountType: 'accountHolder' }
     ]
   };  
 

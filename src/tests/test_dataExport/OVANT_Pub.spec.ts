@@ -28,7 +28,7 @@ let score: TestRunTimeData;
 test.describe("OVANT.W5PA Test Data Export Automation ", () => {
   testData.forEach((data) => {
     test.beforeAll(async () => {
-      pRetry = (await import('p-retry')).default;
+      pRetry = (await import("p-retry")).default;
       await setFilePathes(data.lookUpModel);
     });
     test(
@@ -75,8 +75,8 @@ test.describe("OVANT.W5PA Test Data Export Automation ", () => {
                 error.message,
               );
             },
-            minTimeout: 2000,
-            maxTimeout: 5000,
+            minTimeout: 5000,
+            maxTimeout: 15000,
           },
         );
 
@@ -168,8 +168,8 @@ test.describe("OVANT.W5PA Test Data Export Automation ", () => {
                 error.message,
               );
             },
-            minTimeout: 2000,
-            maxTimeout: 5000,
+            minTimeout: 5000,
+            maxTimeout: 15000,
           },
         );
       },

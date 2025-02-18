@@ -9,6 +9,7 @@ interface TestData {
   totalItems: number;
   location: string;
   testSchemaFileName: string;
+  examineeGrade: string;
 }
 
 export const testData: TestData[] = [
@@ -24,5 +25,6 @@ export const testData: TestData[] = [
     location: "PublicationsOrg01",
     lookUpModel: "Test Data Export",
     testSchemaFileName: "APPROB.W5PA_TestSchema.xlsx",
+    examineeGrade: "Grade 4",
   },
 ];
