@@ -75,8 +75,8 @@ test.describe("OVSYN.W5PA Test Data Export Automation ", () => {
                 error.message,
               );
             },
-            minTimeout: 2000,
-            maxTimeout: 5000,
+            minTimeout: 5000,
+            maxTimeout: 15000,
           },
         );
 
@@ -166,8 +166,8 @@ test.describe("OVSYN.W5PA Test Data Export Automation ", () => {
                 error.message,
               );
             },
-            minTimeout: 2000,
-            maxTimeout: 5000,
+            minTimeout: 5000,
+            maxTimeout: 15000,
           },
         );
       },

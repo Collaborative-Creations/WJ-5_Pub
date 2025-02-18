@@ -15,8 +15,7 @@ test.describe("Listening Comprehension cluster Score Report", () => {
             ) => {
                 test.setTimeout(20 * 60 * 1000);
 
-                await wj5ah.loginToRiversideScore(ahData.userName,ahData.passWord);
-                // await wj5ah.gotoUrl(getSiteUrl() + "home");
+                await wj5ah.gotoUrl(getSiteUrl() + "home");
 
                 await wj5Test_ScoreReportsPage.selectTestAssignmentForReport(data.examineeName);
 

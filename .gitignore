@@ -160,3 +160,5 @@ user
 auth
 src/utils/environment.ts
 **.json
+
+**/Old/

@@ -51,6 +51,13 @@ import wj5StycmpPage from "../pages/WJV_UI_Regression/wj5_STYCMP.page";
 import wj5WrdgflPage from "../pages/WJV_UI_Regression/wj5_WRDGFL.page";
 import wj5MatrczPage from "../pages/WJV_UI_Regression/wj5_MATRCZ.page";
 import WJ5_ScoreReportPage from "../pages/wj5_scoreReports.page";
+import wj5LwidntPage from "../pages/WJV_UI_Regression/wj5_LWIDNT.page";
+import wj5SparelPage from "../pages/WJV_UI_Regression/wj5_SPAREL.page";
+import wj5VrbatnPage from "../pages/WJV_UI_Regression/wj5_VRBATN.page";
+import wj5WrdatkPage from "../pages/WJV_UI_Regression/wj5_WRDATK.page";
+import wj5PsgcmpPage from "../pages/WJV_UI_Regression/wj5_PSGCMP.page";
+import wj5StyrecPage from "../pages/WJV_UI_Regression/wj5_STYREC.page";
+import wj5SemretPage from "../pages/WJV_UI_Regression/wj5_SEMRET.page";
 
 // import { getUserAuthFilePath } from "../utils/auth/UserAuthentication";
 // import { registerUserForTokenRefresh, startTokenRefreshLoop } from "../utils/auth/TokenRefreshManager";
@@ -115,6 +122,13 @@ type Fixtures = {
   wj5examinerTest_wrdgflPage: wj5WrdgflPage;
   wj5examinerTest_matrczPage: wj5MatrczPage;
   wj5Test_ScoreReportsPage: WJ5_ScoreReportPage;
+  wj5examinerTest_lwidntPage: wj5LwidntPage;
+  wj5examinerTest_sparelPage: wj5SparelPage;
+  wj5examinerTest_vrbatnPage: wj5VrbatnPage;
+  wj5examinerTest_wrdatkPage: wj5WrdatkPage;
+  wj5examinerTest_psgcmpPage: wj5PsgcmpPage;
+  wj5examinerTest_styrecPage: wj5StyrecPage;
+  wj5examinerTest_semretPage: wj5SemretPage;
 };
 
 let wj5ahNewPage: Page;
@@ -360,5 +374,31 @@ wj5examinerTest_matrczPage: async ({ context }, use) => {
     await use(new WJ5_ScoreReportPage(wj5ahNewPage));
   },
 
-});
+  wj5examinerTest_sparelPage: async ({ context }, use) => {
+    await use(new wj5SparelPage(wj5examinerNewPage));
+  },
 
+  wj5examinerTest_vrbatnPage: async ({ context }, use) => {
+    await use(new wj5VrbatnPage(wj5examinerNewPage));
+  },
+
+ wj5examinerTest_lwidntPage: async ({ context }, use) => {
+    await use(new wj5LwidntPage(wj5examinerNewPage));
+  },
+  
+wj5examinerTest_wrdatkPage: async ({ context }, use) => {
+    await use(new wj5WrdatkPage(wj5examinerNewPage));
+  },
+
+ wj5examinerTest_psgcmpPage: async ({ context }, use) => {
+    await use(new wj5PsgcmpPage(wj5examinerNewPage));
+  },
+
+ wj5examinerTest_styrecPage: async ({ context }, use) => {
+    await use(new wj5StyrecPage(wj5examinerNewPage));
+  },
+
+ wj5examinerTest_semretPage: async ({ context }, use) => {
+    await use(new wj5SemretPage(wj5examinerNewPage));
+  },  
+});

@@ -32,6 +32,29 @@ export default class WJ5_ScoreReportPage {
   private readonly loadingIcon: Locator;
   private readonly docTypeAndFormat: Locator;
   private readonly docTypeAndFormatOptions: Locator;
+  private readonly advancedOptions: Locator;
+  private readonly advancedOptionsHeader: Locator;
+  private readonly confidenceLevelOptions: Locator;
+  private readonly significanceLevelOptions: Locator;
+  private readonly confidenceLevelDropdown: Locator;
+  private readonly significanceLevelDropdown: Locator;
+  private readonly saveButton: Locator;
+  private readonly successMsg: Locator;
+  private readonly closeButton: Locator;
+  private readonly includeDropdown: Locator;
+  private readonly createNewReportButton: Locator;
+  private readonly selectExamineeButton: Locator;
+  private readonly searchExaminee: Locator;
+  private readonly selectExamineeFromDropdown: Locator;
+  private readonly selectTestSetNameButton: Locator;
+  private readonly searchTestSetName: Locator;
+  private readonly selectTestSetNameFromDropdown: Locator;
+  private readonly selectScoreTemplateButton: Locator;
+  private readonly searchScoreTemplate: Locator;
+  private readonly selectScoreTemplateFromDropdown: Locator;
+  private readonly selectNormativeBasisButton: Locator;
+  private readonly selectNormativeBasisFromDropdown: Locator;
+
 
   constructor(page: Page) {
 
@@ -52,6 +75,30 @@ export default class WJ5_ScoreReportPage {
     this.loadingIcon = page.locator("//div[@class='loading-inner']").first();
     this.docTypeAndFormat = page.locator("//button[@class='select-box']");
     this.docTypeAndFormatOptions = page.locator("//div[@class='item-text single-select']");
+    this.advancedOptions = this.page.locator("//button[@class='hollow-button no-margin ReportWizard_mcs_smallButton']");
+    this.advancedOptionsHeader = this.page.getByRole('heading', { name: 'Advanced Options' });
+    this.confidenceLevelDropdown = this.page.locator("(//button[@class='select-box'])[3]");
+    this.significanceLevelDropdown = this.page.locator("(//button[@class='select-box'])[4]");
+    this.confidenceLevelOptions = this.page.locator("//div[@class='ReportAdvancedOptionsModal_mcs_confBand']//div[@class='item-text single-select']");
+    this.significanceLevelOptions = this.page.locator("//div[@class='ReportAdvancedOptionsModal_mcs_signifBand']//div[@class='item-text single-select']");
+    this.saveButton = this.page.getByRole('button', { name: 'save' });
+    this.successMsg = this.page.locator("//h1[text()='Success!']");
+    this.closeButton = this.page.getByRole('button', { name: 'Close' });
+    this.includeDropdown = this.page.locator("//button[@class='select-box']");
+    this.additionalOptionsHeader = this.page.getByRole('heading', { name: 'Additional Options' });
+    this.generateReportButton = this.page.getByRole('button', { name: 'Generate Report' });
+    this.createNewReportButton = this.page.locator("//button[text()='Create New Report']");
+    this.selectExamineeButton = this.page.locator(".placeholder").getByText("Select Examinee");
+    this.searchExaminee = this.page.locator("(//input[@placeholder='Search...'])[1]");
+    this.selectExamineeFromDropdown = this.page.locator(".item-text.single-select");
+    this.selectTestSetNameButton = this.page.locator(".placeholder").getByText("Select Test Set");
+    this.searchTestSetName = this.page.locator("(//input[@placeholder='Search...'])[2]");
+    this.selectTestSetNameFromDropdown = this.page.locator(".item-text.single-select");
+    this.selectScoreTemplateButton = this.page.locator("(//button[@class='select-box'])[1]");
+    this.searchScoreTemplate = this.page.locator('[placeholder="Search..."]');
+    this.selectScoreTemplateFromDropdown = this.page.locator(".item-text.single-select");
+    this.selectNormativeBasisButton = this.page.locator("(//button[@class='select-box'])[2]");
+    this.selectNormativeBasisFromDropdown = this.page.locator(".item-text.single-select");
   }
 
   async selectTestAssignmentForReport(testSetName: string, scoreTemp?: string, NormBasis?: string, confLevel?: string, signifLevel?: string, format?: string) {
@@ -210,7 +257,7 @@ export default class WJ5_ScoreReportPage {
     } catch (error) {
       console.error(`Error reading ${this.requiredFilePath}: ${error}`);
     }
-
+      await this.page.waitForTimeout(5000);
   }
 async webPageToFile(report: string,extractedReport:string,baseLine:string,baseLineName:string){
     try {
@@ -256,4 +303,74 @@ async webPageToFile(report: string,extractedReport:string,baseLine:string,baseLi
       console.error(`Error extracting elements data:`, error);
     }
   }
+  async selectExamineeOnCreateReportPage(examineeName: string) {
+
+    await this.selectExamineeButton.click();
+    await this.searchExaminee.fill(examineeName);
+    await this.selectExamineeFromDropdown.getByText(examineeName).click();
+    await this.page.getByText("Selected Examinee Details").waitFor({ state: "visible" });
+  }
+  async selectTestSetOnCreateReportPage(testSetName: string) {
+
+    await this.selectTestSetNameButton.waitFor({ state: "visible" });
+    await this.selectTestSetNameButton.click();
+    await this.searchTestSetName.fill(testSetName);
+    await this.selectTestSetNameFromDropdown.getByText(testSetName).last().click();
+  }
+  async createNewReportFromReportCenter(examineeName: string,testSetName: string,templateName: string,norm: string){
+
+    await this.page.getByRole('menuitem', { name: 'Reports' }).click();
+    await this.page.getByRole('menuitem', { name: 'Report Center' }).click();
+    expect(this.page.url()).toContain("reportcenter");
+    await this.createNewReportButton.click();
+    await this.createReportHeader.waitFor({ state: "visible" });
+    await this.selectExamineeOnCreateReportPage(examineeName);
+    await this.selectTestSetOnCreateReportPage(testSetName);
+    await this.nextButton.isEnabled();
+    await this.nextButton.click();
+    await this.selectScoreTemplateOnCreateReportPage(templateName);
+    await this.selectNormativeBasisOnCreateReportPage(norm);
+  }
+  async selectScoreTemplateOnCreateReportPage(templateName: string) {
+
+    await this.selectScoreTemplateButton.click();
+    await this.searchScoreTemplate.fill(templateName);
+    await this.selectScoreTemplateFromDropdown.getByText(templateName).click();
+  }
+  async selectNormativeBasisOnCreateReportPage(norm:string) {
+
+    await this.selectNormativeBasisButton.click();
+    await this.selectNormativeBasisFromDropdown.getByText(norm).click();
+  }
+
+  async selectAdvancedOptions(confLevel?: string, signifLevel?: string) {
+
+    await this.advancedOptions.click();
+    await this.advancedOptionsHeader.waitFor({ state: "visible" });
+    await this.confidenceLevelDropdown.click();
+    await this.page.locator(`//div[@class='item-text single-select' and text()= '${confLevel}']`).click();
+    await this.significanceLevelDropdown.click();
+    await this.page.locator(`//div[contains(text(),'${signifLevel}') and @class='item-text single-select']`).click();
+    await this.saveButton.isEnabled();
+    await this.saveButton.click();
+    await expect.soft(this.successMsg).toHaveText("Success!");
+    await this.closeButton.click();
+    await this.nextButton.isEnabled();
+    await this.nextButton.click();
+  }
+  async selectAdditionalOptions(sessionLevelNotes?: string, sessionLevelObservations?: string, testLevelNotes?: string, testLevelRsbe?: string) {
+
+    await this.additionalOptionsHeader.waitFor({ state: "visible"});
+    await this.includeDropdown.nth(0).click();
+      await this.page.locator(`//div[@class='item-text single-select' and text()= '${sessionLevelNotes}']`).nth(0).click();
+      await this.includeDropdown.nth(1).click();
+      await this.page.locator(`//div[@class='item-text single-select' and text()= '${sessionLevelObservations}']`).nth(1).click();
+      await this.includeDropdown.nth(2).click();
+      await this.page.locator(`//div[@class='item-text single-select' and text()= '${testLevelNotes}']`).nth(2).click();
+      await this.includeDropdown.nth(3).click();
+      await this.page.locator(`//div[@class='item-text single-select' and text()= '${testLevelRsbe}']`).nth(3).click();
+      await this.generateReportButton.isEnabled();
+      await this.generateReportButton.click();
+  }
+
 }

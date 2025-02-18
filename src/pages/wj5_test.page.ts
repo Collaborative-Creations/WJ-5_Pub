@@ -2852,6 +2852,14 @@ export default class wj5TestPage {
         .soft(await this.EndTestPopUpElements.nth(14).textContent())
         .toContain(OutcomeMsg);
       await this.EndTestPopUpElements.nth(18).click();
+    } else if(testStemForm === 'SEMRET.W5PA' && typeOfTest.match(/125 correct scenario|All incorrect scenario/i)){
+      expect
+      .soft(await this.EndTestPopUpElements.nth(9).textContent())
+      .toContain(FlagsText);
+      expect
+        .soft(await this.EndTestPopUpElements.nth(14).textContent())
+        .toContain(OutcomeMsg);
+      await this.EndTestPopUpElements.nth(16).click();
     } else if(
       (testStemForm === 'WRDGFL.W5PA' && typeOfTest.match(/Sample Item EndTest Flow when RS is (0|1)|Practice Exercise All Incorrect|Test Items (All Correct|All Incorrect|6 Correct)/i))
     ){
@@ -2883,11 +2891,17 @@ export default class wj5TestPage {
        } else if  (testNames2.includes(testStemForm)) {
           await this.EndTestPopUpElements.nth(18).click();
        } else if (
-        (testStemForm === 'STYCMP.W5PA' && typeOfTest.match(/Sample Item EndTest Flow when RS is (0|1)/i))
+        (testStemForm === 'STYCMP.W5PA' && typeOfTest.match(/Sample Item EndTest Flow when RS is (0|1)/i)) ||
+        (testStemForm === 'WRDATK.W5PA' && typeOfTest === 'Block A EndTest Flow when RS is 2') ||
+        (testStemForm === 'LWIDNT.W5PA' && typeOfTest.match(/Block A EndTest Flow when RS is 0|Block AB EndTest flow scenario when RS is 9/))
       ) {
         await this.EndTestPopUpElements.nth(16).click();
+      }else if(
+        (testStemForm === 'WRDGFL.W5PA' && typeOfTest.match(/Sample Item EndTest Flow when RS is (0|1)|Practice Exercise All Incorrect|Test Items (All Correct|All Incorrect|6 Correct)/i))
+      ){
+        await this.EndTestPopUpElements.nth(17).click();
       }else {
-         await this.EndTestPopUpElements.nth(17).click();
+         await this.EndTestPopUpElements.nth(15).click();
        }
     }
     const rsbelements = await this.page.locator(
@@ -2913,8 +2927,10 @@ export default class wj5TestPage {
     } else if  (testNames1.includes(testStemForm)) {
       await this.EndTestPopUpElements.nth(19).click();
     } else if (
-      (testStemForm === 'STYCMP.W5PA' && typeOfTest.match(/Sample Item EndTest Flow when RS is (0|1)/i))
-      
+      (testStemForm === 'STYCMP.W5PA' && typeOfTest.match(/Sample Item EndTest Flow when RS is (0|1)/i)) ||
+      (testStemForm === 'WRDATK.W5PA' && typeOfTest === 'Block A EndTest Flow when RS is 2') ||
+      (testStemForm === 'LWIDNT.W5PA' && typeOfTest.match(/Block A EndTest Flow when RS is 0|Block AB EndTest flow scenario when RS is 9/)) ||
+      (testStemForm === 'SEMRET.W5PA' && typeOfTest.match(/125 correct scenario|All incorrect scenario/i))
     ) {
       await this.EndTestPopUpElements.nth(16).click();
     }else {

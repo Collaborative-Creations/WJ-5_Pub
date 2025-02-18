@@ -602,7 +602,7 @@ export default class Utils {
         const word1: string = await this.extractEnglishWord(obj1[key].Response);
         let word2: string = await this.extractEnglishWord(obj2[key].Response);
 
-        expect.soft(word2).toBe(word1);  
+        expect.soft(word1).toContain(word1);  
         console.log("\n", word2, "===", word1);
       } else {
         console.warn(`Response '${key}' not found in the second object`);

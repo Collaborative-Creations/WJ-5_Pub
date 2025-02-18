@@ -75,7 +75,7 @@ export default class wj5MultiPage {
     this.scoreMap = new Map();
 
     this.nextORendTestButton = this.page.locator(
-      "//button[@class='plain-button next-item-button' or @class='plain-button nav-button']"
+      "//button[@class='plain-button next-item-button' or @class='plain-button nav-button']",
     );
 
     this.lestBeginButton = this.page.locator("//button[text()='Letʼs Begin']");
@@ -85,13 +85,13 @@ export default class wj5MultiPage {
       '//button[@class="plain-button replay-button"]',
     );
     this.plainNextButtonOrEndButton = this.page.locator(
-      "button.plain-button.next-item-button, button.plain-button.nav-button"
+      "button.plain-button.next-item-button, button.plain-button.nav-button",
     );
     this.corectOptionButton = this.page.locator(
-      "//div[@class='select-group correct']//button"
+      "//div[@class='select-group correct']//button",
     );
     this.incorrectOptionButton = this.page.locator(
-      ".select-group.incorrect button , .select-group.other-input button:nth-child(1) , .select-group.answer-buttons button"
+      ".select-group.incorrect button , .select-group.other-input button:nth-child(1) , .select-group.answer-buttons button",
     );
     this.itemDetails = this.page.locator(".introduction b.semibold, b").first();
 
@@ -118,11 +118,11 @@ export default class wj5MultiPage {
     });
 
     this.multiRadioButtons = this.page.locator(
-      "//div[@class= 'observations']//div[@class='option-wrapper']//button"
+      "//div[@class= 'observations']//div[@class='option-wrapper']//button",
     );
 
     this.dropDowns = this.page.locator(
-      "//div[@class= 'observations']//button[@class='select-box']"
+      "//div[@class= 'observations']//button[@class='select-box']",
     );
 
     this.dropDownOption = this.page.locator("//following-sibling::ul/li");
@@ -141,29 +141,29 @@ export default class wj5MultiPage {
     this.syncDevicePopUp = this.page.locator(".popup-header");
     this.mainNavigation = this.page.locator(".plain-button.menu-button");
     this.mainNavigationHome = this.page.locator(
-      ".main .plain-button:nth-child(2)"
+      ".main .plain-button:nth-child(2)",
     );
     this.openNotesIcon = this.page.locator(
-      "//button[@class='plain-button notes-button']"
+      "//button[@class='plain-button notes-button']",
     );
     this.notesText = this.page.locator(
-      "//div[@class='notes-modal']//child::div[@class='notes-main']//child::textarea"
+      "//div[@class='notes-modal']//child::div[@class='notes-main']//child::textarea",
     );
     this.notesSaveButton = this.page.locator(
-      "//button[@class='notes-save-button']"
+      "//button[@class='notes-save-button']",
     );
     this.flagForLater = this.page.locator(
-      "//child::span[@class='flag-for-later']"
+      "//child::span[@class='flag-for-later']",
     );
     this.notesDropdown = this.page.locator(
-      "//div[@class='notes-modal']//select"
+      "//div[@class='notes-modal']//select",
     );
     this.notesDropdownOptions = this.page.locator(
-      "//div[@class='notes-modal']//select//option"
+      "//div[@class='notes-modal']//select//option",
     );
     this.notesErrorMessage = this.page.locator("//span[@class='redError']");
     this.closeNotes = this.page.locator(
-      "//button[@class='plain-button close-btn']"
+      "//button[@class='plain-button close-btn']",
     );
 
     this.optionA = this.page.locator("//button[@data-position='0']");
@@ -171,29 +171,29 @@ export default class wj5MultiPage {
     this.optionC = this.page.locator("//button[@data-position='2']");
 
     this.activateTabletControlButton = this.page.locator(
-      "//button[@class='plain-button examinee-cursor-button']"
+      "//button[@class='plain-button examinee-cursor-button']",
     );
     this.correctTickMark = this.page.locator(
-      "//span[@class='correct-marker']/following-sibling::div"
+      "//span[@class='correct-marker']/following-sibling::div",
     );
     this.AC = this.page.locator("//button[text()='All Correct']");
     this.NR = this.page.locator("//button[text()='No Response']");
     this.correctAnswerButton = this.page.locator(
-      "//div[@class='select-group correct item-score-group no-border']//button"
+      "//div[@class='select-group correct item-score-group no-border']//button",
     );
     this.incorrectAnswerButton = this.page.locator(
-      "//div[@class='select-group incorrect item-score-group no-border']//button"
+      "//div[@class='select-group incorrect item-score-group no-border']//button",
     );
     this.playAudioButton = this.page.locator(
-      "//button[@class='small-blue-button']"
+      "//button[@class='small-blue-button']",
     );
 
     this.resolveButton = this.page.getByRole("button", { name: "Resolve" });
     this.scores = this.page.locator(
-      "//input[@placeholder='Number Correct (0-5)']"
+      "//input[@placeholder='Number Correct (0-5)']",
     );
     this.scoresBlockB = this.page.locator(
-      "//input[@placeholder='Number Correct (0-10)']"
+      "//input[@placeholder='Number Correct (0-10)']",
     );
     this.submitButton = this.page.getByRole("button", { name: "Submit" });
 
@@ -204,14 +204,17 @@ export default class wj5MultiPage {
     this.NextAndendTestBtn = this.page.locator(
       "(//button[@class='plain-button next-item-button' or @class ='plain-button nav-button'])[1]",
     );
-    this.ResolveBtn = this.page.locator("//button[@class='link-button']/b[text()='Resolve']");
+    this.ResolveBtn = this.page.locator(
+      "//button[@class='link-button']/b[text()='Resolve']",
+    );
     this.ScoreEntryFields = this.page.locator("//input[@class='score-text']");
-    this.ScoreLaterContinue = this.page.locator("//button[@class='blue-button-no-margin' or text()='Continue']");
+    this.ScoreLaterContinue = this.page.locator(
+      "//button[@class='blue-button-no-margin' or text()='Continue']",
+    );
     this.ScoreLaterSubmit = this.page.locator("//button[text()='Submit']");
     this.EndTestCloseIcon = this.page.locator("//button[@class='close-btn']");
     this.IDK = this.page.locator("//button[text()='I Donʼt Know']");
     this.parcmpdonebtn = this.page.locator("//button[text()='Done']");
-
   }
 
   async selectThecheckBox(radioButton: number, info?: string) {
@@ -221,7 +224,7 @@ export default class wj5MultiPage {
   async selectTheDropdownOPtion(
     dropDown: number,
     dropDownOpt: string,
-    info?: string
+    info?: string,
   ) {
     await this.dropDowns.nth(dropDown).click();
     await this.page.waitForTimeout(650);
@@ -297,7 +300,7 @@ export default class wj5MultiPage {
     try {
       const selectedSsp = await this.page.$eval(
         ".starting-point-dropdown",
-        (ele) => (ele as HTMLSelectElement).value
+        (ele) => (ele as HTMLSelectElement).value,
       );
       console.log(`selected ssp is = ${selectedSsp}`);
 
@@ -305,19 +308,19 @@ export default class wj5MultiPage {
     } catch (error) {
       await this.sspDropDown.selectOption({ label: sspOption });
       console.error(
-        `the ssp drop down didnt select the one we want at first attempt so trying one more time ... ${error}`
+        `the ssp drop down didnt select the one we want at first attempt so trying one more time ... ${error}`,
       );
     }
   }
 
   async completeTheTakenTestForWlookUpScoresForLWIDNTTest(
     typeOfTest: string,
-    BbyC: number
+    BbyC: number,
   ): Promise<Map<string, string>> {
     let correctCount: number = 1;
     let inCorrectCount: number = 1;
     const itemNumber: number = Number(
-      await this.page.locator(".items-container div span").last().textContent()
+      await this.page.locator(".items-container div span").last().textContent(),
     );
 
     while (await this.plainNextButtonOrEndButton.isVisible()) {
@@ -357,7 +360,7 @@ export default class wj5MultiPage {
         await this.plainNextButtonOrEndButton.click();
       } else {
         throw new Error(
-          `The ${typeOfTest} didnt match with any of the conditions provided`
+          `The ${typeOfTest} didnt match with any of the conditions provided`,
         );
       }
 
@@ -377,12 +380,12 @@ export default class wj5MultiPage {
 
   async completeTheTakenTestForWlookUpScoresForPSGCMPTest(
     typeOfTest: string,
-    BbyC: number
+    BbyC: number,
   ): Promise<Map<string, string>> {
     let correctCount: number = 1;
     let inCorrectCount: number = 1;
     const itemNumber: number = Number(
-      await this.page.locator(".items-container div span").last().textContent()
+      await this.page.locator(".items-container div span").last().textContent(),
     );
 
     while (await this.plainNextButtonOrEndButton.isVisible()) {
@@ -426,7 +429,7 @@ export default class wj5MultiPage {
         await this.plainNextButtonOrEndButton.click();
       } else {
         throw new Error(
-          `The ${typeOfTest} didnt match with any of the conditions provided`
+          `The ${typeOfTest} didnt match with any of the conditions provided`,
         );
       }
 
@@ -446,12 +449,12 @@ export default class wj5MultiPage {
 
   async completeTheTakenTestForWlookUpScoresForWRDATKTest(
     typeOfTest: string,
-    BbyC: number
+    BbyC: number,
   ): Promise<Map<string, string>> {
     let correctCount: number = 1;
     let inCorrectCount: number = 1;
     const itemNumber: number = Number(
-      await this.page.locator(".items-container div span").last().textContent()
+      await this.page.locator(".items-container div span").last().textContent(),
     );
 
     while (await this.plainNextButtonOrEndButton.isVisible()) {
@@ -495,7 +498,7 @@ export default class wj5MultiPage {
         await this.plainNextButtonOrEndButton.click();
       } else {
         throw new Error(
-          `The ${typeOfTest} didnt match with any of the conditions provided`
+          `The ${typeOfTest} didnt match with any of the conditions provided`,
         );
       }
 
@@ -515,12 +518,12 @@ export default class wj5MultiPage {
 
   async completeTheTakenTestForWlookUpScoresForORLRDGTest(
     typeOfTest: string,
-    BbyC: number
+    BbyC: number,
   ): Promise<Map<string, string>> {
     let correctCount: number = 1;
     let inCorrectCount: number = 1;
     const itemNumber: number = Number(
-      await this.page.locator(".items-container div span").last().textContent()
+      await this.page.locator(".items-container div span").last().textContent(),
     );
 
     while (await this.plainNextButtonOrEndButton.isVisible()) {
@@ -530,7 +533,7 @@ export default class wj5MultiPage {
       const AllCorrect: Locator = this.AC;
       const NoResponse: Locator = this.NR;
       const locatorWrapper: Locator = this.page.locator(
-        "//div[@class='option-wrapper']//child::*"
+        "//div[@class='option-wrapper']//child::*",
       );
       const elements = await locatorWrapper.count();
 
@@ -567,7 +570,7 @@ export default class wj5MultiPage {
         }
       } else if (
         typeOfTest.match(
-          /Story 3 to Story 2 & 1 logic flow & EndTest Scenario/i
+          /Story 3 to Story 2 & 1 logic flow & EndTest Scenario/i,
         )
       ) {
         if (itemDetails === "Story 3") {
@@ -585,7 +588,7 @@ export default class wj5MultiPage {
         }
       } else {
         throw new Error(
-          `The ${typeOfTest} didnt match with any of the conditions provided`
+          `The ${typeOfTest} didnt match with any of the conditions provided`,
         );
       }
 
@@ -613,7 +616,6 @@ export default class wj5MultiPage {
       await this.page.locator(".items-container div span").last().textContent(),
     );
 
-
     while (await this.plainNextButtonOrEndButton.isVisible()) {
       await this.page.waitForTimeout(1000);
       const itemDetails: string = (await this.itemDetails.textContent())!;
@@ -621,7 +623,11 @@ export default class wj5MultiPage {
       const correctlocator: Locator = this.corectOptionButton.first();
 
       if (itemDetails.startsWith("Introduction")) {
-      } else if (typeOfTest.match(/Block A all correct scenario with score of 9 in Block B/i)) {
+      } else if (
+        typeOfTest.match(
+          /Block A all correct scenario with score of 9 in Block B/i,
+        )
+      ) {
         if (/^Item [1-5]\b/.test(itemDetails)) {
           await correctlocator.click();
         } else if (/^Item [6-9]\b/.test(itemDetails)) {
@@ -633,10 +639,11 @@ export default class wj5MultiPage {
           await this.ScoreLaterContinue.click();
           return;
         }
-      }else if(typeOfTest.match(/Block B & C with zero scores to A Correct Scenario/i)){
+      } else if (
+        typeOfTest.match(/Block B & C with zero scores to A Correct Scenario/i)
+      ) {
         if (/^Item ([6-9]|1[0-4])\b/.test(itemDetails)) {
-  
-        }else if(itemDetails === 'Item 15'){
+        } else if (itemDetails === "Item 15") {
           await expect(this.NextAndendTestBtn).toHaveText("End Test");
           await this.NextAndendTestBtn.click();
           await this.ResolveBtn.click();
@@ -646,13 +653,14 @@ export default class wj5MultiPage {
           await this.ScoreLaterContinue.click();
           await this.lestBeginButton.click();
           await correctlocator.click();
-        }else if (/^Item [2-5]\b/.test(itemDetails)) {
+        } else if (/^Item [2-5]\b/.test(itemDetails)) {
           await correctlocator.click();
         }
-      }else if(typeOfTest.match(/Block C & D with zero scores to Block B with RS 10/i)){
+      } else if (
+        typeOfTest.match(/Block C & D with zero scores to Block B with RS 10/i)
+      ) {
         if (/^Item (1[1-5]|1[6-9])\b/.test(itemDetails)) {
-  
-        }else if(itemDetails === 'Item 20'){
+        } else if (itemDetails === "Item 20") {
           await this.NextAndendTestBtn.click();
           await this.ResolveBtn.click();
           await this.ScoreEntryFields.nth(1).fill("0"); //RS becomes 0
@@ -660,9 +668,8 @@ export default class wj5MultiPage {
           await this.ScoreLaterSubmit.click();
           await this.ScoreLaterContinue.click();
           await this.lestBeginButton.click();
-        }else if (/^Item [6-9]\b/.test(itemDetails)) {
-          
-        }else if(itemDetails === 'Item 10'){
+        } else if (/^Item [6-9]\b/.test(itemDetails)) {
+        } else if (itemDetails === "Item 10") {
           await this.NextAndendTestBtn.click();
           await this.ResolveBtn.click();
           await this.ScoreEntryFields.nth(0).fill("10"); //RS becomes 10
@@ -670,10 +677,11 @@ export default class wj5MultiPage {
           await this.ScoreLaterContinue.click();
           return;
         }
-      } else if(typeOfTest.match(/Block D & E with zero scores to Block C with RS 10/i)){
+      } else if (
+        typeOfTest.match(/Block D & E with zero scores to Block C with RS 10/i)
+      ) {
         if (/^Item (1[6-9]|2[0-4])\b/.test(itemDetails)) {
-  
-        }else if(itemDetails === 'Item 25'){
+        } else if (itemDetails === "Item 25") {
           await expect(this.NextAndendTestBtn).toHaveText("End Test");
           await this.NextAndendTestBtn.click();
           await this.ResolveBtn.click();
@@ -682,9 +690,8 @@ export default class wj5MultiPage {
           await this.ScoreLaterSubmit.click();
           await this.ScoreLaterContinue.click();
           await this.lestBeginButton.click();
-        }else if (/^Item (1[1-4])\b/.test(itemDetails)) {
-          
-        }else if(itemDetails === 'Item 15'){
+        } else if (/^Item (1[1-4])\b/.test(itemDetails)) {
+        } else if (itemDetails === "Item 15") {
           await expect(this.NextAndendTestBtn).toHaveText("End Test");
           await this.NextAndendTestBtn.click();
           await this.ResolveBtn.click();
@@ -715,9 +722,8 @@ export default class wj5MultiPage {
 
   async completeTheTakenTestForWlookUpScoresForMATRCZTest(
     typeOfTest: string,
-    BbyC: number
+    BbyC: number,
   ): Promise<Map<string, string>> {
-
     while (await this.plainNextButtonOrEndButton.isVisible()) {
       await this.page.waitForTimeout(1000);
       const itemDetails: string = await this.itemDetails.textContent();
@@ -823,7 +829,7 @@ export default class wj5MultiPage {
             }
           }
         }
-      }else if (
+      } else if (
         typeOfTest.match(/Block B and Block D All correct scenario/i)
       ) {
         if (itemDetails.startsWith("Introduction")) {
@@ -831,22 +837,22 @@ export default class wj5MultiPage {
         } else if (itemDetails.startsWith("Sample")) {
           await this.correctTickMark.click();
         } else if (itemDetails.match(/Item/)) {
-            if (itemDetails.match(/Block B/)) {
-              if (itemDetails.match(/Item (9|1[0-6])/)) {
-                await this.activateTabletControlButton.click();
-                await this.correctTickMark.click();
-              }
-            } else if (itemDetails.match(/Block D/)) {
-              if (itemDetails.match(/Item (2[5-9]|3[0-2])/)) {
-                await this.activateTabletControlButton.click();
-                await this.correctTickMark.click();
-              }
+          if (itemDetails.match(/Block B/)) {
+            if (itemDetails.match(/Item (9|1[0-6])/)) {
+              await this.activateTabletControlButton.click();
+              await this.correctTickMark.click();
             }
-            
+          } else if (itemDetails.match(/Block D/)) {
+            if (itemDetails.match(/Item (2[5-9]|3[0-2])/)) {
+              await this.activateTabletControlButton.click();
+              await this.correctTickMark.click();
+            }
+          }
         }
-
-      }else if (
-        typeOfTest.match(/Block B- All incorrect scenario and Block A- All incorrect scenario/)
+      } else if (
+        typeOfTest.match(
+          /Block B- All incorrect scenario and Block A- All incorrect scenario/,
+        )
       ) {
         if (itemDetails.startsWith("Introduction")) {
           await this.videoPlayButton.click();
@@ -880,7 +886,7 @@ export default class wj5MultiPage {
         }
       } else {
         throw new Error(
-          `The ${typeOfTest} didnt match with any of the conditions provided`
+          `The ${typeOfTest} didnt match with any of the conditions provided`,
         );
       }
 
@@ -900,12 +906,12 @@ export default class wj5MultiPage {
 
   async completeTheTakenTestForWlookUpScoresForAnalysisSynthesisTest(
     typeOfTest: string,
-    BbyC: number
+    BbyC: number,
   ): Promise<Map<string, string>> {
     let correctCount: number = 1;
     let inCorrectCount: number = 1;
     const itemNumber: number = Number(
-      await this.page.locator(".items-container div span").last().textContent()
+      await this.page.locator(".items-container div span").last().textContent(),
     );
 
     while (await this.plainNextButtonOrEndButton.isVisible()) {
@@ -1056,7 +1062,7 @@ export default class wj5MultiPage {
         await this.clickCorrectOption(correctlocator, itemDetails);
       } else {
         throw new Error(
-          `The ${typeOfTest} didnt match with any of the conditions provided`
+          `The ${typeOfTest} didnt match with any of the conditions provided`,
         );
       }
       await this.plainNextButtonOrEndButton.click();
@@ -1075,13 +1081,12 @@ export default class wj5MultiPage {
 
   async completeTheTakenTestForWlookUpScoresForSWRTACTest(
     typeOfTest: string,
-    BbyC: number
+    BbyC: number,
   ): Promise<Map<string, string>> {
     const itemNumber: number = Number(
-      await this.page.locator(".items-container div span").last().textContent()
+      await this.page.locator(".items-container div span").last().textContent(),
     );
 
-    
     while (await this.plainNextButtonOrEndButton.isVisible()) {
       await this.page.waitForTimeout(1000);
       const itemDetails: string = (await this.itemDetails.textContent())!;
@@ -1162,7 +1167,6 @@ export default class wj5MultiPage {
             await this.continueButton.click();
             await this.lestBeginButton.click();
             await this.page.waitForTimeout(5000);
-            
           } else {
             await dictationAccuracy.fill("5");
             await spelling.fill("5");
@@ -1282,7 +1286,7 @@ export default class wj5MultiPage {
         }
       } else {
         throw new Error(
-          `The ${typeOfTest} didnt match with any of the conditions provided`
+          `The ${typeOfTest} didnt match with any of the conditions provided`,
         );
       }
     }
@@ -1293,10 +1297,10 @@ export default class wj5MultiPage {
   }
 
   async completeTheTakenTestForWlookUpScoresForSNDDELTest(
-    typeOfTest: string
+    typeOfTest: string,
   ): Promise<Map<string, string>> {
     const itemNumber: number = Number(
-      await this.page.locator(".items-container div span").last().textContent()
+      await this.page.locator(".items-container div span").last().textContent(),
     );
 
     while (await this.plainNextButtonOrEndButton.isVisible()) {
@@ -1340,7 +1344,7 @@ export default class wj5MultiPage {
         await this.plainNextButtonOrEndButton.click();
       } else {
         throw new Error(
-          `The ${typeOfTest} didnt match with any of the conditions provided`
+          `The ${typeOfTest} didnt match with any of the conditions provided`,
         );
       }
 
@@ -1359,17 +1363,18 @@ export default class wj5MultiPage {
   }
   async completeTheTakenTestForWlookUpScoresForBLKROTTest(
     typeOfTest: string,
-    BbyC: number
+    BbyC: number,
   ): Promise<Map<string, string>> {
     let correctCount: number = 1;
     let inCorrectCount: number = 1;
     const itemNumber: number = Number(
-      await this.page.locator(".items-container div span").last().textContent()
+      await this.page.locator(".items-container div span").last().textContent(),
     );
 
     while (await this.plainNextButtonOrEndButton.isVisible()) {
       await this.page.waitForLoadState("load");
-      await this.page.waitForTimeout(2500);       
+      await this.page.waitForTimeout(2500);
+
       const itemDetails: string = (await this.itemDetails.textContent())!;
       const correctlocator: Locator = this.corectOptionButton.first();
       const incorrectlocator: Locator = this.incorrectOptionButton.first();
@@ -1404,12 +1409,12 @@ export default class wj5MultiPage {
         } else if (/^Item (1[6-9]|2[0-1])\b/.test(itemDetails)) {
           await incorrectlocator.click();
         }
-      } else if (
-        typeOfTest.match(/Answer only one sample item/i)
-      ) {
+      } else if (typeOfTest.match(/Answer only one sample item/i)) {
         if (/^Introduction (1|2)/.test(itemDetails)) {
           await this.videoPlayButton.click();
-          await expect(this.replayButton).toBeVisible({ timeout: 2 * 60 * 1000 });
+          await expect(this.replayButton).toBeVisible({
+            timeout: 2 * 60 * 1000,
+          });
           await this.plainNextButtonOrEndButton.waitFor({ state: "visible" });
         } else if (itemDetails.match(/Sample Item A, Trial 1/i)) {
           await correctlocator.click();
@@ -1417,7 +1422,7 @@ export default class wj5MultiPage {
         }
       } else {
         throw new Error(
-          `The ${typeOfTest} didnt match with any of the conditions provided`
+          `The ${typeOfTest} didnt match with any of the conditions provided`,
         );
       }
       await this.plainNextButtonOrEndButton.click();
@@ -1428,22 +1433,21 @@ export default class wj5MultiPage {
         break;
       }
     }
-      console.log(this.scoreMap);
-      return this.scoreMap;
+    console.log(this.scoreMap);
+    return this.scoreMap;
   }
 
   async completeTheTakenTestForWlookUpScoresForSPLSNDTest(
     typeOfTest: string,
-    BbyC: number
+    BbyC: number,
   ): Promise<Map<string, string>> {
     let correctCount: number = 1;
     let inCorrectCount: number = 1;
     const itemNumber: number = Number(
-      await this.page.locator(".items-container div span").last().textContent()
+      await this.page.locator(".items-container div span").last().textContent(),
     );
 
     while (await this.plainNextButtonOrEndButton.isVisible()) {
-      
       const itemDetails: string = (await this.itemDetails.textContent())!;
       const correctlocator: Locator = this.corectOptionButton.first();
       const incorrectlocator: Locator = this.incorrectOptionButton.first();
@@ -1456,7 +1460,9 @@ export default class wj5MultiPage {
         } else if (itemDetails === "Item 28") {
           await correctlocator.click();
         }
-      } else if (typeOfTest.match(/Block A correct and Block B incorrect scenario/i)) {
+      } else if (
+        typeOfTest.match(/Block A correct and Block B incorrect scenario/i)
+      ) {
         if (itemDetails.startsWith("Sample")) {
           await correctlocator.click();
         } else if (/^Item [1-5]\b/.test(itemDetails)) {
@@ -1464,13 +1470,19 @@ export default class wj5MultiPage {
         } else if (/^Item ([6-9]|1[0-9]|2[0-3])\b/.test(itemDetails)) {
           await incorrectlocator.click();
         }
-      } else if (typeOfTest.match(/Block A All incorrect scenario|Block B All incorrect Scenario/i)) {
+      } else if (
+        typeOfTest.match(
+          /Block A All incorrect scenario|Block B All incorrect Scenario/i,
+        )
+      ) {
         if (itemDetails.startsWith("Sample")) {
           await correctlocator.click();
         } else if (itemDetails.startsWith("Item")) {
           await incorrectlocator.click();
         }
-      } else if (typeOfTest.match(/Block B and Block C All correct scenario/i)) {
+      } else if (
+        typeOfTest.match(/Block B and Block C All correct scenario/i)
+      ) {
         if (itemDetails.startsWith("Sample")) {
           await correctlocator.click();
         } else if (itemDetails.startsWith("Item")) {
@@ -1488,7 +1500,7 @@ export default class wj5MultiPage {
         }
       } else {
         throw new Error(
-          `The ${typeOfTest} didnt match with any of the conditions provided`
+          `The ${typeOfTest} didnt match with any of the conditions provided`,
         );
       }
       await this.plainNextButtonOrEndButton.click();
@@ -1507,12 +1519,12 @@ export default class wj5MultiPage {
 
   async completeTheTakenTestForWlookUpScoresForSNDSUBTest(
     typeOfTest: string,
-    BbyC: number
+    BbyC: number,
   ): Promise<Map<string, string>> {
     let correctCount: number = 1;
     let inCorrectCount: number = 1;
     const itemNumber: number = Number(
-      await this.page.locator(".items-container div span").last().textContent()
+      await this.page.locator(".items-container div span").last().textContent(),
     );
 
     while (await this.plainNextButtonOrEndButton.isVisible()) {
@@ -1542,7 +1554,7 @@ export default class wj5MultiPage {
         }
       } else if (
         typeOfTest.match(
-          /Block B Rerouting to Intro 1 with RS 4 and Sample Items AB Incorrect/i
+          /Block B Rerouting to Intro 1 with RS 4 and Sample Items AB Incorrect/i,
         )
       ) {
         if (itemDetails.match(/Sample Item (A|B), Trial (1|2)/i)) {
@@ -1584,7 +1596,7 @@ export default class wj5MultiPage {
         }
       } else {
         throw new Error(
-          `The ${typeOfTest} didnt match with any of the conditions provided`
+          `The ${typeOfTest} didnt match with any of the conditions provided`,
         );
       }
 
@@ -1604,12 +1616,12 @@ export default class wj5MultiPage {
 
   async completeTheTakenTestForWlookUpScoresForSTYCMPTest(
     typeOfTest: string,
-    BbyC: number
+    BbyC: number,
   ): Promise<Map<string, string>> {
     let correctCount: number = 1;
     let inCorrectCount: number = 1;
     const itemNumber: number = Number(
-      await this.page.locator(".items-container div span").last().textContent()
+      await this.page.locator(".items-container div span").last().textContent(),
     );
 
     while (await this.plainNextButtonOrEndButton.isVisible()) {
@@ -1622,9 +1634,9 @@ export default class wj5MultiPage {
       if (typeOfTest.match(/Block A end test scenario/i)) {
         if (itemDetails.startsWith("Sample")) {
           await correctlocator.click();
-        }else if(itemDetails.endsWith("Presentation")){
+        } else if (itemDetails.endsWith("Presentation")) {
           await this.playAudioButton.click();
-            await this.plainNextButtonOrEndButton.waitFor({ state: "visible" });
+          await this.plainNextButtonOrEndButton.waitFor({ state: "visible" });
         } else if (itemDetails.startsWith("Story")) {
           if (itemDetails === "Story 1, Item 1") {
             await this.verifyCharacterLimitOnItemLevelNotes();
@@ -1668,12 +1680,11 @@ export default class wj5MultiPage {
       ) {
         if (itemDetails.startsWith("Sample")) {
           await correctlocator.click();
-        return;
+          return;
         }
-      
       } else {
         throw new Error(
-          `The ${typeOfTest} didnt match with any of the conditions provided`
+          `The ${typeOfTest} didnt match with any of the conditions provided`,
         );
       }
 
@@ -1692,12 +1703,12 @@ export default class wj5MultiPage {
   }
   async completeTheTakenTestForWlookUpScoresForORLSMPTest(
     typeOfTest: string,
-    BbyC: number
+    BbyC: number,
   ): Promise<Map<string, string>> {
     let correctCount: number = 1;
     let inCorrectCount: number = 1;
     const itemNumber: number = Number(
-      await this.page.locator(".items-container div span").last().textContent()
+      await this.page.locator(".items-container div span").last().textContent(),
     );
 
     while (await this.plainNextButtonOrEndButton.isVisible()) {
@@ -1709,7 +1720,7 @@ export default class wj5MultiPage {
 
       if (typeOfTest.match(/Block A All Correct/i)) {
         if (itemDetails.startsWith("Introduction")) {
-        }else if (itemDetails.startsWith("Sample")) {
+        } else if (itemDetails.startsWith("Sample")) {
           await correctlocator.click();
         } else if (itemDetails.startsWith("Block")) {
           if (itemDetails === "Block A, Item 1") {
@@ -1719,30 +1730,28 @@ export default class wj5MultiPage {
         }
       } else if (typeOfTest.match(/Block B All Correct/i)) {
         if (itemDetails.startsWith("Introduction")) {
-        }else if (itemDetails.startsWith("Sample")) {
+        } else if (itemDetails.startsWith("Sample")) {
           await correctlocator.click();
         } else if (itemDetails.startsWith("Block")) {
           await correctlocator.click();
         }
       } else if (typeOfTest.match(/Block C All Correct/i)) {
         if (itemDetails.startsWith("Introduction")) {
-        }else if (itemDetails.startsWith("Sample")) {
+        } else if (itemDetails.startsWith("Sample")) {
           await correctlocator.click();
         } else if (itemDetails.startsWith("Block")) {
           await correctlocator.click();
         }
-      
       } else if (
         typeOfTest.match(/Sample A Correct and Force Submit Scenario/i)
       ) {
         if (itemDetails.startsWith("Sample")) {
           await correctlocator.click();
-        return;
+          return;
         }
-      
       } else {
         throw new Error(
-          `The ${typeOfTest} didnt match with any of the conditions provided`
+          `The ${typeOfTest} didnt match with any of the conditions provided`,
         );
       }
 
@@ -1762,12 +1771,12 @@ export default class wj5MultiPage {
 
   async completeTheTakenTestForWlookUpScoresForPARCMPTest(
     typeOfTest: string,
-    BbyC: number
+    BbyC: number,
   ): Promise<Map<string, string>> {
     let correctCount: number = 1;
     let inCorrectCount: number = 1;
     const itemNumber: number = Number(
-      await this.page.locator(".items-container div span").last().textContent()
+      await this.page.locator(".items-container div span").last().textContent(),
     );
 
     while (await this.plainNextButtonOrEndButton.isVisible()) {
@@ -1779,9 +1788,9 @@ export default class wj5MultiPage {
 
       if (typeOfTest.match(/All Correct ABC Block/i)) {
         if (itemDetails.startsWith("Introduction")) {
-          }else if(itemDetails.endsWith("Presentation")){
-            await this.activateTabletControlButton.click();
-            await this.parcmpdonebtn.click();
+        } else if (itemDetails.endsWith("Presentation")) {
+          await this.activateTabletControlButton.click();
+          await this.parcmpdonebtn.click();
         } else if (itemDetails.startsWith("Story")) {
           if (itemDetails === "Story 1, Item 1") {
             await this.verifyCharacterLimitOnItemLevelNotes();
@@ -1790,7 +1799,7 @@ export default class wj5MultiPage {
         }
       } else if (typeOfTest.match(/All Correct BCD Block/i)) {
         if (itemDetails.startsWith("Introduction")) {
-        }else if(itemDetails.endsWith("Presentation")){
+        } else if (itemDetails.endsWith("Presentation")) {
           await this.activateTabletControlButton.click();
           await this.parcmpdonebtn.click();
         } else if (itemDetails.startsWith("Story")) {
@@ -1798,7 +1807,7 @@ export default class wj5MultiPage {
         }
       } else if (typeOfTest.match(/All Correct CDE Block/i)) {
         if (itemDetails.startsWith("Introduction")) {
-        }else if(itemDetails.endsWith("Presentation")){
+        } else if (itemDetails.endsWith("Presentation")) {
           await this.activateTabletControlButton.click();
           await this.parcmpdonebtn.click();
         } else if (itemDetails.startsWith("Story")) {
@@ -1806,24 +1815,22 @@ export default class wj5MultiPage {
         }
       } else if (typeOfTest.match(/All Correct DE Block/i)) {
         if (itemDetails.startsWith("Introduction")) {
-        }else if(itemDetails.endsWith("Presentation")){
+        } else if (itemDetails.endsWith("Presentation")) {
           await this.activateTabletControlButton.click();
           await this.parcmpdonebtn.click();
         } else if (itemDetails.startsWith("Story")) {
           await correctlocator.click();
         }
-      
       } else if (
         typeOfTest.match(/Sample A Correct and Force Submit Scenario/i)
       ) {
         if (itemDetails.startsWith("Sample")) {
           await correctlocator.click();
-        return;
+          return;
         }
-      
       } else {
         throw new Error(
-          `The ${typeOfTest} didnt match with any of the conditions provided`
+          `The ${typeOfTest} didnt match with any of the conditions provided`,
         );
       }
 
@@ -1843,10 +1850,10 @@ export default class wj5MultiPage {
 
   async completeTheTakenTestForWlookUpScoresForSEGMNTTest(
     typeOfTest: string,
-    BbyC: number
+    BbyC: number,
   ): Promise<Map<string, string>> {
     const itemNumber: number = Number(
-      await this.page.locator(".items-container div span").last().textContent()
+      await this.page.locator(".items-container div span").last().textContent(),
     );
 
     while (await this.plainNextButtonOrEndButton.isVisible()) {
@@ -1856,13 +1863,17 @@ export default class wj5MultiPage {
       const incorrectlocator: Locator = this.incorrectOptionButton.first();
 
       if (itemDetails.startsWith("Introduction")) {
-      } else if (typeOfTest.match(/All correct scenario|Block B and Block C correct scenario/i)) {
+      } else if (
+        typeOfTest.match(
+          /All correct scenario|Block B and Block C correct scenario/i,
+        )
+      ) {
         if (itemDetails.startsWith("Sample")) {
           await correctlocator.click();
         } else if (itemDetails.startsWith("Item")) {
           await correctlocator.click();
         }
-      }else if (typeOfTest.match(/All Incorrect scenario/i)) {
+      } else if (typeOfTest.match(/All Incorrect scenario/i)) {
         if (itemDetails.startsWith("Sample")) {
           await correctlocator.click();
         } else if (itemDetails.startsWith("Item")) {
@@ -1881,7 +1892,7 @@ export default class wj5MultiPage {
         }
       } else {
         throw new Error(
-          `The ${typeOfTest} didnt match with any of the conditions provided`
+          `The ${typeOfTest} didnt match with any of the conditions provided`,
         );
       }
 
@@ -1901,10 +1912,10 @@ export default class wj5MultiPage {
 
   async completeTheTakenTestForWlookUpScoresForSENREPTest(
     typeOfTest: string,
-    BbyC: number
+    BbyC: number,
   ): Promise<Map<string, string>> {
     const itemNumber: number = Number(
-      await this.page.locator(".items-container div span").last().textContent()
+      await this.page.locator(".items-container div span").last().textContent(),
     );
 
     while (await this.plainNextButtonOrEndButton.isVisible()) {
@@ -1943,7 +1954,7 @@ export default class wj5MultiPage {
         }
       } else {
         throw new Error(
-          `The ${typeOfTest} didnt match with any of the conditions provided`
+          `The ${typeOfTest} didnt match with any of the conditions provided`,
         );
       }
 
@@ -1960,7 +1971,7 @@ export default class wj5MultiPage {
 
     return this.scoreMap;
   }
-  
+
   async clickCorrectOption(correctlocator: Locator, itemDetails: string) {
     try {
       await correctlocator.click();
@@ -2000,15 +2011,15 @@ export default class wj5MultiPage {
     await expect(this.closeNotes).toBeVisible();
     await expect(this.notesText).toHaveAttribute(
       "placeholder",
-      "Write Something..."
+      "Write Something...",
     );
     await expect(this.notesText).toHaveAttribute("maxlength", "140");
     await this.notesText.fill(
-      "fhgghhgggffdgdgvhgdgsHdjadgjhadjhadhjagfhjagdhagdahfjhagdjgashgdahgdhjasbdhavdahsbdhjasdbsahdhagdashgdashgdhasgdashgdjasgdasdahsadbhsbbbzxbx"
+      "fhgghhgggffdgdgvhgdgsHdjadgjhadjhadhjagfhjagdhagdahfjhagdjgashgdahgdhjasbdhavdahsbdhjasdbsahdhagdashgdashgdhasgdashgdjasgdasdahsadbhsbbbzxbx",
     );
     await this.page.waitForTimeout(1000);
     expect(await this.notesErrorMessage.textContent()).toEqual(
-      " Max. Character Limit: 140 Characters"
+      " Max. Character Limit: 140 Characters",
     );
     await this.notesText.clear();
     await this.closeNotes.click();
@@ -2034,42 +2045,42 @@ export default class wj5MultiPage {
     await this.selectTheDropdownOPtion(
       0,
       "Advanced",
-      "Level of Conversational Proficiency"
+      "Level of Conversational Proficiency",
     );
     await this.selectTheDropdownOPtion(
       1,
       "Was uncooperative at times",
-      "Level of Cooperation"
+      "Level of Cooperation",
     );
     await this.selectTheDropdownOPtion(
       2,
       "Seemed lethargic",
-      "Level of Activity"
+      "Level of Activity",
     );
     await this.selectTheDropdownOPtion(
       3,
       "Appeared distracted some of the time",
-      "Attention and Concentration"
+      "Attention and Concentration",
     );
     await this.selectTheDropdownOPtion(
       4,
       "Appeared overly anxious",
-      "Self-Confidence"
+      "Self-Confidence",
     );
     await this.selectTheDropdownOPtion(
       5,
       "Responded slowly and hesitantly",
-      "Care in Responding"
+      "Care in Responding",
     );
     await this.selectTheDropdownOPtion(
       6,
       "Made random guesses",
-      "Response to Difficult Items"
+      "Response to Difficult Items",
     );
     await this.selectTheDropdownOPtion(
       7,
       "Was resistant to tasks",
-      "Motivation"
+      "Motivation",
     );
     // await this.selectThecheckBox(4, "fairEstimate");
     // await this.selectThecheckBox(7, "modificationToTheStandardise");
