@@ -508,7 +508,6 @@ jobs:
                   </div>
                 </div>
 
-                # REPLACE the system-info section with this updated version
                 <div class='report-details' id='shard-$i-details'>
                   <div class='system-info-header'>
                     <button class='system-info-toggle' data-shard='$i'>
@@ -739,6 +738,9 @@ jobs:
         run: |
           cd github-pages
 
+          # Get repository name from GITHUB_REPOSITORY
+          REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d'/' -f2)
+
           # Find all report directories and sort by date (newest first)
           dirs=$(find . -maxdepth 1 -type d -name "run*" | sort -r)
 
@@ -749,23 +751,23 @@ jobs:
           for dir in $dirs; do
             # Remove leading ./
             dir=${dir#./}
-            
+
             # Extract date from directory name (format: run{number}_{YYYY-MM-DD_HH-MM})
             dir_date=$(echo $dir | grep -oP '(?<=_)\d{4}-\d{2}-\d{2}(?=_)')
             dir_date_clean=$(echo $dir_date | tr -d '-')
-            
+
             # Skip directories older than 30 days
             if [[ $dir_date_clean < $cleanup_date ]]; then
               echo "Removing old report: $dir"
               rm -rf "$dir"
               continue
             fi
-            
+
             # Format date for display
             display_date=$(date -d "$dir_date" '+%B %d, %Y')
-            
-            # Insert entry into index.html
-            sed -i "/<ul class=\"report-list\">/a \        <li class=\"report-item\"><a class=\"report-link\" href=\"/${dir}/index.html\"><span>Report: ${dir}</span><span class=\"report-date\">${display_date}</span></a></li>" index.html
+
+            # Insert entry into index.html with repository name in path
+            sed -i "/<ul class=\"report-list\">/a \        <li class=\"report-item\"><a class=\"report-link\" href=\"/${REPO_NAME}/${dir}/index.html\"><span>Report: ${dir}</span><span class=\"report-date\">${display_date}</span></a></li>" index.html
           done
 
       - name: Upload Pages artifact
