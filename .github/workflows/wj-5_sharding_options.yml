@@ -376,6 +376,30 @@ jobs:
                 white-space: pre-wrap;
                 max-height: 400px;
                 overflow-y: auto;
+                display: none;  /* Changed from block to none */
+              }
+              
+              .system-info-header {
+                background: #f1f3f5;
+                padding: 0.5rem;
+                border-bottom: 1px solid #e1e4e8;
+              }
+              
+              .system-info-toggle {
+                background: none;
+                border: none;
+                cursor: pointer;
+                font-size: 1rem;
+                color: #586069;
+                padding: 0.5rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                transition: transform 0.2s ease;
+              }
+              
+              .system-info-toggle.active {
+                transform: rotate(90deg);
               }
               
               .notes-section {
@@ -483,9 +507,15 @@ jobs:
                     <button class='expand-btn' data-shard='$i'>➤</button>
                   </div>
                 </div>
+
+                # REPLACE the system-info section with this updated version
                 <div class='report-details' id='shard-$i-details'>
-                  <div class='system-info'>
-                    <h3>System Information</h3>
+                  <div class='system-info-header'>
+                    <button class='system-info-toggle' data-shard='$i'>
+                      ➤ System Information
+                    </button>
+                  </div>
+                  <div class='system-info' id='system-info-$i'>
                     <pre>$system_info</pre>
                   </div>
                   <iframe src='./shard-$i/playwright-report/index.html'></iframe>
@@ -507,6 +537,17 @@ jobs:
           # Add JavaScript for interactivity
           echo "
           <script>
+            document.querySelectorAll('.system-info-toggle').forEach(toggle => {
+              toggle.addEventListener('click', (e) => {
+                const shardNum = e.currentTarget.dataset.shard;
+                const systemInfo = document.getElementById('system-info-' + shardNum);
+                const toggleBtn = e.currentTarget;
+
+                systemInfo.classList.toggle('show');
+                toggleBtn.classList.toggle('active');
+              });
+            });
+
             document.querySelectorAll('.report-link').forEach(link => {
               link.addEventListener('click', (e) => {
                 const shardNum = e.currentTarget.querySelector('.expand-btn').dataset.shard;
@@ -588,6 +629,15 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # Update the generate-path step with more robust path generation
+      - name: Generate deployment path
+        id: generate-path
+        run: |
+          # Format: run{runNumber}_{YYYY-MM-DD_HH-MM}
+          DEPLOY_PATH="run${GITHUB_RUN_NUMBER}_$(date +'%Y-%m-%d_%H-%M')"
+          echo "deploy_path=$DEPLOY_PATH" >> $GITHUB_OUTPUT
+          echo "Deployment path will be: $DEPLOY_PATH"
+
       - name: Download merged report
         uses: actions/download-artifact@v4
         with:
@@ -597,10 +647,131 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
+      # Update the prepare deployment structure step
+      - name: Prepare deployment structure
+        run: |
+          # Create base directory structure
+          mkdir -p github-pages
+          DEPLOY_DIR="github-pages/${{ steps.generate-path.outputs.deploy_path }}"
+          mkdir -p "$DEPLOY_DIR"
+
+          # Move merged report to deployment directory
+          mv merged-report/* "$DEPLOY_DIR/" || {
+            echo "Failed to move report files"
+            exit 1
+          }
+
+          # Create/Update main index.html
+          cat << 'EOF' > github-pages/index.html
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Playwright Test Reports History</title>
+            <style>
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 2rem;
+                background: #f8f9fa;
+              }
+              .header {
+                background: white;
+                padding: 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                margin-bottom: 2rem;
+              }
+              .report-list {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+              }
+              .report-item {
+                background: white;
+                margin: 1rem 0;
+                padding: 1rem;
+                border-radius: 6px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                transition: transform 0.2s;
+              }
+              .report-item:hover {
+                transform: translateY(-2px);
+              }
+              .report-link {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                text-decoration: none;
+                color: #0366d6;
+              }
+              .report-date {
+                color: #6a737d;
+                font-size: 0.9rem;
+              }
+              .retention-notice {
+                background: #fff3cd;
+                border: 1px solid #ffeeba;
+                padding: 1rem;
+                border-radius: 6px;
+                margin-top: 2rem;
+                color: #856404;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h1>Playwright Test Reports</h1>
+              <p>Historical test reports for the last 30 days</p>
+            </div>
+            <ul class="report-list">
+              <!-- Report entries will be inserted here -->
+            </ul>
+            <div class="retention-notice">
+              <p>Note: Reports are retained for 30 days from their creation date.</p>
+            </div>
+          </body>
+          </html>
+          EOF
+
+      # Update the index generation step
+      - name: Update reports index
+        run: |
+          cd github-pages
+
+          # Find all report directories and sort by date (newest first)
+          dirs=$(find . -maxdepth 1 -type d -name "run*" | sort -r)
+
+          # Calculate date 30 days ago for cleanup
+          cleanup_date=$(date -d "30 days ago" +%Y%m%d)
+
+          # Process each directory
+          for dir in $dirs; do
+            # Remove leading ./
+            dir=${dir#./}
+            
+            # Extract date from directory name (format: run{number}_{YYYY-MM-DD_HH-MM})
+            dir_date=$(echo $dir | grep -oP '(?<=_)\d{4}-\d{2}-\d{2}(?=_)')
+            dir_date_clean=$(echo $dir_date | tr -d '-')
+            
+            # Skip directories older than 30 days
+            if [[ $dir_date_clean < $cleanup_date ]]; then
+              echo "Removing old report: $dir"
+              rm -rf "$dir"
+              continue
+            fi
+            
+            # Format date for display
+            display_date=$(date -d "$dir_date" '+%B %d, %Y')
+            
+            # Insert entry into index.html
+            sed -i "/<ul class=\"report-list\">/a \        <li class=\"report-item\"><a class=\"report-link\" href=\"/${dir}/index.html\"><span>Report: ${dir}</span><span class=\"report-date\">${display_date}</span></a></li>" index.html
+          done
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: merged-report
+          path: github-pages
 
       - name: Deploy to GitHub Pages
         id: deployment
