@@ -463,14 +463,14 @@ jobs:
               <div class='report-container'>" >> merged-report/index.html
 
           # Process each shard's report and system info
-          for ((i=1; i<=${{ inputs.shard_count }}; i++)); do
+          for i in $(seq 1 ${{ inputs.shard_count }}); do
             report_source="all-artifacts/playwright-report-shard-$i"
             status_file="all-artifacts/test-status-shard-$i/status.txt"
             system_info_file="$report_source/system-info/specs.txt"
             
             if [ -d "$report_source" ]; then
-              mkdir -p "merged-report/$RUN_NUMBER/shard-$i"
-              cp -r "$report_source"/* "merged-report/$RUN_NUMBER/shard-$i/"
+              mkdir -p "merged-report/${RUN_NUMBER}/shard-${i}"
+              cp -r "${report_source}"/* "merged-report/${RUN_NUMBER}/shard-${i}/"
               
               status="N/A"
               status_class="status-neutral"
