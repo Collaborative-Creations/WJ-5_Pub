@@ -742,7 +742,7 @@ jobs:
             </body>
             </html>
             EOF
-          fi
+                fi
 
 
           # Create the directory for the current run's report
