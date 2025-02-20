@@ -639,6 +639,11 @@ jobs:
           echo "run_number=$GITHUB_RUN_NUMBER" >> $GITHUB_OUTPUT
           echo "timestamp=$(date +'%Y%m%d_%H%M%S')" >> $GITHUB_OUTPUT
 
+      - name: Create Run Metadata
+        run: |
+          mkdir -p new-report/metadata
+          echo "{\"runNumber\": \"${{ steps.run-info.outputs.run_number }}\", \"timestamp\": \"${{ steps.run-info.outputs.timestamp }}\"}" > new-report/metadata/run-info.json
+
       - name: Checkout gh-pages branch
         uses: actions/checkout@v4
         with:
@@ -673,8 +678,36 @@ jobs:
           mkdir -p "reports/${{ steps.run-info.outputs.run_number }}"
           cp -R ../new-report/* "reports/${{ steps.run-info.outputs.run_number }}/"
 
+          # Install jq for JSON parsing
+          sudo apt-get update && sudo apt-get install -y jq
+
+          # Collect information about all existing reports
+          REPORTS_DATA=""
+          if [ -d "reports" ]; then
+            for RUN_DIR in reports/*; do
+              if [ -d "$RUN_DIR" ]; then
+                METADATA_FILE="$RUN_DIR/metadata/run-info.json"
+                if [ -f "$METADATA_FILE" ]; then
+                  # Get data from metadata file
+                  RUN_NUM=$(jq -r '.runNumber' "$METADATA_FILE")
+                  TIMESTAMP=$(jq -r '.timestamp' "$METADATA_FILE")
+                  REPORTS_DATA="${REPORTS_DATA}addReportEntry('$RUN_NUM', '$TIMESTAMP');\n    "
+                else
+                  # Fallback to directory name
+                  RUN_NUM=$(basename "$RUN_DIR")
+                  TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+                  REPORTS_DATA="${REPORTS_DATA}addReportEntry('$RUN_NUM', '$TIMESTAMP');\n    "
+                fi
+              fi
+            done
+          fi
+
+          # Add current run
+          CURRENT_TIMESTAMP="${{ steps.run-info.outputs.timestamp }}"
+          REPORTS_DATA="${REPORTS_DATA}addReportEntry('${{ steps.run-info.outputs.run_number }}', '$CURRENT_TIMESTAMP');"
+
           # Create or update main index
-          cat > index.html << 'EOF'
+          cat > index.html << EOF
           <!DOCTYPE html>
           <html>
           <head>
@@ -749,7 +782,7 @@ jobs:
               <h1>Playwright Test Reports History</h1>
               <p>Historical test execution reports with retention</p>
             </div>
-            
+
             <div class="filter-bar">
               <input type="text" class="search-input" placeholder="Search reports..." id="searchInput">
               <select class="sort-select" id="sortSelect">
@@ -757,7 +790,7 @@ jobs:
                 <option value="oldest">Oldest First</option>
               </select>
             </div>
-            
+
             <div class="reports-container" id="reportsContainer">
               <!-- Report entries will be dynamically inserted here -->
             </div>
@@ -768,31 +801,38 @@ jobs:
                 const container = document.getElementById('reportsContainer');
                 const card = document.createElement('div');
                 card.className = 'report-card';
-                
-                const date = new Date(timestamp);
+
+                // Parse date from timestamp format YYYYMMDD_HHMMSS
+                let dateStr = timestamp;
+                if (timestamp.includes('_')) {
+                  const [datePart, timePart] = timestamp.split('_');
+                  dateStr = datePart.slice(0,4) + '-' + datePart.slice(4,6) + '-' + datePart.slice(6,8) + 
+                            'T' + timePart.slice(0,2) + ':' + timePart.slice(2,4) + ':' + timePart.slice(4,6);
+                }
+
+                const date = new Date(dateStr);
                 const formattedDate = date.toLocaleString();
-                
-                card.innerHTML = `
-                  <a href="./reports/${runNumber}/index.html" class="report-link">
-                    <h3>Run #${runNumber}</h3>
+
+                card.innerHTML = \`
+                  <a href="./reports/\${runNumber}/index.html" class="report-link">
+                    <h3>Run #\${runNumber}</h3>
                     <div class="report-meta">
-                      <div>Executed: ${formattedDate}</div>
+                      <div>Executed: \${formattedDate}</div>
                     </div>
                   </a>
-                `;
-                
+                \`;
+
                 container.appendChild(card);
               }
 
-              // Add the latest report
-              addReportEntry('${{ steps.run-info.outputs.run_number }}', 
-                           '${{ steps.run-info.outputs.timestamp }}');
-              
+              // Add all report entries
+              $(echo -e "$REPORTS_DATA")
+
               // Search functionality
               document.getElementById('searchInput').addEventListener('input', (e) => {
                 const searchTerm = e.target.value.toLowerCase();
                 const cards = document.querySelectorAll('.report-card');
-                
+
                 cards.forEach(card => {
                   const text = card.textContent.toLowerCase();
                   card.style.display = text.includes(searchTerm) ? '' : 'none';
@@ -803,17 +843,22 @@ jobs:
               document.getElementById('sortSelect').addEventListener('change', (e) => {
                 const container = document.getElementById('reportsContainer');
                 const cards = Array.from(container.children);
-                
+
                 cards.sort((a, b) => {
                   const aNum = parseInt(a.querySelector('h3').textContent.split('#')[1]);
                   const bNum = parseInt(b.querySelector('h3').textContent.split('#')[1]);
-                  
+
                   return e.target.value === 'newest' ? bNum - aNum : aNum - bNum;
                 });
-                
+
                 container.innerHTML = '';
                 cards.forEach(card => container.appendChild(card));
               });
+
+              // Sort by newest first by default (after all entries have been added)
+              window.onload = function() {
+                document.getElementById('sortSelect').dispatchEvent(new Event('change'));
+              };
             </script>
           </body>
           </html>
