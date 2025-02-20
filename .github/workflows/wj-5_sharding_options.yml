@@ -221,11 +221,25 @@ jobs:
 
       - name: Create merged report directory
         run: |
-          mkdir -p merged-report
+          # Get the run number
+          RUN_NUMBER="${{ github.run_number }}"
+
+          # Create directory structure with run number
+          mkdir -p merged-report/$RUN_NUMBER
           current_date=$(date +%Y-%m-%d_%H-%M-%S)
 
-          # Start of HTML file
+          # Create an index.html in the root to redirect to latest run
           cat << EOF > merged-report/index.html
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta http-equiv="refresh" content="0; url=./$RUN_NUMBER/">
+            </head>
+          </html>
+          EOF
+
+          # Start of HTML file (now in the run-specific directory)
+          cat << EOF > merged-report/$RUN_NUMBER/index.html
           <!DOCTYPE html>
           <html lang="en">
           <head>
@@ -444,6 +458,7 @@ jobs:
                 <p><strong>Total Shards:</strong> ${{ inputs.shard_count }}</p>
                 <p><strong>Retries:</strong> ${{ inputs.num_retries }}</p>
                 <p><strong>Last Updated:</strong> $current_date</p>
+                <p><strong>Run Number:</strong> $RUN_NUMBER <a href="../runs.html" style="color: var(--primary-color);">(View All Runs)</a></p>
               </div>
               <div class='report-container'>" >> merged-report/index.html
 
@@ -454,8 +469,8 @@ jobs:
             system_info_file="$report_source/system-info/specs.txt"
             
             if [ -d "$report_source" ]; then
-              mkdir -p "merged-report/shard-$i"
-              cp -r "$report_source"/* "merged-report/shard-$i/"
+              mkdir -p "merged-report/$RUN_NUMBER/shard-$i"
+              cp -r "$report_source"/* "merged-report/$RUN_NUMBER/shard-$i/"
               
               status="N/A"
               status_class="status-neutral"
@@ -477,7 +492,7 @@ jobs:
               echo "
               <div class='report-wrapper'>
                 <div class='report-link'>
-                  <span>Shard $i Report</span>
+                  <span>Run $RUN_NUMBER - Shard $i Report</span>
                   <div>
                     <span class='status-badge ${status_class}'>$status</span>
                     <button class='expand-btn' data-shard='$i'>➤</button>
@@ -488,7 +503,7 @@ jobs:
                     <h3>System Information</h3>
                     <pre>$system_info</pre>
                   </div>
-                  <iframe src='./shard-$i/playwright-report/index.html'></iframe>
+                 <iframe src='./shard-$i/playwright-report/index.html'></iframe>
                 </div>
               </div>" >> merged-report/index.html
             fi
@@ -596,6 +611,28 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
+
+      - name: Download existing reports
+        continue-on-error: true
+        run: |
+          git clone --depth 1 https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }} existing-reports || true
+          if [ -d "existing-reports" ]; then
+            cp -r existing-reports/* merged-report/ 2>/dev/null || true
+          fi
+
+      - name: Create run list
+        run: |
+          cd merged-report
+          echo '<!DOCTYPE html><html><head><title>Test Run History</title>
+          <style>
+            body { font-family: -apple-system, sans-serif; margin: 40px; }
+            h1 { color: #0366d6; }
+            ul { list-style: none; padding: 0; }
+            li { margin: 10px 0; }
+            a { color: #0366d6; text-decoration: none; padding: 8px 16px;
+                border: 1px solid #e1e4e8; border-radius: 6px; display: inline-block; }
+            a:hover { background: #f6f8fa; }
+          </style></head><body>' > runs.html
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
