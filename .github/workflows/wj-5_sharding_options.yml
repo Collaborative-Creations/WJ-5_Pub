@@ -632,8 +632,8 @@ jobs:
       - name: Generate deployment path
         id: generate-path
         run: |
-          # Format: run{runNumber}_{YYYY-MM-DD_HH-MM}
-          DEPLOY_PATH="run${GITHUB_RUN_NUMBER}_$(date +'%Y-%m-%d_%H-%M')"
+          # Only use the run number for the deployment path
+          DEPLOY_PATH="${GITHUB_RUN_NUMBER}"
           echo "deploy_path=$DEPLOY_PATH" >> $GITHUB_OUTPUT
           echo "Deployment path will be: $DEPLOY_PATH"
 
@@ -741,8 +741,8 @@ jobs:
           # Get repository name from GITHUB_REPOSITORY
           REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d'/' -f2)
 
-          # Find all report directories and sort by date (newest first)
-          dirs=$(find . -maxdepth 1 -type d -name "run*" | sort -r)
+          # Find all report directories and sort by run number (newest first)
+          dirs=$(find . -maxdepth 1 -type d -name "[0-9]*" | sort -rV)
 
           # Calculate date 30 days ago for cleanup
           cleanup_date=$(date -d "30 days ago" +%Y%m%d)
@@ -752,22 +752,11 @@ jobs:
             # Remove leading ./
             dir=${dir#./}
 
-            # Extract date from directory name (format: run{number}_{YYYY-MM-DD_HH-MM})
-            dir_date=$(echo $dir | grep -oP '(?<=_)\d{4}-\d{2}-\d{2}(?=_)')
-            dir_date_clean=$(echo $dir_date | tr -d '-')
-
-            # Skip directories older than 30 days
-            if [[ $dir_date_clean < $cleanup_date ]]; then
-              echo "Removing old report: $dir"
-              rm -rf "$dir"
-              continue
-            fi
-
-            # Format date for display
-            display_date=$(date -d "$dir_date" '+%B %d, %Y')
+            # Extract run number from directory name
+            run_number=$dir
 
             # Insert entry into index.html with repository name in path
-            sed -i "/<ul class=\"report-list\">/a \        <li class=\"report-item\"><a class=\"report-link\" href=\"/${REPO_NAME}/${dir}/index.html\"><span>Report: ${dir}</span><span class=\"report-date\">${display_date}</span></a></li>" index.html
+            sed -i "/<ul class=\"report-list\">/a \        <li class=\"report-item\"><a class=\"report-link\" href=\"/${REPO_NAME}/${run_number}/index.html\"><span>Report: ${run_number}</span></a></li>" index.html
           done
 
       - name: Upload Pages artifact
