@@ -463,14 +463,14 @@ jobs:
               <div class='report-container'>" >> merged-report/index.html
 
           # Process each shard's report and system info
-          for i in $(seq 1 ${{ inputs.shard_count }}); do
+          for ((i=1; i<=${{ inputs.shard_count }}; i++)); do
             report_source="all-artifacts/playwright-report-shard-$i"
             status_file="all-artifacts/test-status-shard-$i/status.txt"
             system_info_file="$report_source/system-info/specs.txt"
             
             if [ -d "$report_source" ]; then
-              mkdir -p "merged-report/${RUN_NUMBER}/shard-${i}"
-              cp -r "${report_source}"/* "merged-report/${RUN_NUMBER}/shard-${i}/"
+              mkdir -p "merged-report/$RUN_NUMBER/shard-$i"
+              cp -r "$report_source"/* "merged-report/$RUN_NUMBER/shard-$i/"
               
               status="N/A"
               status_class="status-neutral"
@@ -520,7 +520,7 @@ jobs:
               </div>" >> merged-report/index.html
 
           # Add JavaScript for interactivity
-          echo "
+          cat << 'EOFJS' >> merged-report/$RUN_NUMBER/index.html
           <script>
             document.querySelectorAll('.report-link').forEach(link => {
               link.addEventListener('click', (e) => {
@@ -528,35 +528,29 @@ jobs:
                 const detailsContainer = document.getElementById('shard-' + shardNum + '-details');
                 const expandBtn = e.currentTarget.querySelector('.expand-btn');
                 
-                // If clicked on the expand button
                 if (e.target.classList.contains('expand-btn')) {
                   detailsContainer.classList.toggle('show');
                   expandBtn.classList.toggle('active');
-                } 
-                // If clicked on the main link, navigate to the report
-                else if (!e.target.classList.contains('expand-btn')) {
+                } else if (!e.target.classList.contains('expand-btn')) {
                   window.open('./shard-' + shardNum + '/playwright-report/index.html', '_blank');
                 }
               });
             });
 
-            // Handle post-run notes
             document.getElementById('postNotesForm').addEventListener('submit', function(e) {
               e.preventDefault();
               const notes = document.getElementById('postNotes').value;
               
-              // Save notes to localStorage with timestamp
               const savedNotes = {
                 text: notes,
                 timestamp: new Date().toISOString(),
-                runId: '${{ github.run_id }}'
+                runId: '${GITHUB_RUN_ID}'
               };
               
               const allNotes = JSON.parse(localStorage.getItem('playwrightTestNotes') || '[]');
               allNotes.push(savedNotes);
               localStorage.setItem('playwrightTestNotes', JSON.stringify(allNotes));
               
-              // Show saved notes
               const notesSection = document.createElement('div');
               notesSection.className = 'notes-section';
               notesSection.innerHTML = '<h3>Post-Run Notes</h3><p>' + notes + '</p>';
@@ -564,16 +558,13 @@ jobs:
               const form = document.querySelector('.post-notes-form');
               form.parentNode.insertBefore(notesSection, form);
               
-              // Clear the form
               document.getElementById('postNotes').value = '';
-              
               alert('Notes saved successfully!');
             });
 
-            // Load existing notes for this run
             window.addEventListener('load', function() {
               const allNotes = JSON.parse(localStorage.getItem('playwrightTestNotes') || '[]');
-              const runNotes = allNotes.filter(note => note.runId === '${{ github.run_id }}');
+              const runNotes = allNotes.filter(note => note.runId === '${GITHUB_RUN_ID}');
               
               runNotes.forEach(note => {
                 const notesSection = document.createElement('div');
@@ -585,7 +576,8 @@ jobs:
               });
             });
           </script>
-          </div></div></body></html>" >> merged-report/index.html
+          </div></body></html>
+          EOFJS
 
       - name: Upload merged report artifact
         uses: actions/upload-artifact@v4
@@ -599,6 +591,8 @@ jobs:
     if: always()
     needs: merge-reports
     runs-on: ubuntu-latest
+    env:
+      GITHUB_RUN_ID: ${{ github.run_id }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
