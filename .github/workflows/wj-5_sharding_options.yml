@@ -637,29 +637,29 @@ jobs:
         run: |
           echo "run_number=$GITHUB_RUN_NUMBER" >> $GITHUB_OUTPUT
           echo "Using run number: $GITHUB_RUN_NUMBER"
-      
-      # CRITICAL: Checkout gh-pages branch to get all previous reports
-      - name: Checkout gh-pages branch
+
+      # Try to checkout gh-pages, but don't fail if it doesn't exist
+      - name: Checkout gh-pages branch (if exists)
         uses: actions/checkout@v4
+        continue-on-error: true
         with:
           ref: gh-pages
           path: existing-gh-pages
           fetch-depth: 1
-          # The following line is critical - it ensures the workflow can push to gh-pages
           token: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Download merged report
         uses: actions/download-artifact@v4
         with:
           name: merged-playwright-report
           path: new-report
 
-      - name: Preserve Historical Reports
+      - name: Prepare deployment directory
         run: |
           # Create final deployment directory
           mkdir -p final-deployment
-          
-          # If gh-pages branch exists and was checked out successfully
+
+          # Check if gh-pages content was successfully retrieved
           if [ -d "existing-gh-pages" ] && [ -f "existing-gh-pages/index.html" ]; then
             echo "Found existing gh-pages content, preserving historical reports..."
             
@@ -670,7 +670,7 @@ jobs:
             rm -rf final-deployment/.git
           else
             echo "No existing gh-pages content found, creating new index..."
-            # Create basic index.html structure
+            # Create basic index.html structure for first deployment
             cat << 'EOF' > final-deployment/index.html
             <!DOCTYPE html>
             <html>
@@ -743,13 +743,14 @@ jobs:
             </html>
             EOF
           fi
-          
+
+
           # Create the directory for the current run's report
           mkdir -p "final-deployment/${{ steps.run-info.outputs.run_number }}"
-          
+
           # Copy new report content to its numbered directory
           cp -R new-report/* "final-deployment/${{ steps.run-info.outputs.run_number }}/"
-          
+
           # Update the main index.html with a link to this new report
           if grep -q "<ul class=\"report-list\">" "final-deployment/index.html"; then
             # Get current date in a readable format
