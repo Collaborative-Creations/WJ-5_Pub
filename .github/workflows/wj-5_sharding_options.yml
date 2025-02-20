@@ -1,4 +1,4 @@
-name: Playwright Sharded Tests Options
+name: Playwright Sharded Tests with Historical Reports
 
 on:
   workflow_dispatch:
@@ -60,6 +60,9 @@ permissions:
   contents: read
   pages: write
   id-token: write
+
+# Keep the existing jobs (prepare, test, merge-reports) unchanged
+# Only modify the deploy-report job
 
 jobs:
   prepare:
@@ -619,6 +622,7 @@ jobs:
           path: merged-report/
           retention-days: 30
 
+  # The deploy-report job is completely rewritten
   deploy-report:
     name: Deploy Report to GitHub Pages
     if: always()
@@ -628,141 +632,142 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      # Update the generate-path step with more robust path generation
-      - name: Generate deployment path
-        id: generate-path
+      - name: Set Run Number
+        id: run-info
         run: |
-          # Only use the run number for the deployment path
-          DEPLOY_PATH="${GITHUB_RUN_NUMBER}"
-          echo "deploy_path=$DEPLOY_PATH" >> $GITHUB_OUTPUT
-          echo "Deployment path will be: $DEPLOY_PATH"
-
+          echo "run_number=$GITHUB_RUN_NUMBER" >> $GITHUB_OUTPUT
+          echo "Using run number: $GITHUB_RUN_NUMBER"
+      
+      # CRITICAL: Checkout gh-pages branch to get all previous reports
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: existing-gh-pages
+          fetch-depth: 1
+          # The following line is critical - it ensures the workflow can push to gh-pages
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
       - name: Download merged report
         uses: actions/download-artifact@v4
         with:
           name: merged-playwright-report
-          path: merged-report
+          path: new-report
+
+      - name: Preserve Historical Reports
+        run: |
+          # Create final deployment directory
+          mkdir -p final-deployment
+          
+          # If gh-pages branch exists and was checked out successfully
+          if [ -d "existing-gh-pages" ] && [ -f "existing-gh-pages/index.html" ]; then
+            echo "Found existing gh-pages content, preserving historical reports..."
+            
+            # Copy ALL existing content from gh-pages to final deployment
+            cp -R existing-gh-pages/* final-deployment/ || true
+            
+            # Remove .git directory if it was copied
+            rm -rf final-deployment/.git
+          else
+            echo "No existing gh-pages content found, creating new index..."
+            # Create basic index.html structure
+            cat << 'EOF' > final-deployment/index.html
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <title>Playwright Test Reports History</title>
+              <style>
+                body {
+                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                  max-width: 1200px;
+                  margin: 0 auto;
+                  padding: 2rem;
+                  background: #f8f9fa;
+                }
+                .header {
+                  background: white;
+                  padding: 1.5rem;
+                  border-radius: 8px;
+                  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                  margin-bottom: 2rem;
+                }
+                .report-list {
+                  list-style: none;
+                  padding: 0;
+                  margin: 0;
+                }
+                .report-item {
+                  background: white;
+                  margin: 1rem 0;
+                  padding: 1rem;
+                  border-radius: 6px;
+                  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                  transition: transform 0.2s;
+                }
+                .report-item:hover {
+                  transform: translateY(-2px);
+                }
+                .report-link {
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  text-decoration: none;
+                  color: #0366d6;
+                }
+                .report-date {
+                  color: #6a737d;
+                  font-size: 0.9rem;
+                }
+                .retention-notice {
+                  background: #fff3cd;
+                  border: 1px solid #ffeeba;
+                  padding: 1rem;
+                  border-radius: 6px;
+                  margin-top: 2rem;
+                  color: #856404;
+                }
+              </style>
+            </head>
+            <body>
+              <div class="header">
+                <h1>Playwright Test Reports</h1>
+                <p>Historical test reports</p>
+              </div>
+              <ul class="report-list">
+                <!-- Report entries are inserted here -->
+              </ul>
+              <div class="retention-notice">
+                <p>Note: Reports are retained according to GitHub Pages and Actions retention policies.</p>
+              </div>
+            </body>
+            </html>
+            EOF
+          fi
+          
+          # Create the directory for the current run's report
+          mkdir -p "final-deployment/${{ steps.run-info.outputs.run_number }}"
+          
+          # Copy new report content to its numbered directory
+          cp -R new-report/* "final-deployment/${{ steps.run-info.outputs.run_number }}/"
+          
+          # Update the main index.html with a link to this new report
+          if grep -q "<ul class=\"report-list\">" "final-deployment/index.html"; then
+            # Get current date in a readable format
+            current_date=$(date "+%Y-%m-%d %H:%M:%S")
+            
+            # Insert new report entry at the top of the list
+            sed -i "/<ul class=\"report-list\">/a \              <li class=\"report-item\"><a class=\"report-link\" href=\"./${{ steps.run-info.outputs.run_number }}/index.html\"><span>Run #${{ steps.run-info.outputs.run_number }} ($current_date)</span></a></li>" "final-deployment/index.html"
+          else
+            echo "Warning: Couldn't find report-list element in index.html"
+          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
-      # Update the prepare deployment structure step
-      - name: Prepare deployment structure
-        run: |
-          # Create base directory structure
-          mkdir -p github-pages
-          DEPLOY_DIR="github-pages/${{ steps.generate-path.outputs.deploy_path }}"
-          mkdir -p "$DEPLOY_DIR"
-
-          # Move merged report to deployment directory
-          mv merged-report/* "$DEPLOY_DIR/" || {
-            echo "Failed to move report files"
-            exit 1
-          }
-
-          # Create/Update main index.html
-          cat << 'EOF' > github-pages/index.html
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <title>Playwright Test Reports History</title>
-            <style>
-              body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                max-width: 1200px;
-                margin: 0 auto;
-                padding: 2rem;
-                background: #f8f9fa;
-              }
-              .header {
-                background: white;
-                padding: 1.5rem;
-                border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                margin-bottom: 2rem;
-              }
-              .report-list {
-                list-style: none;
-                padding: 0;
-                margin: 0;
-              }
-              .report-item {
-                background: white;
-                margin: 1rem 0;
-                padding: 1rem;
-                border-radius: 6px;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-                transition: transform 0.2s;
-              }
-              .report-item:hover {
-                transform: translateY(-2px);
-              }
-              .report-link {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                text-decoration: none;
-                color: #0366d6;
-              }
-              .report-date {
-                color: #6a737d;
-                font-size: 0.9rem;
-              }
-              .retention-notice {
-                background: #fff3cd;
-                border: 1px solid #ffeeba;
-                padding: 1rem;
-                border-radius: 6px;
-                margin-top: 2rem;
-                color: #856404;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <h1>Playwright Test Reports</h1>
-              <p>Historical test reports for the last 30 days</p>
-            </div>
-            <ul class="report-list">
-              <!-- Report entries will be inserted here -->
-            </ul>
-            <div class="retention-notice">
-              <p>Note: Reports are retained for 30 days from their creation date.</p>
-            </div>
-          </body>
-          </html>
-          EOF
-
-      # Update the index generation step
-      - name: Update reports index
-        run: |
-          cd github-pages
-
-          # Get repository name from GITHUB_REPOSITORY
-          REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d'/' -f2)
-
-          # Find all report directories and sort by run number (newest first)
-          dirs=$(find . -maxdepth 1 -type d -name "[0-9]*" | sort -rV)
-
-          # Calculate date 30 days ago for cleanup
-          cleanup_date=$(date -d "30 days ago" +%Y%m%d)
-
-          # Process each directory
-          for dir in $dirs; do
-            # Remove leading ./
-            dir=${dir#./}
-
-            # Extract run number from directory name
-            run_number=$dir
-
-            # Insert entry into index.html with repository name in path
-            sed -i "/<ul class=\"report-list\">/a \        <li class=\"report-item\"><a class=\"report-link\" href=\"/${REPO_NAME}/${run_number}/index.html\"><span>Report: ${run_number}</span></a></li>" index.html
-          done
-
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: github-pages
+          path: final-deployment
 
       - name: Deploy to GitHub Pages
         id: deployment
