@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Playwright Test Reports History</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: -apple-system, system-ui, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f6f8fa;
+    }
+    .header {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .reports-container {
+      display: grid;
+      gap: 15px;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+    .report-card {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+    .report-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .report-link {
+      text-decoration: none;
+      color: #0366d6;
+    }
+    .report-meta {
+      color: #586069;
+      font-size: 0.9em;
+      margin-top: 10px;
+    }
+    .filter-bar {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .search-input {
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      flex: 1;
+    }
+    .sort-select {
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Playwright Test Reports History</h1>
+    <p>Historical test execution reports with retention</p>
+  </div>
+  
+  <div class="filter-bar">
+    <input type="text" class="search-input" placeholder="Search reports..." id="searchInput">
+    <select class="sort-select" id="sortSelect">
+      <option value="newest">Newest First</option>
+      <option value="oldest">Oldest First</option>
+    </select>
+  </div>
+  
+  <div class="reports-container" id="reportsContainer">
+    <!-- Report entries will be dynamically inserted here -->
+  </div>
+
+  <script>
+    // Function to add a new report entry
+    function addReportEntry(runNumber, timestamp) {
+      const container = document.getElementById('reportsContainer');
+      const card = document.createElement('div');
+      card.className = 'report-card';
+      
+      const date = new Date(timestamp);
+      const formattedDate = date.toLocaleString();
+      
+      card.innerHTML = `
+        <a href="./reports/${runNumber}/index.html" class="report-link">
+          <h3>Run #${runNumber}</h3>
+          <div class="report-meta">
+            <div>Executed: ${formattedDate}</div>
+          </div>
+        </a>
+      `;
+      
+      container.appendChild(card);
+    }
+
+    // Add the latest report
+    addReportEntry('99', 
+                 '20250220_163850');
+    
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      const cards = document.querySelectorAll('.report-card');
+      
+      cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        card.style.display = text.includes(searchTerm) ? '' : 'none';
+      });
+    });
+
+    // Sorting functionality
+    document.getElementById('sortSelect').addEventListener('change', (e) => {
+      const container = document.getElementById('reportsContainer');
+      const cards = Array.from(container.children);
+      
+      cards.sort((a, b) => {
+        const aNum = parseInt(a.querySelector('h3').textContent.split('#')[1]);
+        const bNum = parseInt(b.querySelector('h3').textContent.split('#')[1]);
+        
+        return e.target.value === 'newest' ? bNum - aNum : aNum - bNum;
+      });
+      
+      container.innerHTML = '';
+      cards.forEach(card => container.appendChild(card));
+    });
+  </script>
+</body>
+</html>
