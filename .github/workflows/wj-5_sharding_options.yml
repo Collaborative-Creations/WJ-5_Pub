@@ -57,7 +57,7 @@ env:
   NODE_VERSION: "20"
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -625,6 +625,7 @@ jobs:
   # The deploy-report job is completely rewritten
   deploy-report:
     name: Deploy Report to GitHub Pages
+    timeout-minutes: 10 # Add timeout
     if: always()
     needs: merge-reports
     runs-on: ubuntu-latest
@@ -644,7 +645,7 @@ jobs:
           ref: gh-pages
           path: gh-pages
           fetch-depth: 0 # Get full history
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
 
       - name: Initialize gh-pages if needed
         run: |
@@ -823,13 +824,46 @@ jobs:
           cd gh-pages
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+          git remote set-url origin https://${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git
 
       - name: Commit and Push Changes
         run: |
           cd gh-pages
-          git add .
-          git commit -m "Add test report for run #${{ steps.run-info.outputs.run_number }}"
-          git push origin gh-pages
+
+          # Ensure we're on the right branch
+          git fetch origin gh-pages
+          git checkout gh-pages
+
+          # Check for changes
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Changes detected, committing..."
+            
+            # Try to commit and push
+            git add .
+            git commit -m "Add test report for run #${{ steps.run-info.outputs.run_number }}"
+            
+            # Attempt to push, with retry logic
+            MAX_RETRIES=3
+            RETRY_COUNT=0
+            
+            while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+              if git push origin gh-pages; then
+                echo "Successfully pushed changes"
+                break
+              else
+                RETRY_COUNT=$((RETRY_COUNT+1))
+                if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+                  echo "Failed to push after $MAX_RETRIES attempts"
+                  exit 1
+                fi
+                echo "Push failed, attempt $RETRY_COUNT of $MAX_RETRIES. Retrying..."
+                git pull --rebase origin gh-pages
+                sleep 5
+              fi
+            done
+          else
+            echo "No changes to commit"
+          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
