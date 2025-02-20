@@ -398,10 +398,14 @@ jobs:
                 display: flex;
                 align-items: center;
                 gap: 0.5rem;
+              }
+
+              .system-info-toggle .toggle-arrow {
+                display: inline-block;
                 transition: transform 0.2s ease;
               }
-              
-              .system-info-toggle.active {
+
+              .system-info-toggle.active .toggle-arrow {
                 transform: rotate(90deg);
               }
               
@@ -513,9 +517,9 @@ jobs:
 
                 <div class='report-details' id='shard-$i-details'>
                   <div class='system-info-header'>
-                    <button class='system-info-toggle' data-shard='$i'>
-                      ➤ System Information
-                    </button>
+                 <button class='system-info-toggle' data-shard='$i'>
+                   <span class="toggle-arrow">➤</span> System Information
+                 </button>
                   </div>
                   <div class='system-info' id='system-info-$i'>
                     <pre>$system_info</pre>
@@ -544,8 +548,15 @@ jobs:
                 const shardNum = e.currentTarget.dataset.shard;
                 const systemInfo = document.getElementById('system-info-' + shardNum);
                 const toggleBtn = e.currentTarget;
-
-                systemInfo.classList.toggle('show');
+                    
+                // Toggle visibility
+                if (systemInfo.style.display === 'block') {
+                  systemInfo.style.display = 'none';
+                } else {
+                  systemInfo.style.display = 'block';
+                }
+                
+                // Toggle active class for styling
                 toggleBtn.classList.toggle('active');
               });
             });
