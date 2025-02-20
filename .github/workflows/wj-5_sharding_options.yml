@@ -1,4 +1,4 @@
-name: Playwright Sharded Tests Options
+name: Playwright Sharded Tests with Historical Reports
 
 on:
   workflow_dispatch:
@@ -57,9 +57,12 @@ env:
   NODE_VERSION: "20"
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
+
+# Keep the existing jobs (prepare, test, merge-reports) unchanged
+# Only modify the deploy-report job
 
 jobs:
   prepare:
@@ -376,6 +379,30 @@ jobs:
                 white-space: pre-wrap;
                 max-height: 400px;
                 overflow-y: auto;
+                display: none;  /* Changed from block to none */
+              }
+              
+              .system-info-header {
+                background: #f1f3f5;
+                padding: 0.5rem;
+                border-bottom: 1px solid #e1e4e8;
+              }
+              
+              .system-info-toggle {
+                background: none;
+                border: none;
+                cursor: pointer;
+                font-size: 1rem;
+                color: #586069;
+                padding: 0.5rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                transition: transform 0.2s ease;
+              }
+              
+              .system-info-toggle.active {
+                transform: rotate(90deg);
               }
               
               .notes-section {
@@ -483,9 +510,14 @@ jobs:
                     <button class='expand-btn' data-shard='$i'>➤</button>
                   </div>
                 </div>
+
                 <div class='report-details' id='shard-$i-details'>
-                  <div class='system-info'>
-                    <h3>System Information</h3>
+                  <div class='system-info-header'>
+                    <button class='system-info-toggle' data-shard='$i'>
+                      ➤ System Information
+                    </button>
+                  </div>
+                  <div class='system-info' id='system-info-$i'>
                     <pre>$system_info</pre>
                   </div>
                   <iframe src='./shard-$i/playwright-report/index.html'></iframe>
@@ -507,6 +539,17 @@ jobs:
           # Add JavaScript for interactivity
           echo "
           <script>
+            document.querySelectorAll('.system-info-toggle').forEach(toggle => {
+              toggle.addEventListener('click', (e) => {
+                const shardNum = e.currentTarget.dataset.shard;
+                const systemInfo = document.getElementById('system-info-' + shardNum);
+                const toggleBtn = e.currentTarget;
+
+                systemInfo.classList.toggle('show');
+                toggleBtn.classList.toggle('active');
+              });
+            });
+
             document.querySelectorAll('.report-link').forEach(link => {
               link.addEventListener('click', (e) => {
                 const shardNum = e.currentTarget.querySelector('.expand-btn').dataset.shard;
@@ -579,8 +622,10 @@ jobs:
           path: merged-report/
           retention-days: 30
 
+  # The deploy-report job is completely rewritten
   deploy-report:
     name: Deploy Report to GitHub Pages
+    timeout-minutes: 10 # Add timeout
     if: always()
     needs: merge-reports
     runs-on: ubuntu-latest
@@ -588,11 +633,237 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Set Run Info
+        id: run-info
+        run: |
+          echo "run_number=$GITHUB_RUN_NUMBER" >> $GITHUB_OUTPUT
+          echo "timestamp=$(date +'%Y%m%d_%H%M%S')" >> $GITHUB_OUTPUT
+
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+          fetch-depth: 0 # Get full history
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Initialize gh-pages if needed
+        run: |
+          if [ ! -d "gh-pages" ]; then
+            mkdir -p gh-pages
+            cd gh-pages
+            git init
+            git checkout -b gh-pages
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            echo "Initializing gh-pages branch..."
+          fi
+
       - name: Download merged report
         uses: actions/download-artifact@v4
         with:
           name: merged-playwright-report
-          path: merged-report
+          path: new-report
+
+      - name: Organize reports
+        run: |
+          cd gh-pages
+
+          # Create directory for new report
+          mkdir -p "reports/${{ steps.run-info.outputs.run_number }}"
+          cp -R ../new-report/* "reports/${{ steps.run-info.outputs.run_number }}/"
+
+          # Create or update main index
+          cat > index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Playwright Test Reports History</title>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+              body {
+                font-family: -apple-system, system-ui, sans-serif;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+                background: #f6f8fa;
+              }
+              .header {
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                margin-bottom: 20px;
+              }
+              .reports-container {
+                display: grid;
+                gap: 15px;
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+              }
+              .report-card {
+                background: white;
+                padding: 15px;
+                border-radius: 8px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                transition: transform 0.2s;
+              }
+              .report-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+              }
+              .report-link {
+                text-decoration: none;
+                color: #0366d6;
+              }
+              .report-meta {
+                color: #586069;
+                font-size: 0.9em;
+                margin-top: 10px;
+              }
+              .filter-bar {
+                background: white;
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                display: flex;
+                gap: 10px;
+                align-items: center;
+                flex-wrap: wrap;
+              }
+              .search-input {
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                flex: 1;
+              }
+              .sort-select {
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h1>Playwright Test Reports History</h1>
+              <p>Historical test execution reports with retention</p>
+            </div>
+            
+            <div class="filter-bar">
+              <input type="text" class="search-input" placeholder="Search reports..." id="searchInput">
+              <select class="sort-select" id="sortSelect">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+              </select>
+            </div>
+            
+            <div class="reports-container" id="reportsContainer">
+              <!-- Report entries will be dynamically inserted here -->
+            </div>
+
+            <script>
+              // Function to add a new report entry
+              function addReportEntry(runNumber, timestamp) {
+                const container = document.getElementById('reportsContainer');
+                const card = document.createElement('div');
+                card.className = 'report-card';
+                
+                const date = new Date(timestamp);
+                const formattedDate = date.toLocaleString();
+                
+                card.innerHTML = `
+                  <a href="./reports/${runNumber}/index.html" class="report-link">
+                    <h3>Run #${runNumber}</h3>
+                    <div class="report-meta">
+                      <div>Executed: ${formattedDate}</div>
+                    </div>
+                  </a>
+                `;
+                
+                container.appendChild(card);
+              }
+
+              // Add the latest report
+              addReportEntry('${{ steps.run-info.outputs.run_number }}', 
+                           '${{ steps.run-info.outputs.timestamp }}');
+              
+              // Search functionality
+              document.getElementById('searchInput').addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const cards = document.querySelectorAll('.report-card');
+                
+                cards.forEach(card => {
+                  const text = card.textContent.toLowerCase();
+                  card.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+              });
+
+              // Sorting functionality
+              document.getElementById('sortSelect').addEventListener('change', (e) => {
+                const container = document.getElementById('reportsContainer');
+                const cards = Array.from(container.children);
+                
+                cards.sort((a, b) => {
+                  const aNum = parseInt(a.querySelector('h3').textContent.split('#')[1]);
+                  const bNum = parseInt(b.querySelector('h3').textContent.split('#')[1]);
+                  
+                  return e.target.value === 'newest' ? bNum - aNum : aNum - bNum;
+                });
+                
+                container.innerHTML = '';
+                cards.forEach(card => container.appendChild(card));
+              });
+            </script>
+          </body>
+          </html>
+          EOF
+
+      - name: Configure Git
+        run: |
+          cd gh-pages
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git remote set-url origin https://${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git
+
+      - name: Commit and Push Changes
+        run: |
+          cd gh-pages
+
+          # Ensure we're on the right branch
+          git fetch origin gh-pages
+          git checkout gh-pages
+
+          # Check for changes
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Changes detected, committing..."
+            
+            # Try to commit and push
+            git add .
+            git commit -m "Add test report for run #${{ steps.run-info.outputs.run_number }}"
+            
+            # Attempt to push, with retry logic
+            MAX_RETRIES=3
+            RETRY_COUNT=0
+            
+            while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+              if git push origin gh-pages; then
+                echo "Successfully pushed changes"
+                break
+              else
+                RETRY_COUNT=$((RETRY_COUNT+1))
+                if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+                  echo "Failed to push after $MAX_RETRIES attempts"
+                  exit 1
+                fi
+                echo "Push failed, attempt $RETRY_COUNT of $MAX_RETRIES. Retrying..."
+                git pull --rebase origin gh-pages
+                sleep 5
+              fi
+            done
+          else
+            echo "No changes to commit"
+          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -600,7 +871,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: merged-report
+          path: gh-pages
 
       - name: Deploy to GitHub Pages
         id: deployment
