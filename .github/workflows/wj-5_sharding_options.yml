@@ -632,20 +632,31 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Set Run Number
+      - name: Set Run Info
         id: run-info
         run: |
           echo "run_number=$GITHUB_RUN_NUMBER" >> $GITHUB_OUTPUT
-          echo "Using run number: $GITHUB_RUN_NUMBER"
+          echo "timestamp=$(date +'%Y%m%d_%H%M%S')" >> $GITHUB_OUTPUT
 
-      - name: Checkout gh-pages branch (if exists)
+      - name: Checkout gh-pages branch
         uses: actions/checkout@v4
-        continue-on-error: true
         with:
           ref: gh-pages
-          path: existing-gh-pages
-          fetch-depth: 1
+          path: gh-pages
+          fetch-depth: 0 # Get full history
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Initialize gh-pages if needed
+        run: |
+          if [ ! -d "gh-pages" ]; then
+            mkdir -p gh-pages
+            cd gh-pages
+            git init
+            git checkout -b gh-pages
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            echo "Initializing gh-pages branch..."
+          fi
 
       - name: Download merged report
         uses: actions/download-artifact@v4
@@ -653,116 +664,172 @@ jobs:
           name: merged-playwright-report
           path: new-report
 
-      - name: Prepare deployment directory
+      - name: Organize reports
         run: |
-          # Create final deployment directory
-          mkdir -p final-deployment
+          cd gh-pages
 
-          # Check if gh-pages content was successfully retrieved
-          if [ -d "existing-gh-pages" ] && [ -f "existing-gh-pages/index.html" ]; then
-            echo "Found existing gh-pages content, preserving historical reports..."
+          # Create directory for new report
+          mkdir -p "reports/${{ steps.run-info.outputs.run_number }}"
+          cp -R ../new-report/* "reports/${{ steps.run-info.outputs.run_number }}/"
 
-            # Copy ALL existing content from gh-pages to final deployment
-            cp -R existing-gh-pages/* final-deployment/ || true
-
-            # Remove .git directory if it was copied
-            rm -rf final-deployment/.git
-          else
-            echo "No existing gh-pages content found, creating new index..."
-            # Create basic index.html structure for first deployment
-            cat > final-deployment/index.html << 'ENDOFHTML'
-
-            
+          # Create or update main index
+          cat > index.html << 'EOF'
           <!DOCTYPE html>
           <html>
           <head>
             <title>Playwright Test Reports History</title>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <style>
               body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                font-family: -apple-system, system-ui, sans-serif;
                 max-width: 1200px;
                 margin: 0 auto;
-                padding: 2rem;
-                background: #f8f9fa;
+                padding: 20px;
+                background: #f6f8fa;
               }
               .header {
                 background: white;
-                padding: 1.5rem;
+                padding: 20px;
                 border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                margin-bottom: 2rem;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                margin-bottom: 20px;
               }
-              .report-list {
-                list-style: none;
-                padding: 0;
-                margin: 0;
+              .reports-container {
+                display: grid;
+                gap: 15px;
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
               }
-              .report-item {
+              .report-card {
                 background: white;
-                margin: 1rem 0;
-                padding: 1rem;
-                border-radius: 6px;
+                padding: 15px;
+                border-radius: 8px;
                 box-shadow: 0 1px 3px rgba(0,0,0,0.1);
                 transition: transform 0.2s;
               }
-              .report-item:hover {
+              .report-card:hover {
                 transform: translateY(-2px);
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
               }
               .report-link {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
                 text-decoration: none;
                 color: #0366d6;
               }
-              .report-date {
-                color: #6a737d;
-                font-size: 0.9rem;
+              .report-meta {
+                color: #586069;
+                font-size: 0.9em;
+                margin-top: 10px;
               }
-              .retention-notice {
-                background: #fff3cd;
-                border: 1px solid #ffeeba;
-                padding: 1rem;
-                border-radius: 6px;
-                margin-top: 2rem;
-                color: #856404;
+              .filter-bar {
+                background: white;
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                display: flex;
+                gap: 10px;
+                align-items: center;
+                flex-wrap: wrap;
+              }
+              .search-input {
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                flex: 1;
+              }
+              .sort-select {
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
               }
             </style>
           </head>
           <body>
             <div class="header">
-              <h1>Playwright Test Reports</h1>
-              <p>Historical test reports</p>
+              <h1>Playwright Test Reports History</h1>
+              <p>Historical test execution reports with retention</p>
             </div>
-            <ul class="report-list">
-              <!-- Report entries are inserted here -->
-            </ul>
-            <div class="retention-notice">
-              <p>Note: Reports are retained according to GitHub Pages and Actions retention policies.</p>
+            
+            <div class="filter-bar">
+              <input type="text" class="search-input" placeholder="Search reports..." id="searchInput">
+              <select class="sort-select" id="sortSelect">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+              </select>
             </div>
+            
+            <div class="reports-container" id="reportsContainer">
+              <!-- Report entries will be dynamically inserted here -->
+            </div>
+
+            <script>
+              // Function to add a new report entry
+              function addReportEntry(runNumber, timestamp) {
+                const container = document.getElementById('reportsContainer');
+                const card = document.createElement('div');
+                card.className = 'report-card';
+                
+                const date = new Date(timestamp);
+                const formattedDate = date.toLocaleString();
+                
+                card.innerHTML = `
+                  <a href="./reports/${runNumber}/index.html" class="report-link">
+                    <h3>Run #${runNumber}</h3>
+                    <div class="report-meta">
+                      <div>Executed: ${formattedDate}</div>
+                    </div>
+                  </a>
+                `;
+                
+                container.appendChild(card);
+              }
+
+              // Add the latest report
+              addReportEntry('${{ steps.run-info.outputs.run_number }}', 
+                           '${{ steps.run-info.outputs.timestamp }}');
+              
+              // Search functionality
+              document.getElementById('searchInput').addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const cards = document.querySelectorAll('.report-card');
+                
+                cards.forEach(card => {
+                  const text = card.textContent.toLowerCase();
+                  card.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+              });
+
+              // Sorting functionality
+              document.getElementById('sortSelect').addEventListener('change', (e) => {
+                const container = document.getElementById('reportsContainer');
+                const cards = Array.from(container.children);
+                
+                cards.sort((a, b) => {
+                  const aNum = parseInt(a.querySelector('h3').textContent.split('#')[1]);
+                  const bNum = parseInt(b.querySelector('h3').textContent.split('#')[1]);
+                  
+                  return e.target.value === 'newest' ? bNum - aNum : aNum - bNum;
+                });
+                
+                container.innerHTML = '';
+                cards.forEach(card => container.appendChild(card));
+              });
+            </script>
           </body>
           </html>
-          ENDOFHTML
-                  fi
+          EOF
 
-          # Create the directory for the current run's report
-          mkdir -p "final-deployment/${{ steps.run-info.outputs.run_number }}"
+      - name: Configure Git
+        run: |
+          cd gh-pages
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
 
-          # Copy new report content to its numbered directory
-          cp -R new-report/* "final-deployment/${{ steps.run-info.outputs.run_number }}/"
-
-          # Update the main index.html with a link to this new report
-          current_date=$(date "+%Y-%m-%d %H:%M:%S")
-          escaped_date=$(echo "$current_date" | sed 's/[\/&]/\\&/g')
-
-          if grep -q '<ul class="report-list">' "final-deployment/index.html"; then
-            # Insert new report entry at the top of the list
-            sed -i '/<ul class="report-list">/a \  <li class="report-item"><a class="report-link" href="./${{ steps.run-info.outputs.run_number }}/index.html"><span>Run #${{ steps.run-info.outputs.run_number }} ('"$escaped_date"')</span></a></li>' "final-deployment/index.html"
-            echo "Successfully added new report entry to index.html"
-          else
-            echo "Warning: Couldn't find report-list element in index.html"
-            grep -A 5 -B 5 "report-list" "final-deployment/index.html" || echo "No context found"
-          fi
+      - name: Commit and Push Changes
+        run: |
+          cd gh-pages
+          git add .
+          git commit -m "Add test report for run #${{ steps.run-info.outputs.run_number }}"
+          git push origin gh-pages
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -770,7 +837,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: final-deployment
+          path: gh-pages
 
       - name: Deploy to GitHub Pages
         id: deployment
