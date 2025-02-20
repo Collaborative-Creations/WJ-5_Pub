@@ -633,7 +633,7 @@ jobs:
         id: generate-path
         run: |
           # Format: run{runNumber}_{YYYY-MM-DD_HH-MM}
-          DEPLOY_PATH="${GITHUB_RUN_NUMBER}"
+          DEPLOY_PATH="run${GITHUB_RUN_NUMBER}_$(date +'%Y-%m-%d_%H-%M')"
           echo "deploy_path=$DEPLOY_PATH" >> $GITHUB_OUTPUT
           echo "Deployment path will be: $DEPLOY_PATH"
 
