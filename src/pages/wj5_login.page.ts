@@ -42,14 +42,9 @@ export default class Wj5LoginPage {
 
   async reloginIfneeded(username: string | any, password: string | any) {
     try {
-      await this.page.waitForLoadState();
-
-      if(!await this.page.locator("text= My Test Assignments").isVisible() 
-      && !await this.page.locator("class='examinee'").isVisible()) {
-        console.log("Relogging to Riverside Score ...");
-        await this.loginToRiversideScore(username, password);
-        return;
-      }
+      await this.page
+        .locator("text= My Test Assignments")
+        .waitFor({ state: "visible", timeout: 60000 });
     } catch (error) {
       console.warn(`Login page either blank or not in dashboard ${error}`);
       await this.loginToRiversideScore(username, password);
