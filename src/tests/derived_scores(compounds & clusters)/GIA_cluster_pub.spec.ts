@@ -19,13 +19,14 @@ type ScoreObject = {
 };
 type ScoresRecord = Record<string, ScoreObject>;
 const scores: ScoresRecord = {};
-let excelFileData;
+
 
 interface ExamineeData {
   examinee_ID: string;
   dateOfBirth: string;
 }
 let pRetry;
+let excelFileData;
 
 test.describe(" GIA cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
@@ -84,8 +85,8 @@ test.describe(" GIA cluster Derived Export Automation ", () => {
                 error.message,
               );
             },
-            minTimeout: 2000,
-            maxTimeout: 5000,
+            minTimeout: 5000,
+            maxTimeout: 15000,
           },
         );
 
