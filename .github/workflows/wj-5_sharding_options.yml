@@ -698,24 +698,63 @@ jobs:
             for RUN_DIR in reports/*; do
               if [ -d "$RUN_DIR" ]; then
                 METADATA_FILE="$RUN_DIR/metadata/run-info.json"
+                STATUS_FILE="$RUN_DIR/test-status-shard-1/status.txt"
+                
+                # Default values
+                RUN_NUM=$(basename "$RUN_DIR")
+                TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+                ENV="N/A"
+                BROWSER="N/A"
+                TEST_PATTERN="N/A"
+                
+                # Get timestamp and run number from metadata
                 if [ -f "$METADATA_FILE" ]; then
-                  # Get data from metadata file
                   RUN_NUM=$(jq -r '.runNumber' "$METADATA_FILE")
                   TIMESTAMP=$(jq -r '.timestamp' "$METADATA_FILE")
-                  REPORTS_DATA="${REPORTS_DATA}addReportEntry('$RUN_NUM', '$TIMESTAMP');\n    "
-                else
-                  # Fallback to directory name
-                  RUN_NUM=$(basename "$RUN_DIR")
-                  TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-                  REPORTS_DATA="${REPORTS_DATA}addReportEntry('$RUN_NUM', '$TIMESTAMP');\n    "
                 fi
+                
+                # Try to extract test parameters from any shard status file
+                for SHARD_STATUS in $RUN_DIR/test-status-shard-*/status.txt; do
+                  if [ -f "$SHARD_STATUS" ]; then
+                    # Extract environment, browser, test pattern from status file
+                    ENV_LINE=$(grep "Environment:" "$SHARD_STATUS" | head -1)
+                    BROWSER_LINE=$(grep "Browser:" "$SHARD_STATUS" | head -1)
+                    PATTERN_LINE=$(grep "Test Pattern:" "$SHARD_STATUS" | head -1)
+                    
+                    if [ ! -z "$ENV_LINE" ]; then
+                      ENV=$(echo "$ENV_LINE" | cut -d':' -f2- | xargs)
+                    fi
+                    if [ ! -z "$BROWSER_LINE" ]; then
+                      BROWSER=$(echo "$BROWSER_LINE" | cut -d':' -f2- | xargs)
+                    fi
+                    if [ ! -z "$PATTERN_LINE" ]; then
+                      TEST_PATTERN=$(echo "$PATTERN_LINE" | cut -d':' -f2- | xargs)
+                    fi
+                    
+                    # Only need to process one status file
+                    break
+                  fi
+                done
+                
+                # Escape quotes in test pattern for JavaScript
+                TEST_PATTERN_ESCAPED=$(echo "$TEST_PATTERN" | sed 's/"/\\"/g')
+                
+                REPORTS_DATA="${REPORTS_DATA}addReportEntry('$RUN_NUM', '$TIMESTAMP', '$ENV', '$BROWSER', '$TEST_PATTERN_ESCAPED');\n    "
               fi
             done
           fi
 
+          # Add current run's environment info
+          ENV="${{ github.event.inputs.environment }}"
+          BROWSER="${{ github.event.inputs.browser }}"
+          TEST_PATTERN="${{ github.event.inputs.test_pattern }}"
+          TEST_PATTERN_ESCAPED=$(echo "$TEST_PATTERN" | sed 's/"/\\"/g')
+
           # Add current run
           CURRENT_TIMESTAMP="${{ steps.run-info.outputs.timestamp }}"
-          REPORTS_DATA="${REPORTS_DATA}addReportEntry('${{ steps.run-info.outputs.run_number }}', '$CURRENT_TIMESTAMP');"
+          REPORTS_DATA="${REPORTS_DATA}addReportEntry('${{ steps.run-info.outputs.run_number }}', '$CURRENT_TIMESTAMP', '$ENV', '$BROWSER', '$TEST_PATTERN_ESCAPED');"
+
+
 
           # Create or update main index
           cat > index.html << EOF
@@ -743,11 +782,11 @@ jobs:
               .reports-container {
                 display: grid;
                 gap: 15px;
-                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
               }
               .report-card {
                 background: white;
-                padding: 15px;
+                padding: 20px;
                 border-radius: 8px;
                 box-shadow: 0 1px 3px rgba(0,0,0,0.1);
                 transition: transform 0.2s;
@@ -764,6 +803,19 @@ jobs:
                 color: #586069;
                 font-size: 0.9em;
                 margin-top: 10px;
+              }
+              .report-meta-item {
+                display: flex;
+                margin-bottom: 4px;
+              }
+              .report-meta-label {
+                width: 110px;
+                font-weight: 500;
+                color: #24292e;
+              }
+              .report-meta-value {
+                flex: 1;
+                word-break: break-word;
               }
               .filter-bar {
                 background: white;
@@ -786,6 +838,16 @@ jobs:
                 border: 1px solid #ddd;
                 border-radius: 4px;
               }
+              .truncate {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 100%;
+              }
+              .time-display {
+                color: #0366d6;
+                font-weight: 500;
+              }
             </style>
           </head>
           <body>
@@ -793,82 +855,188 @@ jobs:
               <h1>Playwright Test Reports History</h1>
               <p>Historical test execution reports with retention</p>
             </div>
-
+            
             <div class="filter-bar">
-              <input type="text" class="search-input" placeholder="Search reports..." id="searchInput">
+              <input type="text" class="search-input" placeholder="Search reports (run #, environment, browser, test pattern)..." id="searchInput">
               <select class="sort-select" id="sortSelect">
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
               </select>
+              <select class="sort-select" id="envFilter">
+                <option value="all">All Environments</option>
+              </select>
+              <select class="sort-select" id="browserFilter">
+                <option value="all">All Browsers</option>
+              </select>
             </div>
-
+            
             <div class="reports-container" id="reportsContainer">
               <!-- Report entries will be dynamically inserted here -->
             </div>
-
+            
             <script>
+              // Store all report data for filtering
+              const allReports = [];
+              
+              // Timezone for Indian Standard Time (IST)
+              const istOptions = { 
+                timeZone: 'Asia/Kolkata',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+              };
+              
               // Function to add a new report entry
-              function addReportEntry(runNumber, timestamp) {
-                const container = document.getElementById('reportsContainer');
-                const card = document.createElement('div');
-                card.className = 'report-card';
-
-                // Parse date from timestamp format YYYYMMDD_HHMMSS
-                let dateStr = timestamp;
-                if (timestamp.includes('_')) {
-                  const [datePart, timePart] = timestamp.split('_');
-                  dateStr = datePart.slice(0,4) + '-' + datePart.slice(4,6) + '-' + datePart.slice(6,8) + 
-                            'T' + timePart.slice(0,2) + ':' + timePart.slice(2,4) + ':' + timePart.slice(4,6);
-                }
-
-                const date = new Date(dateStr);
-                const formattedDate = date.toLocaleString();
-
-                card.innerHTML = \`
-                  <a href="./reports/\${runNumber}/index.html" class="report-link">
-                    <h3>Run #\${runNumber}</h3>
-                    <div class="report-meta">
-                      <div>Executed: \${formattedDate}</div>
-                    </div>
-                  </a>
-                \`;
-
-                container.appendChild(card);
+              function addReportEntry(runNumber, timestamp, environment, browser, testPattern) {
+                // Store data for filtering
+                allReports.push({
+                  runNumber,
+                  timestamp,
+                  environment,
+                  browser,
+                  testPattern
+                });
+                
+                // Update filter dropdowns
+                updateFilterOptions();
+                
+                // Initial rendering happens in renderReports()
               }
-
-              // Add all report entries
-              $(echo -e "$REPORTS_DATA")
-
-              // Search functionality
-              document.getElementById('searchInput').addEventListener('input', (e) => {
-                const searchTerm = e.target.value.toLowerCase();
-                const cards = document.querySelectorAll('.report-card');
-
-                cards.forEach(card => {
-                  const text = card.textContent.toLowerCase();
-                  card.style.display = text.includes(searchTerm) ? '' : 'none';
-                });
-              });
-
-              // Sorting functionality
-              document.getElementById('sortSelect').addEventListener('change', (e) => {
+              
+              // Function to render all reports based on current filters
+              function renderReports() {
                 const container = document.getElementById('reportsContainer');
-                const cards = Array.from(container.children);
-
-                cards.sort((a, b) => {
-                  const aNum = parseInt(a.querySelector('h3').textContent.split('#')[1]);
-                  const bNum = parseInt(b.querySelector('h3').textContent.split('#')[1]);
-
-                  return e.target.value === 'newest' ? bNum - aNum : aNum - bNum;
-                });
-
                 container.innerHTML = '';
-                cards.forEach(card => container.appendChild(card));
-              });
-
-              // Sort by newest first by default (after all entries have been added)
+                
+                // Get current filters
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const sortOrder = document.getElementById('sortSelect').value;
+                const envFilter = document.getElementById('envFilter').value;
+                const browserFilter = document.getElementById('browserFilter').value;
+                
+                // Filter and sort reports
+                const filteredReports = allReports.filter(report => {
+                  // Filter by search term
+                  const searchable = `${report.runNumber} ${report.environment} ${report.browser} ${report.testPattern}`.toLowerCase();
+                  const matchesSearch = searchTerm === '' || searchable.includes(searchTerm);
+                  
+                  // Filter by environment and browser
+                  const matchesEnv = envFilter === 'all' || report.environment === envFilter;
+                  const matchesBrowser = browserFilter === 'all' || report.browser === browserFilter;
+                  
+                  return matchesSearch && matchesEnv && matchesBrowser;
+                });
+                
+                // Sort reports
+                filteredReports.sort((a, b) => {
+                  const aNum = parseInt(a.runNumber);
+                  const bNum = parseInt(b.runNumber);
+                  return sortOrder === 'newest' ? bNum - aNum : aNum - bNum;
+                });
+                
+                // Render each report card
+                filteredReports.forEach(report => {
+                  const card = document.createElement('div');
+                  card.className = 'report-card';
+                  
+                  // Format dates in IST
+                  let formattedDate = "Unknown date";
+                  try {
+                    // Parse date from timestamp format YYYYMMDD_HHMMSS
+                    let dateObj = new Date();
+                    if (report.timestamp.includes('_')) {
+                      const [datePart, timePart] = report.timestamp.split('_');
+                      const dateString = `${datePart.slice(0,4)}-${datePart.slice(4,6)}-${datePart.slice(6,8)}T${timePart.slice(0,2)}:${timePart.slice(2,4)}:${timePart.slice(4,6)}Z`;
+                      dateObj = new Date(dateString);
+                    } else {
+                      dateObj = new Date(report.timestamp);
+                    }
+                    formattedDate = dateObj.toLocaleString('en-IN', istOptions);
+                  } catch (error) {
+                    console.error("Date parsing error:", error);
+                  }
+                  
+                  // Handle potentially long test patterns
+                  const displayTestPattern = report.testPattern.length > 45 ? 
+                    report.testPattern.substring(0, 45) + '...' : 
+                    report.testPattern;
+                    
+                  card.innerHTML = `
+                    <a href="./reports/${report.runNumber}/index.html" class="report-link">
+                      <h3>Run #${report.runNumber}</h3>
+                    </a>
+                    <div class="report-meta">
+                      <div class="report-meta-item">
+                        <div class="report-meta-label">Environment:</div>
+                        <div class="report-meta-value">${report.environment}</div>
+                      </div>
+                      <div class="report-meta-item">
+                        <div class="report-meta-label">Browser:</div>
+                        <div class="report-meta-value">${report.browser}</div>
+                      </div>
+                      <div class="report-meta-item">
+                        <div class="report-meta-label">Test Pattern:</div>
+                        <div class="report-meta-value truncate" title="${report.testPattern}">${displayTestPattern}</div>
+                      </div>
+                      <div class="report-meta-item">
+                        <div class="report-meta-label">Executed:</div>
+                        <div class="report-meta-value time-display">${formattedDate}</div>
+                      </div>
+                    </div>
+                  `;
+                    
+                  container.appendChild(card);
+                });
+              }
+              
+              // Update filter dropdown options
+              function updateFilterOptions() {
+                const envFilter = document.getElementById('envFilter');
+                const browserFilter = document.getElementById('browserFilter');
+                
+                // Get unique environments and browsers
+                const environments = [...new Set(allReports.map(r => r.environment))].filter(e => e !== 'N/A').sort();
+                const browsers = [...new Set(allReports.map(r => r.browser))].filter(b => b !== 'N/A').sort();
+                
+                // Clear existing options (except first one)
+                while (envFilter.options.length > 1) {
+                  envFilter.remove(1);
+                }
+                
+                while (browserFilter.options.length > 1) {
+                  browserFilter.remove(1);
+                }
+                
+                // Add environment options
+                environments.forEach(env => {
+                  const option = document.createElement('option');
+                  option.value = env;
+                  option.textContent = env;
+                  envFilter.appendChild(option);
+                });
+                
+                // Add browser options
+                browsers.forEach(browser => {
+                  const option = document.createElement('option');
+                  option.value = browser;
+                  option.textContent = browser;
+                  browserFilter.appendChild(option);
+                });
+              }
+            
+              // Add event listeners for filtering and sorting
+              document.getElementById('searchInput').addEventListener('input', renderReports);
+              document.getElementById('sortSelect').addEventListener('change', renderReports);
+              document.getElementById('envFilter').addEventListener('change', renderReports);
+              document.getElementById('browserFilter').addEventListener('change', renderReports);
+            
+              // Render reports on load (after all entries have been added)
               window.onload = function() {
-                document.getElementById('sortSelect').dispatchEvent(new Event('change'));
+                renderReports();
               };
             </script>
           </body>
