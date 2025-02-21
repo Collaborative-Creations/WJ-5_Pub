@@ -33,7 +33,7 @@ Vulnerability Meltdown:               Not affected
 Vulnerability Mmio stale data:        Not affected
 Vulnerability Reg file data sampling: Not affected
 Vulnerability Retbleed:               Not affected
-Vulnerability Spec rstack overflow:   Mitigation; Safe RET
+Vulnerability Spec rstack overflow:   Vulnerable: Safe RET, no microcode
 Vulnerability Spec store bypass:      Vulnerable
 Vulnerability Spectre v1:             Mitigation; usercopy/swapgs barriers and __user pointer sanitization
 Vulnerability Spectre v2:             Mitigation; Retpolines; STIBP disabled; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected
@@ -42,7 +42,7 @@ Vulnerability Tsx async abort:        Not affected
 -e 
 Memory Information:
                total        used        free      shared  buff/cache   available
-Mem:            15Gi       1.1Gi       6.0Gi        67Mi       8.8Gi        14Gi
+Mem:            15Gi       1.1Gi       6.0Gi        64Mi       8.8Gi        14Gi
 Swap:          4.0Gi          0B       4.0Gi
 -e 
 Disk Information:
@@ -57,7 +57,7 @@ tmpfs           7.9G     0  7.9G   0% /proc/scsi
 tmpfs           7.9G     0  7.9G   0% /sys/firmware
 -e 
 System Load:
- 03:22:32 up 2 min,  0 user,  load average: 0.93, 0.31, 0.11
+ 03:51:33 up 4 min,  0 user,  load average: 1.35, 0.39, 0.14
 -e 
 Container Information:
 PRETTY_NAME="Ubuntu 24.04.1 LTS"

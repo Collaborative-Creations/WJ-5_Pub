@@ -33,7 +33,7 @@ Vulnerability Meltdown:               Not affected
 Vulnerability Mmio stale data:        Not affected
 Vulnerability Reg file data sampling: Not affected
 Vulnerability Retbleed:               Not affected
-Vulnerability Spec rstack overflow:   Mitigation; Safe RET
+Vulnerability Spec rstack overflow:   Vulnerable: Safe RET, no microcode
 Vulnerability Spec store bypass:      Vulnerable
 Vulnerability Spectre v1:             Mitigation; usercopy/swapgs barriers and __user pointer sanitization
 Vulnerability Spectre v2:             Mitigation; Retpolines; STIBP disabled; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected
@@ -42,7 +42,7 @@ Vulnerability Tsx async abort:        Not affected
 -e 
 Memory Information:
                total        used        free      shared  buff/cache   available
-Mem:            15Gi       1.2Gi       6.0Gi        65Mi       8.8Gi        14Gi
+Mem:            15Gi       1.2Gi       6.0Gi        64Mi       8.8Gi        14Gi
 Swap:          4.0Gi          0B       4.0Gi
 -e 
 Disk Information:
@@ -50,14 +50,14 @@ Filesystem      Size  Used Avail Use% Mounted on
 overlay          72G   48G   24G  67% /
 tmpfs            64M     0   64M   0% /dev
 shm              64M     0   64M   0% /dev/shm
-/dev/root        72G   48G   24G  67% /__w
+/dev/root        72G   48G   24G  67% /__e
 tmpfs           3.2G  1.2M  3.2G   1% /run/docker.sock
 tmpfs           7.9G     0  7.9G   0% /proc/acpi
 tmpfs           7.9G     0  7.9G   0% /proc/scsi
 tmpfs           7.9G     0  7.9G   0% /sys/firmware
 -e 
 System Load:
- 03:22:32 up 2 min,  0 user,  load average: 1.39, 0.48, 0.18
+ 03:51:33 up 4 min,  0 user,  load average: 1.17, 0.37, 0.13
 -e 
 Container Information:
 PRETTY_NAME="Ubuntu 24.04.1 LTS"
