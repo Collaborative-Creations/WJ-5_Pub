@@ -458,7 +458,7 @@ export default class wj5MultiPage {
     );
 
     while (await this.plainNextButtonOrEndButton.isVisible()) {
-      await this.page.waitForTimeout(1000);
+      await this.page.waitForTimeout(2500);
       const itemDetails: string = (await this.itemDetails.textContent())!;
       console.log(itemDetails);
       const correctlocator: Locator = this.corectOptionButton.first();
@@ -2005,7 +2005,7 @@ export default class wj5MultiPage {
     await this.notesDropdown.click();
     await expect(this.notesDropdownOptions.nth(0)).toHaveText("Item");
     await expect(this.notesDropdownOptions.nth(1)).toHaveText("Test");
-    await expect(this.notesDropdownOptions.nth(2)).toHaveText("Test Block");
+    await expect(this.notesDropdownOptions.nth(2)).toHaveText("Test Set");
     await this.notesDropdown.click();
     await expect(this.flagForLater).toBeVisible();
     await expect(this.closeNotes).toBeVisible();

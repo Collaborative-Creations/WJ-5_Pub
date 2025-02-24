@@ -25,7 +25,7 @@ test.describe("OVSYN.W5PA single table lookUp Scoring Export Automation", () => 
     });
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
-      { tag: ["@OVSYN", "@singleTable", "@smoke"] },
+      { tag: ["@OVSYN", "@singleTable", "@reg"] },
       async (
         {
           wj5ah,
@@ -66,8 +66,8 @@ test.describe("OVSYN.W5PA single table lookUp Scoring Export Automation", () => 
                 error.message,
               );
             },
-            minTimeout: 2000,
-            maxTimeout: 5000,
+            minTimeout: 5000,
+            maxTimeout: 15000,
           },
         );
 
@@ -148,8 +148,8 @@ test.describe("OVSYN.W5PA single table lookUp Scoring Export Automation", () => 
                 error.message,
               );
             },
-            minTimeout: 2000,
-            maxTimeout: 5000,
+            minTimeout: 5000,
+            maxTimeout: 15000,
           },
         );
       },

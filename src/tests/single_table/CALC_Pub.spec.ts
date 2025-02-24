@@ -24,7 +24,7 @@ test.describe("CALC.W5PA single table lookUp Scoring Export Automation", () => {
     });
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
-      { tag: ["@CALC", "@singleTable", "@smoke"] },
+      { tag: ["@CALC", "@singleTable", "@reg"] },
       async (
         {
           wj5ah,
