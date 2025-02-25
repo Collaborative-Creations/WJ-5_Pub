@@ -207,8 +207,8 @@ test.describe(" GFGC cluster Derived Export Automation ", () => {
                 error.message,
               );
             },
-            minTimeout: 2000,
-            maxTimeout: 5000,
+            minTimeout: 5000,
+            maxTimeout: 15000,
           },
         );
 
