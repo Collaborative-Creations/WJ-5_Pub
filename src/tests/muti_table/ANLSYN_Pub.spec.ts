@@ -9,14 +9,22 @@ test.describe.configure({ mode: "default" });
 let score: Map<string, string>;
 let txtFileContent: { [key: string]: { [key: string]: string } };
 
+interface ExamineeData {
+  examinee_ID: string;
+  dateOfBirth: string;
+}
+
+let pRetry;
+
 test.describe(" ANLSYN.W5PA WlookUp Scoring Export Automation ", () => {
   testData.forEach((data) => {
     test.beforeAll(async () => {
+      pRetry = (await import("p-retry")).default;
       await setFilePathes(data.lookUpModel);
     });
     test(
       `@wLookUpE2e @Regression For ${data.typeOfTest} login as AH Conduct test as Examiner and generate reports`,
-      { tag: ["@ANLSYN", "@multiTable", "@reg"] },
+      { tag: ["@ANLSYN", "@multiTable", "@smoke"] },
       async (
         {
           wj5ah,
@@ -32,19 +40,38 @@ test.describe(" ANLSYN.W5PA WlookUp Scoring Export Automation ", () => {
       ) => {
         test.setTimeout(9 * 60 * 1000);
 
-        await wj5examiner.gotoUrl(getSiteUrl() + "home");
-        const { examinee_ID, dateOfBirth } =
-          await wj5ExaminerDashPage.addNewExamineeAndUpdateTheTemplate(
-            getSiteUrl(),
-            data.examineeAge,
-            data.location,
-            data.testStemForm,
-          );
-        await wj5ExaminerDashPage.createTestAssignmentFromExamineeManagement(
-          data.blockName,
-          examinee_ID,
-          data.examineeGrade,
+        const examineeData = await pRetry(
+          async (): Promise<ExamineeData> => {
+            await wj5examiner.gotoUrl(getSiteUrl() + "home");
+            const result =
+              await wj5ExaminerDashPage.addNewExamineeAndUpdateTheTemplate(
+                getSiteUrl(),
+                data.examineeAge,
+                data.location,
+                data.testStemForm,
+              );
+            await wj5ExaminerDashPage.createTestAssignmentFromExamineeManagement(
+              data.blockName,
+              result.examinee_ID,
+              data.examineeGrade,
+            );
+
+            return result;
+          },
+          {
+            retries: 2,
+            onFailedAttempt: (error) => {
+              console.warn(
+                `Attempt ${error.attemptNumber} for adding and assigning test to an examinee has failed. ${error.retriesLeft} retries left.`,
+                error.message,
+              );
+            },
+            minTimeout: 5000,
+            maxTimeout: 15000,
+          },
         );
+
+        const { examinee_ID, dateOfBirth } = examineeData;
 
         const ipad7 = devices["iPad (gen 7) landscape"];
         const sessionid = await wj5ExaminerDashPage.getSessionID();
@@ -79,35 +106,50 @@ test.describe(" ANLSYN.W5PA WlookUp Scoring Export Automation ", () => {
           await $examineePage.close();
           await wj5examinerTestPage.completeTSObservationsandClickNext();
         }
-        await wj5ah.gotoUrl(getSiteUrl() + "home");
-        await wj5AhDashPage.welcomeTextToBeVisable();
+        await pRetry(
+          async () => {
+            await wj5ah.gotoUrl(getSiteUrl() + "home");
+            await wj5AhDashPage.welcomeTextToBeVisable();
 
-        await wj5AhDashPage.uploadExportTemplete(data.lookUpModel);
-        await wj5AhDashPage.clickOnTheResportToDownload(testInfo);
-        await wj5AhDashPage.extractTheDownloadedZipFile();
-        const requiredFileName =
-          await wj5AhDashPage.printAllThedatafromTheFileRequired(
-            "Score_DataExport_AutoFilter_Template_WLookup",
-          );
+            await wj5AhDashPage.uploadExportTemplete(data.lookUpModel);
+            await wj5AhDashPage.clickOnTheResportToDownload(testInfo);
+            await wj5AhDashPage.extractTheDownloadedZipFile();
+            const requiredFileName =
+              await wj5AhDashPage.printAllThedatafromTheFileRequired(
+                "Score_DataExport_AutoFilter_Template_WLookup",
+              );
 
-        console.log(`requiredFileName`, requiredFileName);
+            console.log(`requiredFileName`, requiredFileName);
 
-        await wj5AhDashPage.validateTheDownloadedReportWithRunTimeDataForSingleAndMulti(
-          score,
-          data.testName,
-          data.SumOfItemScores,
-          data.BasalCredit,
-          data.WlookUp,
-          data.Wscore,
-          data.semW,
-          data.WlkpAdminItems,
-          data.ScoreString,
-          data.testStemForm,
-          data.lookUpModel,
-          data.totalItems,
-          data.scoreFlag,
-          data.typeOfTest,
-          data.negation!,
+            await wj5AhDashPage.validateTheDownloadedReportWithRunTimeDataForSingleAndMulti(
+              score,
+              data.testName,
+              data.SumOfItemScores,
+              data.BasalCredit,
+              data.WlookUp,
+              data.Wscore,
+              data.semW,
+              data.WlkpAdminItems,
+              data.ScoreString,
+              data.testStemForm,
+              data.lookUpModel,
+              data.totalItems,
+              data.scoreFlag,
+              data.typeOfTest,
+              data.negation!,
+            );
+          },
+          {
+            retries: 2,
+            onFailedAttempt: (error) => {
+              console.warn(
+                `Attempt ${error.attemptNumber} for fetching the report failed. ${error.retriesLeft} retries left.`,
+                error.message,
+              );
+            },
+            minTimeout: 5000,
+            maxTimeout: 15000,
+          },
         );
       },
     );

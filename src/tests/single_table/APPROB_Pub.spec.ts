@@ -28,7 +28,7 @@ test.describe("APPROB.W5PA single table lookUp Scoring Export Automation", () =>
     });
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
-      { tag: ["@APPROB", "@singleTable", "@smoke"] },
+      { tag: ["@APPROB", "@singleTable", "@reg"] },
       async (
         {
           wj5ah,
