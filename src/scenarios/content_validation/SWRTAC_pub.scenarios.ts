@@ -44,7 +44,7 @@ interface TestData {
       normBasis: "Age",
       examineeAge: 5,
       examineeGrade: "Grade 1",
-      SSP: ["Ages 14 to Above Average Adult"],
+      SSP: ["Ages 14 to Adult"],
       BbyC: [5],
       scoreFlag: "",
       lookUpModel: "basal and ceiling",

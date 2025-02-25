@@ -254,7 +254,10 @@ export default class Wj5DashboardPage {
 
   async saveExaminee() {
     await this.examineeSaveButton.click();
-    await this.examineeSaveOkButton.waitFor({ state: "visible", timeout: 30000 });
+    await this.examineeSaveOkButton.waitFor({
+      state: "visible",
+      timeout: 30000,
+    });
     await this.examineeSaveOkButton.click();
   }
 
@@ -558,7 +561,7 @@ export default class Wj5DashboardPage {
         (response) =>
           response.url().includes("GetSavedResearchExportData") &&
           response.status() === 200,
-        { timeout: 1 * 60 * 1000 },
+          { timeout: 5 * 60 * 1000 },
       ),
     ]);
 
@@ -862,8 +865,9 @@ export default class Wj5DashboardPage {
       "SENREP.W5PA",
       "SNDDEL.W5PA",
       "SNDSUB.W5PA",
+      "SWRTAC.W5PA"
     ];
-    const simpleTest: string[] = ["NUMPAT.W5PA", "LETPAT.W5PA", "MTHFLU.W5PA"];
+    const simpleTest: string[] = ["NUMPAT.W5PA", "LETPAT.W5PA", "MTHFLU.W5PA","SRDGFL.W5PA", "WRDGFL.W5PA"];
 
     let sumOfItemScores: number = 0;
     let basalCredit: number = 0;
@@ -1134,7 +1138,7 @@ export default class Wj5DashboardPage {
       }
     }
 
-    let examinerid: string = "";
+    //let examinerid: string = "";
     let examineeid: string = "";
     let dateoftest: string = "";
     let testnumber: string = "";
@@ -1153,7 +1157,7 @@ export default class Wj5DashboardPage {
     rows.forEach((iLine) => {
       const columnValues: string[] = iLine.split("\t");
 
-      examinerid = columnValues[examinerID!];
+      //examinerid = columnValues[examinerID!];
       examineeid = columnValues[examineeID!];
       dateoftest = columnValues[dateOfTest!];
       testnumber = columnValues[testNumber!];
@@ -1170,7 +1174,7 @@ export default class Wj5DashboardPage {
       scorestring = columnValues[scoreString!] ?? "";
 
       if (testname !== "" && testname !== undefined && testname !== null) {
-        this.reqWlookUpMap.set("examinerID", examinerid);
+        //this.reqWlookUpMap.set("examinerID", examinerid);
         this.reqWlookUpMap.set("examineeID", examineeid);
         this.reqWlookUpMap.set("dateOfTest", dateoftest);
         this.reqWlookUpMap.set("testName", testname);
@@ -1201,7 +1205,7 @@ export default class Wj5DashboardPage {
       );
     }
 
-    // softAssertPrint(examinerid, examiner.examinerID, "Examiner ID");
+    // //softAssertPrint(examinerid, examiner.examinerID, "Examiner ID");
     softAssertPrint(examineeid, Wj5DashboardPage.examineeID, "Examinee ID");
     try {
       softAssertPrint(

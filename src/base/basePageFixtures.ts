@@ -58,6 +58,10 @@ import wj5WrdatkPage from "../pages/WJV_UI_Regression/wj5_WRDATK.page";
 import wj5PsgcmpPage from "../pages/WJV_UI_Regression/wj5_PSGCMP.page";
 import wj5StyrecPage from "../pages/WJV_UI_Regression/wj5_STYREC.page";
 import wj5SemretPage from "../pages/WJV_UI_Regression/wj5_SEMRET.page";
+import wj5MprbidPage from "../pages/WJV_UI_Regression/wj5_MPRBID.page";
+import wj5SpellPage from "../pages/WJV_UI_Regression/wj5_SPELL.page";
+import wj5NumserPage from "../pages/WJV_UI_Regression/wj5_NUMSER.page";
+import wj5OrlcmpPage from "../pages/WJV_UI_Regression/wj5_ORLCMP.page";
 
 // import { getUserAuthFilePath } from "../utils/auth/UserAuthentication";
 // import { registerUserForTokenRefresh, startTokenRefreshLoop } from "../utils/auth/TokenRefreshManager";
@@ -129,6 +133,10 @@ type Fixtures = {
   wj5examinerTest_psgcmpPage: wj5PsgcmpPage;
   wj5examinerTest_styrecPage: wj5StyrecPage;
   wj5examinerTest_semretPage: wj5SemretPage;
+  wj5examinerTest_spellPage: wj5SpellPage;
+  wj5examinerTest_mprbidPage: wj5MprbidPage;
+  wj5examinerTest_numserPage: wj5NumserPage;
+  wj5examinerTest_orlcmpPage: wj5OrlcmpPage;
 };
 
 let wj5ahNewPage: Page;
@@ -400,5 +408,22 @@ wj5examinerTest_wrdatkPage: async ({ context }, use) => {
 
  wj5examinerTest_semretPage: async ({ context }, use) => {
     await use(new wj5SemretPage(wj5examinerNewPage));
-  },  
+  },
+  
+  wj5examinerTest_spellPage: async ({ context }, use) => {
+    await use(new wj5SpellPage(wj5examinerNewPage));
+  },
+
+  wj5examinerTest_numserPage: async ({ context }, use) => {
+    await use(new wj5NumserPage(wj5examinerNewPage));
+  },
+
+  wj5examinerTest_mprbidPage: async ({ context }, use) => {
+    await use(new wj5MprbidPage(wj5examinerNewPage));
+  },
+
+  wj5examinerTest_orlcmpPage: async ({ context }, use) => {
+    await use(new wj5OrlcmpPage(wj5examinerNewPage));
+  },
+  
 });

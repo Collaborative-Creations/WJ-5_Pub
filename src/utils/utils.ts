@@ -823,6 +823,14 @@ export default class Utils {
           { range: [9, 16], result: "AB" },
           { range: [17, 28], result: "ABC" }
         ],
+      },
+      {
+        regex: /SWRTAC\.W5PA/,
+        ranges: [
+          { range: [1, 5], result: "A" },
+          { range: [6, 15], result: "AB" },
+          { range: [16, 20], result: "ABC" },
+        ],
       }
     ];
 
@@ -845,9 +853,14 @@ export default class Utils {
             let itemNumber: number;
             if(key.match(/^Items \d+–\d+ Score Entry$/)){
               itemNumber = parseInt(key.split("–")[1].split(" ")[0]);
-            }
-            else{
-              itemNumber = parseInt(key.replace(/(Item|Story) /, ""), 10);
+            } else if(stemForm && stemForm.includes("SWRTAC.W5PA")){
+              if(key.match(/^A: Punctuation$/)){
+                itemNumber = 5;
+              } else if(key.match(/^B: Punctuation$/)){
+                  itemNumber = 15;
+              }
+            } else{
+                itemNumber = parseInt(key.replace(/(Item|Story) /, ""), 10);
             }
             if (!isNaN(Number(value)) && !isNaN(itemNumber)) {
               lastKeyWithValue = itemNumber;
@@ -969,6 +982,10 @@ export default class Utils {
         "../../dataFiles/test_schema_files/NUMPAT.W5PA_TestSchema.xlsx",
       "LETPAT.W5PA":
         "../../dataFiles/test_schema_files/LETPAT.W5PA_TestSchema.xlsx",
+      "SRDGFL.W5PA":
+        "../../dataFiles/test_schema_files/SRDGFL.W5PA_TestSchema.xlsx",
+      "WRDGFL.W5PA":
+        "../../dataFiles/test_schema_files/WRDGFL.W5PA_TestSchema.xlsx",
     };
 
     const filePath = schemaFiles[patternTestName];

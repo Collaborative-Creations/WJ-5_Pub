@@ -1,0 +1,214 @@
+Download
+Gia's Score Report
+WOODCOCK-JOHNSON SUITE|
+REPORT DATE: 2/20/2025
+Name: Gia Random
+Examiner: ScoreReports ScoreReports
+ID: 12
+DOB: 2/17/2011
+Grade: 12.6
+Age: 14 years, 0 months
+Date(s) of Testing: 2/19/2025
+(Norms based on Age 14 years, 0 months)
+Woodcock-Johnson V Tests of Cognitive Abilities
+Hide
+General Intellectual Ability (GIA)
+Development
+W  SCORE
+508
+68% Confidence Band
+506-
+510
+Proficiency
+W  DIFFERENCE SCORE (WDIFF)
+-5
+AVERAGE
+Age-level tasks will be:
+MANAGEABLE
+RELATIVE PROFICIENCY INDEX (RPI)
+84/90
+AVERAGE
+Age-level tasks will be:
+MANAGEABLE
+Contributing Test Scores
+Oral Vocabulary
+511
+W  SCORE
+-4
+WDIFF
+85/90
+RPI
+Matrices
+500
+W  SCORE
+-7
+WDIFF
+80/90
+RPI
+Spatial Relations
+491
+W  SCORE
+-16
+WDIFF
+61/90
+RPI
+Story Recall
+512
+W  SCORE
+6
+WDIFF
+95/90
+RPI
+Semantic Word Retrieval
+540
+W  SCORE
+38
+WDIFF
+100/90
+RPI
+Verbal Attention
+500
+W  SCORE
+-11
+WDIFF
+73/90
+RPI
+Number-Pattern Matching
+511
+W  SCORE
+-31
+WDIFF
+23/90
+RPI
+Verbal Analogies
+499
+W  SCORE
+-13
+WDIFF
+69/90
+RPI
+Brief Intellectual Ability (BIA)
+Development
+W  SCORE
+504
+68% Confidence Band
+501-
+507
+Proficiency
+W  DIFFERENCE SCORE (WDIFF)
+-8
+LIMITED TO AVERAGE
+Age-level tasks will be:
+DIFFICULT
+RELATIVE PROFICIENCY INDEX (RPI)
+79/90
+LIMITED TO AVERAGE
+Age-level tasks will be:
+DIFFICULT
+Contributing Test Scores
+Oral Vocabulary
+511
+W  SCORE
+-4
+WDIFF
+85/90
+RPI
+Matrices
+500
+W  SCORE
+-7
+WDIFF
+80/90
+RPI
+Verbal Attention
+500
+W  SCORE
+-11
+WDIFF
+73/90
+RPI
+Comprehension-Knowledge (Gc)
+Development
+W  SCORE
+505
+68% Confidence Band
+502-
+508
+Proficiency
+W  DIFFERENCE SCORE (WDIFF)
+-9
+LIMITED TO AVERAGE
+Age-level tasks will be:
+DIFFICULT
+RELATIVE PROFICIENCY INDEX (RPI)
+77/90
+LIMITED TO AVERAGE
+Age-level tasks will be:
+DIFFICULT
+Contributing Test Scores
+Oral Vocabulary
+511
+W  SCORE
+-4
+WDIFF
+85/90
+RPI
+Verbal Analogies
+499
+W  SCORE
+-13
+WDIFF
+69/90
+RPI
+Cognitive Efficiency (CE)
+Development
+W  SCORE
+506
+68% Confidence Band
+502-
+510
+Proficiency
+W  DIFFERENCE SCORE (WDIFF)
+-21
+LIMITED
+Age-level tasks will be:
+VERY DIFFICULT
+RELATIVE PROFICIENCY INDEX (RPI)
+47/90
+LIMITED
+Age-level tasks will be:
+VERY DIFFICULT
+Contributing Test Scores
+Verbal Attention
+500
+W  SCORE
+-11
+WDIFF
+73/90
+RPI
+Number-Pattern Matching
+511
+W  SCORE
+-31
+WDIFF
+23/90
+RPI
+Intra-Ability Comparisons
+Hide
+Intra-Cognitive
+Comprehension-Knowledge
+89
+EARNED SS
+111
+PREDICTED SS
+-22
+DIFFERENCE
+-2.82
+z SCORE
+<1
+PR (BASE RATE)
+WEAKNESS
+Notes.
+The predictor for each target cluster score is the average of the examinee's earned standard scores from the following eight tests: Oral Vocabulary, Matrices, Spatial Relations, Story Recall, Semantic Word Retrieval, Verbal Attention, Number-Pattern Matching, and Verbal Analogies. The difference score significance is based on ±1.65 SD (SEE).
+Copyright © 2025 Riverside Insights™. All Rights Reserved.
+Riverside Insights Score Report Generator

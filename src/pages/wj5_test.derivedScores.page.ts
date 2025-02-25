@@ -93,6 +93,7 @@ export default class wj5TestPage {
   private readonly stopIcon: Locator;
   private readonly scoreText: Locator;
   private readonly introDetails: Locator;
+  private readonly correctOptionSampleItems: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -192,6 +193,7 @@ export default class wj5TestPage {
     this.stopIcon = this.page.locator("div[class='icon']");
     this.scoreText = this.page.locator("input[class='score-text']");
     this.introDetails = this.page.locator("//span[@class='item-text']").first();
+    this.correctOptionSampleItems = this.page.locator("//button[@class='select-option' and text()='Correct']");
   }
 
   async selectThecheckBox(radioButton: number, info?: string) {
@@ -548,7 +550,9 @@ export default class wj5TestPage {
         console.error(`Not able to click on the Correct Options ${error}`);
       }
     }
-    this.scoreMap.set(itemDetails, (await correctlocators).length.toString());
+    if (!itemDetails.startsWith("Sample ")) {
+      this.scoreMap.set(itemDetails, (await correctlocators).length.toString());
+    }
   }
 
   async clickAllIncorrectOption(
@@ -589,6 +593,8 @@ export default class wj5TestPage {
     const locatorPathConfig: Record<string, { path: string }> = {
       "NUMPAT.W5PA": { path: "NUMPAT" },
       "LETPAT.W5PA": { path: "LETPAT_Left" },
+      "SRDGFL.W5PA": { path: "SRDGFL" },
+      "WRDGFL.W5PA": { path: "WRDGFL" },
     };
     console.log(`taskStem value: ${stemForm}`);
     if (!locatorPathConfig[stemForm]) {
@@ -606,6 +612,7 @@ export default class wj5TestPage {
     let isStartTimerVisable = await this.startTheTimer.isVisible();
     if (isPracticeTimerVisable) {
       await this.startPracticeExercise.click();
+      await this.page.waitForTimeout(1500); // this waitForTimeout is necessary for SRDGFL test
       this.index = 1;
     } else if (isStartTimerVisable) {
       try {
@@ -623,10 +630,16 @@ export default class wj5TestPage {
 
     const locatorPath = locatorPathConfig[stemForm].path;
 
-    let rows: Locator[] = await this.page
+    let rows: Locator[];
+    if (stemForm.includes("SRDGFL.W5PA")){
+      rows = await this.page
+      .locator(`//div[@class="options "]`)
+      .all();
+    } else {
+      rows = await this.page
       .locator(`//div[@class="options ${locatorPath}"]`)
       .all();
-
+    }
     let breaker = 0;
 
     while (rows.length == 0 && breaker < 10) {
@@ -651,20 +664,55 @@ export default class wj5TestPage {
       const correctResponse = correctResp.get(updatedItemDetails);
 
       if (correctResponse) {
-        await row
-          .locator(`//button[text() = "${correctResponse}"]`)
-          .first()
-          .click();
 
-        await row
-          .locator(`//button[text() = "${correctResponse}"]`)
-          .last()
-          .click();
+        if (/^(SRDGFL|WRDGFL)\.W5PA$/.test(stemForm)) {
+          if (/^(SRDGFL)\.W5PA$/.test(stemForm)) {  
+              await row
+              .locator(`//button[text() = "${correctResponse}"]`)
+              .first()
+              .click();
+          } else {
+              await row
+              .locator(`//button[text() = "${correctResponse[0]}"]`)
+              .click();
+
+              await row
+              .locator(`//button[text() = "${correctResponse[1]}"]`)
+              .click();
+          }
+      } else { 
+          await row
+            .locator(`//button[text() = "${correctResponse}"]`)
+            .first()
+            .click();
+
+          await row
+            .locator(`//button[text() = "${correctResponse}"]`)
+            .last()
+            .click();
+        }
 
         this.index++;
 
         if (itemDetails.startsWith("Test ")) {
           this.scoreMap.set(updatedItemDetails, "1");
+          if (/^(SRDGFL|WRDGFL)\.W5PA$/.test(stemForm)) {
+            let itemNumArray=[11,21,31,41,51,61,71,81,91,101,111,121];
+
+            if (itemNumArray.includes(this.index)) {
+              if (this.index===91 && stemForm.includes("WRDGFL.W5PA")) {
+                if(await this.doneButton.isVisible()){
+                  await this.doneButton.click(); 
+               }
+              } else if (this.index===121 && stemForm.includes("SRDGFL.W5PA")) {
+                if(await this.doneButton.isVisible()){
+                  await this.doneButton.click(); 
+               }
+              } else if(await this.nextButton.isEnabled()){ 
+                  await this.nextButton.click();
+              }
+            }
+          }
         }
       } else {
         console.warn(`No correct response found for: ${updatedItemDetails}`);
@@ -2986,6 +3034,340 @@ export default class wj5TestPage {
     console.log(this.scoreMap);
     return this.scoreMap;
   } 
+  
+  async completeTheTakenTestForDerivedScoresForWRTBRFCluster(
+    typeOfTest: string,
+    stemForm: string,
+    BbyC: number,
+    flag: string,
+  ): Promise<Map<string, string>> {
+    let lastItemWRTSMP: number = 0;
+    let lastItemSWRTAC: number = 0;
+
+    if (stemForm.includes("SWRTAC.W5PA")) {
+      this.scoreMap.clear();
+      this.scoreMap =
+        await this.utils.getRowDataOfSpecifiedColumnFromSchemaFiles(
+          "SWRTAC.W5PA_TestSchema.xlsx",
+          "/Heading/",
+        );
+    } else if (stemForm.includes("WRTSMP.W5PA")) {
+      this.scoreMap.clear();
+      this.scoreMap =
+        await this.utils.getRowDataOfSpecifiedColumnFromSchemaFiles(
+          "WRTSMP.W5PA_TestSchema.xlsx",
+          "/Heading/",
+        );
+    } else {
+      const lastItemNumber = await this.page
+        .locator(".items-container div span.item-text")
+        .last()
+        .textContent();
+      const itemNumber: number = parseInt(lastItemNumber.split(" ")[1]);
+      console.log(`the last item number is = ${itemNumber}`);
+      this.scoreMap.clear();
+      this.scoreMap.set(` `, "^");
+      for (let index = 1; index <= itemNumber; index++) {
+        this.scoreMap.set(`Item ${index}`, "x");
+      }
+    }
+
+    console.log(`Type Of test ${typeOfTest} \n`);
+    while (await this.plainNextButtonOrEndButton.isVisible()) {
+      await this.page.waitForTimeout(3000);
+      const itemDetails: string = (await this.itemDetails.textContent())!;
+      console.log(itemDetails);
+      const correctlocator: Locator = this.corectOptionButton.first();
+      const incorrectlocator: Locator = this.incorrectOptionButton.first();
+      const correctlocatorsAll: Promise<Locator[]> = this.correctOptionSampleItems.all();
+
+      if (itemDetails.startsWith("Introduction")) {
+      } else if (typeOfTest.match(/All correct scenario/i)) {
+        if (stemForm.includes("WRTSMP.W5PA")) {
+          if (itemDetails.match(/^Item ([1-5])\b/)) {
+            await this.clickCorrectOption(correctlocator, itemDetails);
+          } else if (itemDetails.match(/^Item ([6-9]|10)\b/)) {
+            const itemNumber = parseInt(itemDetails.match(/\d+/)![0], 10);
+
+            if (itemNumber === 10) {
+              await this.plainNextButtonOrEndButton.waitFor({
+                state: "visible",
+                timeout: 60000,
+              });
+              await this.plainNextButtonOrEndButton.click();
+              await this.ResolveBtn.click();
+              await this.ScoreEntryFields.nth(0).fill("10");
+              this.scoreMap.set("Items 6–10 Score Entry", "10");
+              await this.ScoreLaterSubmit.click();
+              await this.ScoreLaterContinue.click();
+              await this.letsBeginButton.click();
+            }
+          } else if (itemDetails.match(/^Item (1[1-5])\b/)) {
+            const itemNumber = parseInt(itemDetails.match(/\d+/)![0], 10);
+            if (itemNumber === 15) {
+              await this.plainNextButtonOrEndButton.waitFor({
+                state: "visible",
+                timeout: 60000,
+              });
+              await this.plainNextButtonOrEndButton.click();
+              await this.ResolveBtn.click();
+              await this.ScoreEntryFields.nth(1).fill("10");
+              this.scoreMap.set("Items 11–15 Score Entry", "10");
+              await this.ScoreLaterSubmit.click();
+              await this.ScoreLaterContinue.click();
+              lastItemWRTSMP = itemNumber;
+            }
+          }
+        } else if (stemForm.includes("SWRTAC.W5PA")) {
+
+          if (itemDetails.startsWith("Sample ")) {
+            await this.clickAllCorrectOption(correctlocatorsAll, itemDetails);
+          } else if (itemDetails.match(/^Item ([1-5])\b/)) {
+            const itemNumber = parseInt(itemDetails.match(/\d+/)![0], 10);
+            await this.playAudio();
+            await this.page.waitForTimeout(2000);
+            if (itemNumber === 5) {
+              await this.plainNextButtonOrEndButton.click();
+              await this.ResolveBtn.click();
+              await this.ScoreEntryFields.nth(0).fill("5");
+              this.scoreMap.set("A: Dictation Accuracy", "5");
+              await this.ScoreEntryFields.nth(1).fill("5");
+              this.scoreMap.set("A: Spelling", "5");
+              await this.ScoreEntryFields.nth(2).fill("5");
+              this.scoreMap.set("A: Capitalization", "5");
+              await this.ScoreEntryFields.nth(3).fill("5");
+              this.scoreMap.set("A: Punctuation", "5");
+              await this.ScoreLaterSubmit.click();
+              await this.ScoreLaterContinue.click();
+              await this.letsBeginButton.click();
+           }
+          } else if (itemDetails.match(/^Item ([6-9]|1[0-5])\b/)) {
+            const itemNumber = parseInt(itemDetails.match(/\d+/)![0], 10);
+            await this.playAudio();
+            await this.page.waitForTimeout(3000);
+            if (itemNumber === 15) {
+              await this.plainNextButtonOrEndButton.click();
+              await this.ResolveBtn.click();
+              await this.ScoreEntryFields.nth(0).fill("10");
+              this.scoreMap.set("B: Dictation Accuracy", "10");
+              await this.ScoreEntryFields.nth(1).fill("10");
+              this.scoreMap.set("B: Spelling", "10");
+              await this.ScoreEntryFields.nth(2).fill("10");
+              this.scoreMap.set("B: Capitalization", "10");
+              await this.ScoreEntryFields.nth(3).fill("10");
+              this.scoreMap.set("B: Punctuation", "10");
+              await this.ScoreLaterSubmit.click();
+              await this.ScoreLaterContinue.click();
+              lastItemSWRTAC = itemNumber;
+            }
+          }
+        } else {
+            await this.clickCorrectOption(correctlocator, itemDetails);
+        }
+      } else if (typeOfTest.match(/All incorrect scenario/i)) {
+         if (stemForm.includes("SWRTAC.W5PA")) {
+          if (itemDetails.startsWith("Sample ")) {
+            await this.clickAllCorrectOption(correctlocatorsAll, itemDetails);
+          } else if (itemDetails.match(/^Item ([1-5])\b/)) {
+            const itemNumber = parseInt(itemDetails.match(/\d+/)![0], 10);
+            await this.playAudio();
+            await this.page.waitForTimeout(2000);
+            if (itemNumber === 5) {
+              await this.plainNextButtonOrEndButton.click();
+              await this.ResolveBtn.click();
+              await this.ScoreEntryFields.nth(0).fill("0");
+              this.scoreMap.set("A: Dictation Accuracy", "0");
+              await this.ScoreEntryFields.nth(1).fill("0");
+              this.scoreMap.set("A: Spelling", "0");
+              await this.ScoreEntryFields.nth(2).fill("0");
+              this.scoreMap.set("A: Capitalization", "0");
+              await this.ScoreEntryFields.nth(3).fill("0");
+              this.scoreMap.set("A: Punctuation", "0");
+              await this.ScoreLaterSubmit.click();
+              await this.ScoreLaterContinue.click();
+           }
+          } 
+        } else if (stemForm.includes("WRTSMP.W5PA")) {
+            await this.clickInCorrectOption(incorrectlocator, itemDetails);
+            await this.sideNavLock.waitFor({ state: "detached" });
+        } 
+      } else {
+        throw new Error(
+          `The ${typeOfTest} didnt match with any of the conditions provided`,
+        );
+      }
+
+      let button1Text:string = await this.plainNextButtonOrEndButton.first().textContent();
+      let button2Text:string = await this.plainNextButtonOrEndButton.last().textContent();
+
+      if (typeOfTest.match(/All correct scenario/i)) {
+      
+        if (stemForm.includes("SWRTAC.W5PA")) {
+          if (!(lastItemSWRTAC === 15)) {
+            await this.plainNextButtonOrEndButton.click();
+          }
+
+          if (button1Text ==="End Test" || button2Text === "Begin Next Test" &&
+            !itemDetails.match(/^Item (4|5|1[4-5])\b/)
+          ) {
+            break;
+          }
+
+        } else if (stemForm.includes("WRTSMP.W5PA")) {
+          if (!(lastItemWRTSMP === 15)) {
+            await this.plainNextButtonOrEndButton.click();
+          }
+
+          if (button1Text === "End Test" ||  button2Text === "Begin Next Test" &&
+            !itemDetails.match(/^Item (9|1[0]|1[4-5])\b/)
+          ) {
+            break;
+          }
+        } 
+
+      } else if (typeOfTest.match(/All incorrect scenario/i)) {
+
+        if (stemForm.includes("SWRTAC.W5PA")) {
+          const itemNumber = parseInt(itemDetails.match(/\d+/)![0], 10);
+          if(itemNumber !== 5){
+            await this.plainNextButtonOrEndButton.click();
+          } else if(itemNumber === 5){
+            if (button2Text === "Begin Next Test") {
+              break;
+            }
+          }
+        } else if (stemForm.includes("WRTSMP.W5PA")) {
+            await this.plainNextButtonOrEndButton.click();
+              if ( button1Text === "End Test") {
+                break;
+              }
+        }
+      }
+    }
+
+    console.log(this.scoreMap);
+    return this.scoreMap;
+  }
+
+  async completeTheTakenTestForDerivedScoresForRDGFLUCluster(
+    typeOfTest: string,
+    stemForm: string,
+    BbyC: number,
+    flag: string,
+  ): Promise<Map<string, string>> {
+    
+    let patternTestCorrectResponses;
+    let tapFluency = false;
+
+    if (/^(SRDGFL|WRDGFL)\.W5PA$/.test(stemForm)) {
+      const matchedPattern = stemForm;
+      const patternConfig: Record<string, { schemaFile: string }> = {
+        "SRDGFL.W5PA": { schemaFile: "SRDGFL.W5PA_TestSchema.xlsx" },
+        "WRDGFL.W5PA": { schemaFile: "WRDGFL.W5PA_TestSchema.xlsx" },
+      };
+
+      if (!matchedPattern || !patternConfig[matchedPattern]) {
+        throw new Error(`No configuration found for the stemForm: ${stemForm}`);
+      }
+
+      const { schemaFile } = patternConfig[matchedPattern];
+
+      this.scoreMap.clear();
+
+      this.scoreMap =
+        await this.utils.getRowDataOfSpecifiedColumnFromSchemaFiles(
+          schemaFile,
+          "Heading",
+        );
+
+      if (/^(SRDGFL|WRDGFL)\.W5PA$/.test(stemForm)) {
+      patternTestCorrectResponses =
+        await this.utils.readCorrectValuesFromPatternTest(
+          matchedPattern,
+          "Heading",
+          "TabStim 1"
+        );
+        console.log(patternTestCorrectResponses);
+      } else{
+        patternTestCorrectResponses =
+        await this.utils.readCorrectValuesFromPatternTest(
+          matchedPattern,
+          "Heading",
+          "TabStim Resps",
+        );
+      }
+    } else {
+      const lastItemNumber = await this.page
+        .locator(".items-container div span.item-text")
+        .last()
+        .textContent();
+      const itemNumber: number = parseInt(lastItemNumber.split(" ")[1]);
+      console.log(`the last item number is = ${itemNumber}`);
+      this.scoreMap.clear();
+      this.scoreMap.set(` `, "^");
+      for (let index = 1; index <= itemNumber; index++) {
+        this.scoreMap.set(`Item ${index}`, "x");
+      }
+    }
+
+    console.log(`Type Of test ${typeOfTest} \n`);
+    while (await this.plainNextButtonOrEndButton.first().isVisible()) {
+      await this.page.waitForTimeout(3000);
+      const itemDetails: string = (await this.itemDetails.textContent())!;
+      console.log(itemDetails);
+      const correctlocator: Locator = this.corectOptionButton.first();
+      const incorrectlocator: Locator = this.incorrectOptionButton.first();
+
+      if (itemDetails.startsWith("Introduction")) {
+      } else if (
+        typeOfTest.match(/All correct scenario/i) &&
+        /^(Practice Exercise|Test Items)/.test(itemDetails)
+      ) {
+        await this.answerCorrectForTimerTest(
+          stemForm,
+          itemDetails,
+          patternTestCorrectResponses,
+        );
+        tapFluency = true;
+      } else if (typeOfTest.match(/All correct scenario/i)) {
+        await this.clickCorrectOption(correctlocator, itemDetails);
+      } else if (
+        typeOfTest.match(/All incorrect scenario/i) &&
+        itemDetails.startsWith("Sample ")
+      ) {
+        await this.clickCorrectOption(correctlocator, itemDetails);
+      } else if (typeOfTest.match(/All incorrect scenario/i)) {
+        await this.clickInCorrectOption(incorrectlocator, itemDetails);
+        await this.sideNavLock.waitFor({ state: "detached" });
+      } else {
+        throw new Error(
+          `The ${typeOfTest} didnt match with any of the conditions provided`,
+        );
+      }
+
+      if (tapFluency) {
+
+        if(/^(Practice Exercise)/.test(itemDetails)){
+          if (await this.doneButton.isVisible()) {
+            await this.doneButton.click();
+          }
+        } 
+      } else {
+          await this.plainNextButtonOrEndButton.last().click();
+      }
+
+
+      if (
+        (await this.plainNextButtonOrEndButton.first().textContent()) === "End Test"
+      ) {
+        await this.plainNextButtonOrEndButton.first().click();
+        await this.page.waitForTimeout(1000);
+        break;
+      }
+    }
+    console.log(this.scoreMap);
+    return this.scoreMap;
+  }
 
   async playAudio() {
     if (await this.audioPlayer.isVisible()) {
@@ -3059,11 +3441,12 @@ export default class wj5TestPage {
     const excelFileData = ExcelFileData;
 
     // const excelFileData = await this.utils.getExcelSheetData(normTableFilePath);    
+
     const txtData = txtFileContent[testStemForm];
     if(txtData.Examinee_ID == "" || txtData.Examinee_ID == undefined || txtData.Examinee_ID == null || txtData.Examinee_ID.includes("No examinees meet the criteria specified.")){
       throw new Error("The Examinee ID assertion failed, probable cause the Report could be empty.");
     }
-    
+
     softAssertPrint(examineeID, txtData.Examinee_ID, "Examinee ID");
     softAssertPrint(taskStem, txtData.TaskStem, "Task Stem");
     softAssertPrint(testStemForm, txtData.TaskStemForm, "TaskStemForm");

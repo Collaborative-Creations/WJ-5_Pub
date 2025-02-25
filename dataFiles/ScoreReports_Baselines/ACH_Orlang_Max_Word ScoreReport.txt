@@ -1,0 +1,141 @@
+Orlang's Score Report
+
+Name: Orlang Max
+ID: 7
+DOB: 2/17/2011
+Age: 14 years, 0 months
+Examiner: ScoreReports ScoreReports
+Grade: 4.6
+Date(s) of Testing: 2/17/2025
+(Norms based on Grade 4.6)
+
+Woodcock-Johnson V Tests of Achievement
+Oral Language (Gc)
+Development
+Proficiency
+
+W Score(95% Confidence Band)
+W DifferenceScore
+Oral Language (Gc)
+552(537-567)
+53
+Test Name
+W Score(95% Confidence Band)
+W DifferenceScore
+Picture Vocabulary
+585(555-614)
+83
+Oral Comprehension
+558(526-589)
+60
+Oral Language Samples
+535(508-563)
+35
+Story Comprehension
+531(502-559)
+33
+Listening Comprehension (Gc)
+Development
+Proficiency
+
+W Score(95% Confidence Band)
+W DifferenceScore
+Listening Comprehension (Gc)
+544(523-566)
+46
+Test Name
+W Score(95% Confidence Band)
+W DifferenceScore
+Oral Comprehension
+558(526-589)
+60
+Story Comprehension
+531(502-559)
+33
+Oral Expression (Gc; Gl)
+Development
+Proficiency
+
+W Score(95% Confidence Band)
+W DifferenceScore
+Oral Expression (Gc; Gl)
+560(540-580)
+59
+Test Name
+W Score(95% Confidence Band)
+W DifferenceScore
+Picture Vocabulary
+585(555-614)
+83
+Oral Language Samples
+535(508-563)
+35
+TEST-LEVEL RESPONSE STYLE AND BEHAVIOR STATEMENTS
+Picture Vocabulary
+RESPONSE STYLE AND BEHAVIOR STATEMENTS:
+Displayed good vocabulary knowledge
+Displayed limited vocabulary knowledge
+Expressed oral responses with ease
+Had difficulty expressing oral responses
+Retrieved words fluently
+Had difficulty retrieving words
+Displayed age-appropriate speech and articulation
+Did not display age-appropriate speech and articulation
+Oral Comprehension
+RESPONSE STYLE AND BEHAVIOR STATEMENTS:
+Provided responses that made sense
+Had difficulty providing responses that made sense
+Displayed good understanding of passages
+Had difficulty understanding passages
+Displayed good attention
+Had difficulty sustaining attention
+Oral Language Samples
+RESPONSE STYLE AND BEHAVIOR STATEMENTS:
+Expressed responses fluently
+Had difficulty expressing responses fluently
+Displayed age-appropriate speech and articulation
+Did not display age-appropriate speech and articulation
+Did not make vocabulary and grammar errors
+Made vocabulary and grammar errors
+Story Comprehension
+RESPONSE STYLE AND BEHAVIOR STATEMENTS:
+Was able to answer questions correctly
+Had difficulty answering questions
+Recalled most information from stories
+Had difficulty recalling information from stories
+Displayed good attention
+Had difficulty sustaining attention
+Oral Comprehension
+RESPONSE STYLE AND BEHAVIOR STATEMENTS:
+Provided responses that made sense
+Had difficulty providing responses that made sense
+Displayed good understanding of passages
+Had difficulty understanding passages
+Displayed good attention
+Had difficulty sustaining attention
+Story Comprehension
+RESPONSE STYLE AND BEHAVIOR STATEMENTS:
+Was able to answer questions correctly
+Had difficulty answering questions
+Recalled most information from stories
+Had difficulty recalling information from stories
+Displayed good attention
+Had difficulty sustaining attention
+Picture Vocabulary
+RESPONSE STYLE AND BEHAVIOR STATEMENTS:
+Displayed good vocabulary knowledge
+Displayed limited vocabulary knowledge
+Expressed oral responses with ease
+Had difficulty expressing oral responses
+Retrieved words fluently
+Had difficulty retrieving words
+Displayed age-appropriate speech and articulation
+Did not display age-appropriate speech and articulation
+Oral Language Samples
+RESPONSE STYLE AND BEHAVIOR STATEMENTS:
+Expressed responses fluently
+Had difficulty expressing responses fluently
+Displayed age-appropriate speech and articulation
+Did not display age-appropriate speech and articulation
+Did not make vocabulary and grammar errors
+Made vocabulary and grammar errors

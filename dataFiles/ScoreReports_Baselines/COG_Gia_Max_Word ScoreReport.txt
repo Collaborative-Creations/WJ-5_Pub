@@ -1,0 +1,125 @@
+Gia's Score Report
+
+Name: Gia Max
+ID: 11
+DOB: 2/17/2011
+Age: 14 years, 0 months
+Examiner: ScoreReports ScoreReports
+Grade: 3.6
+Date(s) of Testing: 2/17/2025
+(Norms based on Grade 3.6)
+
+Woodcock-Johnson V Tests of Cognitive Abilities
+General Intellectual Ability (GIA)
+Development
+Proficiency
+
+W Score(95% Confidence Band)
+CALP Level
+General Intellectual Ability (GIA)
+587(577-597)
+6
+Test Name
+W Score(95% Confidence Band)
+CALP Level
+Oral Vocabulary
+593(572-614)
+6
+Matrices
+546(517-575)
+6
+Spatial Relations
+553(524-582)
+6
+Story Recall
+548(522-574)
+6
+Semantic Word Retrieval
+540(512-567)
+6
+Verbal Attention
+588(556-619)
+6
+Number-Pattern Matching
+767(738-797)
+6
+Verbal Analogies
+560(531-589)
+6
+Brief Intellectual Ability (BIA)
+Development
+Proficiency
+
+W Score(95% Confidence Band)
+CALP Level
+Brief Intellectual Ability (BIA)
+576(560-592)
+6
+Test Name
+W Score(95% Confidence Band)
+CALP Level
+Oral Vocabulary
+593(572-614)
+6
+Matrices
+546(517-575)
+6
+Verbal Attention
+588(556-619)
+6
+Comprehension-Knowledge (Gc)
+Development
+Proficiency
+
+W Score(95% Confidence Band)
+CALP Level
+Comprehension-Knowledge (Gc)
+577(559-594)
+6
+Test Name
+W Score(95% Confidence Band)
+CALP Level
+Oral Vocabulary
+593(572-614)
+6
+Verbal Analogies
+560(531-589)
+6
+Cognitive Efficiency (CE)
+Development
+Proficiency
+
+W Score(95% Confidence Band)
+CALP Level
+Cognitive Efficiency (CE)
+678(656-699)
+6
+Test Name
+W Score(95% Confidence Band)
+CALP Level
+Verbal Attention
+588(556-619)
+6
+Number-Pattern Matching
+767(738-797)
+6
+Intra-Ability Comparisons
+Intra-Cognitive
+
+Earned SS
+Predicted SS
+Difference
+z Score
+PR
+(Base Rate)
+Interpretation
+Comprehension-Knowledge
+⏶221
+195
+25
+3.08
+>99
+STRENGTH
+Notes.
+The predictor for each target cluster score is the average of the examinee's earned standard scores from the following eight tests: Oral Vocabulary, Matrices, Spatial Relations, Story Recall, Semantic Word Retrieval, Verbal Attention, Number-Pattern Matching, and Verbal Analogies. The difference score significance is based on ±1.55 SD (SEE).
+⏶ The actual earned standard score is displayed in this table for comparison purposes. Exercise caution when interpreting individual standard scores greater than 160.

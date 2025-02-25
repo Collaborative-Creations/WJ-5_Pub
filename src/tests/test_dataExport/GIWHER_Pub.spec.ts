@@ -33,7 +33,7 @@ test.describe(" GIWHER.W5PA Test Data Export Automation ", () => {
     });
     test(
       `@Test_De For ${data.typeOfTest} login as AH Conduct test as Examiner and generate reports`,
-      { tag: ["@GIWHER", "@testDe", "@reg"] },
+      { tag: ["@GIWHER", "@testDe", "@smoke"] },
       async (
         {
           wj5ah,

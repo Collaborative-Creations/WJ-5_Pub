@@ -65,7 +65,7 @@ export const testData: TestData[] = [
   },
 
   {
-    typeOfTest: "Ages 14 to Above Average Adult - Block C Correct Scenario",
+    typeOfTest: "Ages 14 to Adult - Block C Correct Scenario",
     testName: "Sentence Writing Accuracy",
     SumOfItemScores: 0,
     BasalCredit: 0,
@@ -78,7 +78,7 @@ export const testData: TestData[] = [
     lookUpModel: "MultiTable",
     blockName: "Form A",
     examineeAge: 4,
-    SSP: "Ages 14 to Above Average Adult",
+    SSP: "Ages 14 to Adult",
     totalItems: 5,
     scoreFlag: "",
     location: "PVP",
@@ -129,7 +129,7 @@ export const testData: TestData[] = [
 
   {
     typeOfTest:
-      "Ages 14 to Above Average Adult - Block C and B Incorrect Scenario",
+      "Ages 14 to Adult - Block C and B Incorrect Scenario",
     testName: "Sentence Writing Accuracy",
     SumOfItemScores: 0,
     BasalCredit: 0,
@@ -142,7 +142,7 @@ export const testData: TestData[] = [
     lookUpModel: "MultiTable",
     blockName: "Form A",
     examineeAge: 4,
-    SSP: "Ages 14 to Above Average Adult",
+    SSP: "Ages 14 to Adult",
     totalItems: 15,
     scoreFlag: "",
     location: "PVP",
