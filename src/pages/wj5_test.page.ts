@@ -302,7 +302,7 @@ export default class wj5TestPage {
   }
 
   async clickOnLetsBeginButtonAndStartTest(testName: string, ssp: string) {
-    await this.loading.waitFor({ state: "hidden", timeout: 2 * 60 * 1000 });
+    await this.loading.waitFor({ state: "hidden", timeout: 5 * 60 * 1000 });
     expect(await this.testNameAtAdminOverview.textContent(), {
       message: "The test name didnt match at Administration Overview page",
     }).toContain(testName);
@@ -613,9 +613,8 @@ export default class wj5TestPage {
       await this.listOfOptionsForNumberPatternMatching.nth(28).click();
       await this.page.waitForTimeout(1000);
       await this.doneOrNextButton.click();
-      await this.page.waitForTimeout(2000);
-      await this.doneOrNextButton.click();
-      await this.page.waitForTimeout(1000);
+      // await this.doneOrNextButton.click();
+      // await this.page.waitForTimeout(1000);
     } else if (typeOfTest.match(/Answer Sample and Practice Exercise items/i)) {
       await this.listOfOptionsForNumberPatternMatching.nth(1).click();
       await this.listOfOptionsForNumberPatternMatching.nth(3).click();
@@ -2893,7 +2892,8 @@ export default class wj5TestPage {
        } else if (
         (testStemForm === 'STYCMP.W5PA' && typeOfTest.match(/Sample Item EndTest Flow when RS is (0|1)/i)) ||
         (testStemForm === 'WRDATK.W5PA' && typeOfTest === 'Block A EndTest Flow when RS is 2') ||
-        (testStemForm === 'LWIDNT.W5PA' && typeOfTest.match(/Block A EndTest Flow when RS is 0|Block AB EndTest flow scenario when RS is 9/))
+        (testStemForm === 'LWIDNT.W5PA' && typeOfTest.match(/Block A EndTest Flow when RS is 0|Block AB EndTest flow scenario when RS is 9/)) ||
+        (testStemForm === 'MPRBID.W5PA' && typeOfTest.match(/Sample Items AB discontinue Scenario for SSP (1|2|3)/i))
       ) {
         await this.EndTestPopUpElements.nth(16).click();
       }else if(
@@ -2930,11 +2930,16 @@ export default class wj5TestPage {
       (testStemForm === 'STYCMP.W5PA' && typeOfTest.match(/Sample Item EndTest Flow when RS is (0|1)/i)) ||
       (testStemForm === 'WRDATK.W5PA' && typeOfTest === 'Block A EndTest Flow when RS is 2') ||
       (testStemForm === 'LWIDNT.W5PA' && typeOfTest.match(/Block A EndTest Flow when RS is 0|Block AB EndTest flow scenario when RS is 9/)) ||
-      (testStemForm === 'SEMRET.W5PA' && typeOfTest.match(/125 correct scenario|All incorrect scenario/i))
+      (testStemForm === 'SEMRET.W5PA' && typeOfTest.match(/125 correct scenario|All incorrect scenario/i)) ||
+      (testStemForm === 'MPRBID.W5PA' && typeOfTest.match(/Sample Items AB discontinue Scenario for SSP (1|2|3)/i))
     ) {
       await this.EndTestPopUpElements.nth(16).click();
-    }else {
+    }else if(
+      (testStemForm === 'WRDGFL.W5PA' && typeOfTest.match(/Sample Item EndTest Flow when RS is (0|1)|Practice Exercise All Incorrect|Test Items (All Correct|All Incorrect|6 Correct)/i))
+    ){
       await this.EndTestPopUpElements.nth(17).click();
+    } else {
+        await this.EndTestPopUpElements.nth(15).click();
     }
     await this.page.waitForTimeout(2000);
   }

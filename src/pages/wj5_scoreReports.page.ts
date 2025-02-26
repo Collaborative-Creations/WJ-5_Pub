@@ -48,7 +48,6 @@ export default class WJ5_ScoreReportPage {
   private readonly selectExamineeFromDropdown: Locator;
   private readonly selectTestSetNameButton: Locator;
   private readonly searchTestSetName: Locator;
-  private readonly selectTestSetNameFromDropdown: Locator;
   private readonly selectScoreTemplateButton: Locator;
   private readonly searchScoreTemplate: Locator;
   private readonly selectScoreTemplateFromDropdown: Locator;
@@ -93,7 +92,6 @@ export default class WJ5_ScoreReportPage {
     this.selectExamineeFromDropdown = this.page.locator(".item-text.single-select");
     this.selectTestSetNameButton = this.page.locator(".placeholder").getByText("Select Test Set");
     this.searchTestSetName = this.page.locator("(//input[@placeholder='Search...'])[2]");
-    this.selectTestSetNameFromDropdown = this.page.locator(".item-text.single-select");
     this.selectScoreTemplateButton = this.page.locator("(//button[@class='select-box'])[1]");
     this.searchScoreTemplate = this.page.locator('[placeholder="Search..."]');
     this.selectScoreTemplateFromDropdown = this.page.locator(".item-text.single-select");
@@ -259,12 +257,19 @@ export default class WJ5_ScoreReportPage {
     }
       await this.page.waitForTimeout(5000);
   }
-async webPageToFile(report: string,extractedReport:string,baseLine:string,baseLineName:string){
+  async webPageToFile(report: string,extractedReport:string,baseLine:string,baseLineName:string){
     try {
       const page1Promise = this.page.waitForEvent("popup");
       const page1 = await page1Promise;
       await page1.getByRole("button", { name: "Download" }).nth(0).waitFor({ state: "visible" });
-      await page1.locator("//button[@class='cardSubDetailCollapseExpandButton']").click();
+      const cardSubDetailButton = await page1.locator('.cardSubDetailCollapseExpandButton').all();
+      const observationsButton = await page1.locator('.observationsCollapseExpandButton').all();
+      for(let i = 0; i < cardSubDetailButton.length; i++){
+      await cardSubDetailButton[i].click();
+      }
+      for (let i = 0; i < observationsButton.length; i++) {
+       await observationsButton[i].click();
+      }
       await page1.waitForTimeout(2000);
       const allTextContent = await page1.$$eval("*", (elements) => {
         return elements.map((el) => el.innerText).filter(text => text !== null);
@@ -313,11 +318,12 @@ async webPageToFile(report: string,extractedReport:string,baseLine:string,baseLi
   async selectTestSetOnCreateReportPage(testSetName: string) {
 
     await this.selectTestSetNameButton.waitFor({ state: "visible" });
+    await this.page.waitForTimeout(1000);
     await this.selectTestSetNameButton.click();
     await this.searchTestSetName.fill(testSetName);
-    await this.selectTestSetNameFromDropdown.getByText(testSetName).last().click();
+    await this.page.locator(`//div[contains(text(),'${testSetName}') and @class='item-text single-select']`).last().click();
   }
-  async createNewReportFromReportCenter(examineeName: string,testSetName: string,templateName: string,norm: string){
+  async createNewReportFromReportCenter(examineeName: string,testSetName: string,templateName: string,normBasis: string){
 
     await this.page.getByRole('menuitem', { name: 'Reports' }).click();
     await this.page.getByRole('menuitem', { name: 'Report Center' }).click();
@@ -329,7 +335,7 @@ async webPageToFile(report: string,extractedReport:string,baseLine:string,baseLi
     await this.nextButton.isEnabled();
     await this.nextButton.click();
     await this.selectScoreTemplateOnCreateReportPage(templateName);
-    await this.selectNormativeBasisOnCreateReportPage(norm);
+    await this.selectNormativeBasisOnCreateReportPage(normBasis);
   }
   async selectScoreTemplateOnCreateReportPage(templateName: string) {
 
@@ -337,10 +343,10 @@ async webPageToFile(report: string,extractedReport:string,baseLine:string,baseLi
     await this.searchScoreTemplate.fill(templateName);
     await this.selectScoreTemplateFromDropdown.getByText(templateName).click();
   }
-  async selectNormativeBasisOnCreateReportPage(norm:string) {
+  async selectNormativeBasisOnCreateReportPage(normBasis:string) {
 
     await this.selectNormativeBasisButton.click();
-    await this.selectNormativeBasisFromDropdown.getByText(norm).click();
+    await this.selectNormativeBasisFromDropdown.getByText(normBasis).click();
   }
 
   async selectAdvancedOptions(confLevel?: string, signifLevel?: string) {
@@ -350,6 +356,7 @@ async webPageToFile(report: string,extractedReport:string,baseLine:string,baseLi
     await this.confidenceLevelDropdown.click();
     await this.page.locator(`//div[@class='item-text single-select' and text()= '${confLevel}']`).click();
     await this.significanceLevelDropdown.click();
+    await this.page.waitForTimeout(1000);
     await this.page.locator(`//div[contains(text(),'${signifLevel}') and @class='item-text single-select']`).click();
     await this.saveButton.isEnabled();
     await this.saveButton.click();

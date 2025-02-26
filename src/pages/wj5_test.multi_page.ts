@@ -255,7 +255,7 @@ export default class wj5MultiPage {
 
       // await this.page.waitForSelector(this.nextORendTestButton, { visible: true }, { timeout: 1000 });
 
-      await this.page.waitForTimeout(1000);
+      await this.page.waitForTimeout(2500);
     }
   }
 
@@ -458,7 +458,7 @@ export default class wj5MultiPage {
     );
 
     while (await this.plainNextButtonOrEndButton.isVisible()) {
-      await this.page.waitForTimeout(2500);
+      await this.page.waitForTimeout(1000);
       const itemDetails: string = (await this.itemDetails.textContent())!;
       console.log(itemDetails);
       const correctlocator: Locator = this.corectOptionButton.first();

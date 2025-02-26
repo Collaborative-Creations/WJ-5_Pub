@@ -1,7 +1,7 @@
 import wj5ExamineePage from "../../pages/wj5_examinee.page";
 import { devices, test } from "../../base/basePageFixtures";
 
-import { testData } from "../../scenarios/derived_scores(compounds & clusters)/GIA_Pub_cluster.scenarios";
+import { testData } from "../../scenarios/derived_scores(compounds & clusters)/WRTBRF_Pub_cluster.scenarios";
 import { getExamineeURL, getSiteUrl } from "../../utils/testData";
 import { setFilePathes } from "../../utils/global";
 
@@ -19,24 +19,23 @@ type ScoreObject = {
 };
 type ScoresRecord = Record<string, ScoreObject>;
 const scores: ScoresRecord = {};
-
+let excelFileData;
 
 interface ExamineeData {
   examinee_ID: string;
   dateOfBirth: string;
 }
 let pRetry;
-let excelFileData;
 
-test.describe(" GIA cluster Derived Export Automation ", () => {
+test.describe(" WRTBRF cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test.beforeAll(async () => {
       pRetry = (await import('p-retry')).default;
       await setFilePathes(data.lookUpModel);
     });
     test(
-      `For ${data.typeOfTest} Complete The GIA cluster & generate report`,
-      { tag: ["@GIA", "@smoke", "@derivedScores"] },
+      `For ${data.typeOfTest} Complete The WRTBRF cluster & generate report`,
+      { tag: ["@WRTBRF", "@reg", "@derivedScores"] },
       async (
         {
           wj5ah,
@@ -49,7 +48,7 @@ test.describe(" GIA cluster Derived Export Automation ", () => {
         },
         testInfo,
       ) => {
-        test.setTimeout(25 * 60 * 1000);
+        test.setTimeout(8 * 60 * 1000);
 
         const url = getSiteUrl() + "home";
 
@@ -85,8 +84,8 @@ test.describe(" GIA cluster Derived Export Automation ", () => {
                 error.message,
               );
             },
-            minTimeout: 5000,
-            maxTimeout: 15000,
+            minTimeout: 2000,
+            maxTimeout: 5000,
           },
         );
 
@@ -114,7 +113,7 @@ test.describe(" GIA cluster Derived Export Automation ", () => {
           );
 
           score =
-            await wj5examnrTest_derivedScoresPage.completeTheTakenTestForDerivedScores(
+            await wj5examnrTest_derivedScoresPage.completeTheTakenTestForDerivedScoresForWRTBRFCluster(
               data.typeOfTest[i],
               data.testStemForm[i],
               data.BbyC![i],
@@ -212,8 +211,8 @@ test.describe(" GIA cluster Derived Export Automation ", () => {
                 error.message,
               );
             },
-            minTimeout: 5000,
-            maxTimeout: 15000,
+            minTimeout: 2000,
+            maxTimeout: 5000,
           },
         );
 

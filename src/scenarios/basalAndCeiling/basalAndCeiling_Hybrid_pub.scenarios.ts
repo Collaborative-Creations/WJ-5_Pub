@@ -29,7 +29,7 @@ export const testData: TestData[] = [
     normBasis: "Age",
     examineeAge: 5,
     examineeGrade: "Grade 2",
-    SSP: ["Ages 9 to 11", "Ages 14 to Average Adult"],
+    SSP: ["Ages 9 to 11", "Ages 14 to Adult"],
     BbyC: [6, 6],
     scoreFlag: "",
     lookUpModel: "Hybrid basal and ceiling",
