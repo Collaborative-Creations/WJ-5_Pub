@@ -1,4 +1,0 @@
-Large file detected: shard-1/playwright-report/data/d98b6f198fae7cc5f05838bdd0a38c56e0fd3972.zip (155.67 MB)
-Large file detected: shard-1/playwright-report/data/a0062844b7ea54b9bdda70020b56ae5d7c4774e3.zip (149.82 MB)
-Large file detected: shard-1/test-results/derived_scores(compounds &-7ae5e-FGC-cluster-generate-report-chrome/trace.zip (149.82 MB)
-Large file detected: shard-1/test-results/derived_scores(compounds &-c17d5-FGC-cluster-generate-report-chrome/trace.zip (155.67 MB)
