@@ -7,40 +7,58 @@ export default defineConfig({
   workers: 1,
   // globalTimeout: 60 * 60 * 1000,
   timeout: 10 * 60 * 1000,
-  reporter: process.env.CI === "true"
-  ? [ 
-      ["line"],
-      ["blob"], 
-      ["html", { 
-        outputFolder: 'playwright-report',  // Fixed folder name for CI
-        open: "never" 
-      }]
-    ]
-  : [
-      [
-        "html",
-        {
-          outputFolder: `playwright-report/Execution_Folder-${new Date().toDateString()}_${new Date()
-            .toTimeString()
-            .replace(/:/g, "")}`,
-          open: "always",
-        },
-      ],
-    ],
+  reporter:
+    process.env.CI === "true"
+      ? [
+          ["line"],
+          ["blob"],
+          [
+            "html",
+            {
+              outputFolder: "playwright-report", // Fixed folder name for CI
+              open: "never",
+            },
+          ],
+        ]
+      : [
+          [
+            "html",
+            {
+              outputFolder: `playwright-report/Execution_Folder-${new Date().toDateString()}_${new Date()
+                .toTimeString()
+                .replace(/:/g, "")}`,
+              open: "always",
+            },
+          ],
+        ],
   use: {
     actionTimeout: 60 * 1000,
     navigationTimeout: 60 * 1000,
     ignoreHTTPSErrors: true,
     screenshot: "only-on-failure",
-    video: "on-first-retry",
-    trace: process.env.CI === "true" ? "retain-on-first-failure" : "on",
+   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+   // @ts-expect-error
+    video:
+      process.env.CI === "true"
+        ? process.env.VIDEO_MODE || "retain-on-failure"
+        : "retain-on-failure",
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    trace:
+      process.env.CI === "true"
+        ? process.env.TRACE_MODE || "retain-on-first-failure"
+        : "on",
     headless: true,
     launchOptions: {
       logger: {
         isEnabled: (name, severity) => false,
-        log: (name, severity, message, args) => console.log(`[${name}][${severity}] ${message}`, ...args),
+        log: (name, severity, message, args) =>
+          console.log(`[${name}][${severity}] ${message}`, ...args),
       },
-      slowMo:process.env.CI === "true" ? parseInt(process.env.SLOW_MODE_DELAY_IN_MS) : 0,
+      slowMo:
+        process.env.CI === "true"
+          ? parseInt(process.env.SLOW_MODE_DELAY_IN_MS)
+          : 0,
     },
   },
   expect: {
@@ -106,8 +124,8 @@ export default defineConfig({
       testMatch: /.*\.setup\.ts/,
       fullyParallel: false,
       use: {
-          ...devices["Desktop Chrome"],
-          headless: true,
+        ...devices["Desktop Chrome"],
+        headless: true,
       },
     },
     {
@@ -115,8 +133,8 @@ export default defineConfig({
       testMatch: "**/*.spec.ts",
       dependencies: ["ci-chromium-setup"],
       use: {
-          ...devices["Desktop Chrome"],
-          headless: true,
+        ...devices["Desktop Chrome"],
+        headless: true,
       },
     },
     {
@@ -124,8 +142,8 @@ export default defineConfig({
       testMatch: /.*\.setup\.ts/,
       fullyParallel: false,
       use: {
-          ...devices["Desktop Firefox"],
-          headless: true,
+        ...devices["Desktop Firefox"],
+        headless: true,
       },
     },
     {
@@ -133,8 +151,8 @@ export default defineConfig({
       testMatch: "**/*.spec.ts",
       dependencies: ["ci-firefox-setup"],
       use: {
-          ...devices["Desktop Firefox"],
-          headless: true,
+        ...devices["Desktop Firefox"],
+        headless: true,
       },
     },
     {
@@ -142,8 +160,8 @@ export default defineConfig({
       testMatch: /.*\.setup\.ts/,
       fullyParallel: false,
       use: {
-          ...devices["Desktop Safari"],
-          headless: true,
+        ...devices["Desktop Safari"],
+        headless: true,
       },
     },
     {
@@ -151,8 +169,8 @@ export default defineConfig({
       testMatch: "**/*.spec.ts",
       dependencies: ["ci-webkit-setup"],
       use: {
-          ...devices["Desktop Safari"],
-          headless: true,
+        ...devices["Desktop Safari"],
+        headless: true,
       },
     },
   ],
