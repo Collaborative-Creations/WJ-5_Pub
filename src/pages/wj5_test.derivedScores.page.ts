@@ -3443,7 +3443,7 @@ export default class wj5TestPage {
     // const excelFileData = await this.utils.getExcelSheetData(normTableFilePath);    
 
     const txtData = txtFileContent[testStemForm];
-    if(txtData.Examinee_ID == "" || txtData.Examinee_ID == undefined || txtData.Examinee_ID == null || txtData.Examinee_ID.includes("No examinees meet the criteria specified.")){
+    if(!txtData || txtData.Examinee_ID == "" || txtData.Examinee_ID == undefined || txtData.Examinee_ID == null || txtData.Examinee_ID.includes("No examinees meet the criteria specified.")){
       throw new Error("The Examinee ID assertion failed, probable cause the Report could be empty.");
     }
 

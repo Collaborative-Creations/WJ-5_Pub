@@ -4,6 +4,7 @@ import { devices, test } from "../../base/basePageFixtures";
 import { testData } from "../../scenarios/derived_scores(compounds & clusters)/GFGC_Pub_cluster.scenarios";
 import { getExamineeURL, getSiteUrl } from "../../utils/testData";
 import { setFilePathes } from "../../utils/global";
+import { ExamineeData } from "../../utils/types";
 
 test.describe.configure({ mode: "default" });
 let score: Map<string, string>;
@@ -20,19 +21,11 @@ type ScoreObject = {
 type ScoresRecord = Record<string, ScoreObject>;
 const scores: ScoresRecord = {};
 
-interface ExamineeData {
-  examinee_ID: string;
-  dateOfBirth: string;
-}
 let pRetry;
 let excelFileData;
 
 test.describe(" GFGC cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
-    test.beforeAll(async () => {
-      pRetry = (await import('p-retry')).default;
-      await setFilePathes(data.lookUpModel);
-    });
     test(
       `For ${data.typeOfTest} Complete The GFGC cluster & generate report`,
       { tag: ["@GFGC", "@derivedScores", "@smoke"] },
@@ -48,44 +41,46 @@ test.describe(" GFGC cluster Derived Export Automation ", () => {
         },
         testInfo,
       ) => {
+        pRetry = (await import("p-retry")).default;
+        await setFilePathes(data.lookUpModel);
         test.setTimeout(20 * 60 * 1000);
 
         const url = getSiteUrl() + "home";
-    const examineeData = await pRetry(
-              async (): Promise<ExamineeData> => {
-                await wj5examiner.gotoUrl(url);
-                const result =
-                  await wj5ExaminerDashPage.addNewExamineeAndUpdateTheTemplate(
-                    getSiteUrl(),
-                    data.examineeAge,
-                    undefined,
-                    undefined,
-                    data.normBasis,
-                    data.examineeGrade,
-                  );
-    
-                await wj5ExaminerDashPage.createTestAssignmentFromExamineeManagement(
-                  data.blockName,
-                  result.examinee_ID,
-                  data.examineeGrade,
-                );
-    
-                return result;
-              },
-              {
-                retries: 2, // Number of retries
-                onFailedAttempt: (error) => {
-                  console.warn(
-                    `Attempt ${error.attemptNumber} for adding and assigning test to an examinee has failed. ${error.retriesLeft} retries left.`,
-                    error.message,
-                  );
-                },
-                minTimeout: 5000,
-                maxTimeout: 15000,
-              },
+        const examineeData = await pRetry(
+          async (): Promise<ExamineeData> => {
+            await wj5examiner.gotoUrl(url);
+            const result =
+              await wj5ExaminerDashPage.addNewExamineeAndUpdateTheTemplate(
+                getSiteUrl(),
+                data.examineeAge,
+                undefined,
+                undefined,
+                data.normBasis,
+                data.examineeGrade,
+              );
+
+            await wj5ExaminerDashPage.createTestAssignmentFromExamineeManagement(
+              data.blockName,
+              result.examinee_ID,
+              data.examineeGrade,
             );
-    
-            const { examinee_ID, dateOfBirth } = examineeData;
+
+            return result;
+          },
+          {
+            retries: 2, // Number of retries
+            onFailedAttempt: (error) => {
+              console.warn(
+                `Attempt ${error.attemptNumber} for adding and assigning test to an examinee has failed. ${error.retriesLeft} retries left.`,
+                error.message,
+              );
+            },
+            minTimeout: 5000,
+            maxTimeout: 15000,
+          },
+        );
+
+        const { examinee_ID, dateOfBirth } = examineeData;
 
         const ipad7 = devices["iPad (gen 7) landscape"];
         const sessionid = await wj5ExaminerDashPage.getSessionID();

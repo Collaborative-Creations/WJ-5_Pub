@@ -3,25 +3,16 @@ import { devices, test } from "../../base/basePageFixtures";
 import { testData } from "../../scenarios/multi_table/WRTSMP_Pub.scenarios";
 import { getExamineeURL, getSiteUrl } from "../../utils/testData";
 import { setFilePathes } from "../../utils/global";
+import { ExamineeData } from "../../utils/types";
 
 test.describe.configure({ mode: "default" });
 
 let score: Map<string, string>;
 let txtFileContent: { [key: string]: { [key: string]: string } };
-
-interface ExamineeData {
-  examinee_ID: string;
-  dateOfBirth: string;
-}
-
 let pRetry;
 
 test.describe(" WRTSMP.W5PA WlookUp Scoring Export Automation ", () => {
   testData.forEach((data) => {
-    test.beforeAll(async () => {
-      pRetry = (await import("p-retry")).default;
-      await setFilePathes(data.lookUpModel);
-    });
     test(
       `@wLookUpE2e @Regression For ${data.typeOfTest} login as AH Conduct test as Examiner and generate reports`,
       { tag: ["@WRTSMP", "@multiTable", "@smoke"] },
@@ -38,6 +29,8 @@ test.describe(" WRTSMP.W5PA WlookUp Scoring Export Automation ", () => {
         },
         testInfo,
       ) => {
+        pRetry = (await import("p-retry")).default;
+        await setFilePathes(data.lookUpModel);
         test.setTimeout(8 * 60 * 1000);
 
         const examineeData = await pRetry(
