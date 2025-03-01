@@ -675,7 +675,7 @@ jobs:
                   form.parentNode.insertBefore(notesSection, form);
                 });
 
-                // Handle combined report generation
+               
                 initializeCombinedReport();
               });
 
