@@ -409,7 +409,7 @@ jobs:
                 white-space: pre-wrap;
                 max-height: 400px;
                 overflow-y: auto;
-                display: none;  /* Changed from block to none */
+                display: none;
               }
               
               .system-info-header {
@@ -479,6 +479,25 @@ jobs:
               
               .post-notes-form button:hover {
                 background: #0056b3;
+              }
+
+              /* Styles for Full Report section */
+              .full-report-section {
+                margin: 2rem 0;
+                background: white;
+                padding: 1rem;
+                border: 1px solid #e1e4e8;
+                border-radius: 6px;
+              }
+
+              .full-report-container h4 {
+                color: var(--primary-color);
+                margin: 1rem 0 0.5rem;
+              }
+
+              .full-report-container iframe {
+                width: 100%;
+                border: none;
               }
             </style>
           </head>
@@ -572,9 +591,51 @@ jobs:
                 </form>
               </div>" >> merged-report/index.html
 
-          # Add JavaScript for interactivity
+          # Add Full Report section
+          echo "
+              <div class='full-report-section'>
+                <h3>Full Report</h3>
+                <div class='full-report-container' id='fullReportContainer'>
+                  <!-- Combined shard reports will be inserted here -->
+                </div>
+              </div>" >> merged-report/index.html
+
+          # Add JavaScript for Full Report and interactivity
           echo "
           <script>
+            document.addEventListener('DOMContentLoaded', function() {
+              const fullReportContainer = document.getElementById('fullReportContainer');
+              const shardCount = ${{ inputs.shard_count }};
+
+              for (let i = 1; i <= shardCount; i++) {
+                const shardReportUrl = './shard-' + i + '/playwright-report/index.html';
+
+                fetch(shardReportUrl)
+                  .then(response => response.text())
+                  .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const reportBody = doc.querySelector('body');
+                    const reportContent = reportBody ? reportBody.innerHTML : '<p>No content available</p>';
+
+                    // Create shard section, excluding System Information
+                    const shardSection = document.createElement('div');
+                    shardSection.innerHTML = '<h4>Shard ' + i + '</h4>' + reportContent;
+                    const systemInfo = shardSection.querySelector('.system-info');
+                    if (systemInfo) systemInfo.remove(); // Remove System Information if present
+
+                    fullReportContainer.appendChild(shardSection);
+                  })
+                  .catch(error => {
+                    console.error('Error loading shard report for shard ' + i + ':', error);
+                    const errorDiv = document.createElement('div');
+                    errorDiv.innerHTML = '<p>Error loading Shard ' + i + ' report</p>';
+                    fullReportContainer.appendChild(errorDiv);
+                  });
+              }
+            });
+
+            // JavaScript for shard expansion and system info toggle
             document.querySelectorAll('.system-info-toggle').forEach(toggle => {
               toggle.addEventListener('click', (e) => {
                 const shardNum = e.currentTarget.dataset.shard;
