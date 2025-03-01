@@ -572,6 +572,14 @@ jobs:
                 </form>
               </div>" >> merged-report/index.html
 
+              <div class='combined-reports-section'>
+                <h3>Full Combined Report</h3>
+                <div class='combined-reports-container' id='combinedReportsContainer'>
+                  <!-- Individual shard reports will be loaded here -->
+                  <div class='loading-indicator'>Loading combined reports...</div>
+                </div>
+              </div>
+
           # Add JavaScript for interactivity
           echo "
           <script>
@@ -965,6 +973,34 @@ jobs:
                 padding: 8px;
                 border: 1px solid #ddd;
                 border-radius: 4px;
+              }              
+              .combined-reports-section {
+                margin-top: 2rem;
+                padding: 1rem;
+                background: white;
+                border-radius: 6px;
+                border: 1px solid #e1e4e8;
+              }              
+              .combined-reports-section h3 {
+                border-bottom: 1px solid #eaecef;
+                padding-bottom: 0.5rem;
+                margin-top: 0;
+              }              
+              .combined-reports-container {
+                margin-top: 1rem;
+                border: 1px solid #e1e4e8;
+                border-radius: 4px;
+                overflow: hidden;
+              }              
+              .loading-indicator {
+                padding: 2rem;
+                text-align: center;
+                color: #6a737d;
+              }              
+              .combined-report-content {
+                width: 100%;
+                min-height: 800px;
+                border: none;
               }
             </style>
           </head>
@@ -1050,6 +1086,245 @@ jobs:
               window.onload = function() {
                 document.getElementById('sortSelect').dispatchEvent(new Event('change'));
               };
+
+
+            // Function to combine all reports
+            function loadCombinedReports() {
+              const container = document.getElementById('combinedReportsContainer');
+              const totalShards = ${{ inputs.shard_count }};
+              
+              // Clear loading indicator
+              container.innerHTML = '';
+              
+              // Create a combined iframe
+              const combinedFrame = document.createElement('iframe');
+              combinedFrame.className = 'combined-report-content';
+              container.appendChild(combinedFrame);
+              
+              // Wait for iframe to load
+              combinedFrame.onload = function() {
+                const frameDoc = combinedFrame.contentDocument || combinedFrame.contentWindow.document;
+                
+                // Create basic HTML structure
+                frameDoc.open();
+                frameDoc.write(`
+                  <!DOCTYPE html>
+                  <html>
+                  <head>
+                    <title>Combined Playwright Report</title>
+                    <style>
+                      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; margin: 0; padding: 0; }
+                      .report-header { background: #f6f8fa; padding: 1rem; border-bottom: 1px solid #e1e4e8; }
+                      .report-header h2 { margin: 0; }
+                      .report-tabs { display: flex; background: #f6f8fa; border-bottom: 1px solid #e1e4e8; }
+                      .report-tab { padding: 0.5rem 1rem; cursor: pointer; border: none; background: none; font-size: 1rem; }
+                      .report-tab.active { border-bottom: 2px solid #0366d6; font-weight: bold; }
+                      .report-content { padding: 1rem; }
+                      .report-section { display: none; }
+                      .report-section.active { display: block; }
+                      .summary-table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+                      .summary-table th, .summary-table td { text-align: left; padding: 0.5rem; border-bottom: 1px solid #e1e4e8; }
+                      .summary-table th { background: #f6f8fa; }
+                      .success { color: #28a745; }
+                      .failure { color: #dc3545; }
+                    </style>
+                  </head>
+                  <body>
+                    <div class="report-header">
+                      <h2>Combined Playwright Test Report</h2>
+                      <p>Environment: ${{ inputs.environment }} | Browser: ${{ inputs.browser }} | Test Pattern: ${{ inputs.test_pattern }}</p>
+                    </div>
+                    <div class="report-tabs" id="reportTabs">
+                      <button class="report-tab active" data-tab="summary">Summary</button>
+                    </div>
+                    <div class="report-content">
+                      <div class="report-section active" id="summary-section">
+                        <h3>Loading Test Results...</h3>
+                      </div>
+                    </div>
+                    <script>
+                      // Tab switching functionality
+                      document.getElementById('reportTabs').addEventListener('click', function(e) {
+                        if (e.target.classList.contains('report-tab')) {
+                          // Deactivate all tabs
+                          document.querySelectorAll('.report-tab').forEach(tab => tab.classList.remove('active'));
+                          document.querySelectorAll('.report-section').forEach(section => section.classList.remove('active'));
+                          
+                          // Activate clicked tab
+                          e.target.classList.add('active');
+                          const tabId = e.target.dataset.tab;
+                          document.getElementById(tabId + '-section').classList.add('active');
+                        }
+                      });
+                    </script>
+                  </body>
+                  </html>
+                `);
+                frameDoc.close();
+                
+                // Load test results from each shard
+                const testResults = [];
+                let loadedCount = 0;
+                
+                for (let i = 1; i <= totalShards; i++) {
+                  fetchShardResults(i, function(results) {
+                    testResults.push({ shard: i, results: results });
+                    loadedCount++;
+                    
+                    if (loadedCount === totalShards) {
+                      // All results loaded, update the combined report
+                      updateCombinedReport(frameDoc, testResults);
+                    }
+                  });
+                }
+              };
+            }
+            
+            // Function to fetch results from a shard
+            function fetchShardResults(shardNum, callback) {
+              fetch(`./shard-${shardNum}/playwright-report/index.html`)
+                .then(response => response.text())
+                .then(html => {
+                  // Extract test results data from the HTML
+                  const parser = new DOMParser();
+                  const doc = parser.parseFromString(html, 'text/html');
+                  
+                  // Extract the JSON data from the script tag
+                  let jsonData = {};
+                  const scripts = doc.querySelectorAll('script');
+                  for (const script of scripts) {
+                    const content = script.textContent;
+                    if (content && content.includes('window.playwrightReportData')) {
+                      const match = content.match(/window\.playwrightReportData\s*=\s*({.*});/s);
+                      if (match && match[1]) {
+                        try {
+                          jsonData = JSON.parse(match[1]);
+                          break;
+                        } catch (e) {
+                          console.error('Error parsing report data:', e);
+                        }
+                      }
+                    }
+                  }
+                  
+                  callback(jsonData);
+                })
+                .catch(error => {
+                  console.error(`Error loading shard ${shardNum}:`, error);
+                  callback({});
+                });
+            }
+            
+            // Function to update the combined report with all test results
+            function updateCombinedReport(frameDoc, allResults) {
+              const combinedData = {
+                stats: { total: 0, passed: 0, failed: 0, flaky: 0, skipped: 0, duration: 0 },
+                suites: []
+              };
+              
+              // Combine stats and suites from all shards
+              allResults.forEach(({ shard, results }) => {
+                if (results.stats) {
+                  combinedData.stats.total += results.stats.total || 0;
+                  combinedData.stats.passed += results.stats.passed || 0;
+                  combinedData.stats.failed += results.stats.failed || 0;
+                  combinedData.stats.flaky += results.stats.flaky || 0;
+                  combinedData.stats.skipped += results.stats.skipped || 0;
+                  combinedData.stats.duration = Math.max(combinedData.stats.duration, results.stats.duration || 0);
+                }
+                
+                if (results.suites) {
+                  // Add shard number to suite name for clarity
+                  results.suites.forEach(suite => {
+                    suite.title = `[Shard ${shard}] ${suite.title}`;
+                    combinedData.suites.push(suite);
+                  });
+                }
+                
+                // Add a tab for this shard if it has data
+                if (results.stats || results.suites) {
+                  const tabsContainer = frameDoc.getElementById('reportTabs');
+                  const newTab = frameDoc.createElement('button');
+                  newTab.className = 'report-tab';
+                  newTab.dataset.tab = `shard-${shard}`;
+                  newTab.textContent = `Shard ${shard}`;
+                  tabsContainer.appendChild(newTab);
+                  
+                  // Create a section for this shard
+                  const contentContainer = frameDoc.querySelector('.report-content');
+                  const shardSection = frameDoc.createElement('div');
+                  shardSection.className = 'report-section';
+                  shardSection.id = `shard-${shard}-section`;
+                  
+                  // Add an iframe loading the individual shard report
+                  const shardFrame = frameDoc.createElement('iframe');
+                  shardFrame.style.width = '100%';
+                  shardFrame.style.height = '700px';
+                  shardFrame.style.border = 'none';
+                  shardFrame.src = `./shard-${shard}/playwright-report/index.html`;
+                  
+                  shardSection.appendChild(shardFrame);
+                  contentContainer.appendChild(shardSection);
+                }
+              });
+              
+              // Update summary section
+              const summarySection = frameDoc.getElementById('summary-section');
+              
+              // Format time duration
+              const formatDuration = (ms) => {
+                const seconds = Math.floor(ms / 1000);
+                const minutes = Math.floor(seconds / 60);
+                const hours = Math.floor(minutes / 60);
+                return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
+              };
+              
+              summarySection.innerHTML = `
+                <h3>Test Summary</h3>
+                <div class="summary-stats">
+                  <table class="summary-table">
+                    <tr>
+                      <th>Total Tests</th>
+                      <th>Passed</th>
+                      <th>Failed</th>
+                      <th>Flaky</th>
+                      <th>Skipped</th>
+                      <th>Duration</th>
+                    </tr>
+                    <tr>
+                      <td>${combinedData.stats.total}</td>
+                      <td class="success">${combinedData.stats.passed}</td>
+                      <td class="failure">${combinedData.stats.failed}</td>
+                      <td>${combinedData.stats.flaky}</td>
+                      <td>${combinedData.stats.skipped}</td>
+                      <td>${formatDuration(combinedData.stats.duration)}</td>
+                    </tr>
+                  </table>
+                </div>
+                
+                <h3>Test Suites</h3>
+                <div class="suites-list">
+                  <table class="summary-table">
+                    <tr>
+                      <th>Suite</th>
+                      <th>Status</th>
+                      <th>Duration</th>
+                    </tr>
+                    ${combinedData.suites.map(suite => `
+                      <tr>
+                        <td>${suite.title}</td>
+                        <td class="${suite.status === 'failed' ? 'failure' : 'success'}">${suite.status}</td>
+                        <td>${formatDuration(suite.duration || 0)}</td>
+                      </tr>
+                    `).join('')}
+                  </table>
+                </div>
+              `;
+            }
+            
+            // Load combined reports when the page loads
+            window.addEventListener('load', loadCombinedReports);
+
             </script>
           </body>
           </html>
