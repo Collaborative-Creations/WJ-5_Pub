@@ -570,6 +570,25 @@ jobs:
                   <textarea id='postNotes' placeholder='Enter your observations and notes about this test run...'></textarea>
                   <button type='submit'>Save Notes</button>
                 </form>
+              </div>
+
+              <div class='full-report-section'>
+                <h3>Full Report</h3>
+                <div class='report-tabs'>
+                  <button id='showCombinedReport' class='tab-button active'>Combined Report</button>
+                  <button id='showIndividualReports' class='tab-button'>Individual Shard Reports</button>
+                </div>
+
+                <div id='combinedReportView' class='report-view'>
+                  <div class='combined-iframe-container'>
+                    <iframe id='combinedReportFrame' class='combined-report-frame'></iframe>
+                  </div>
+                </div>
+
+                <div id='individualReportsView' class='report-view' style='display:none;'>
+                  <!-- Individual shard reports are already shown above -->
+                  <p>Individual shard reports are available in the sections above.</p>
+                </div>
               </div>" >> merged-report/index.html
 
           # Add JavaScript for interactivity
@@ -642,21 +661,198 @@ jobs:
             });
 
             // Load existing notes for this run
-            window.addEventListener('load', function() {
-              const allNotes = JSON.parse(localStorage.getItem('playwrightTestNotes') || '[]');
-              const runNotes = allNotes.filter(note => note.runId === '${{ github.run_id }}');
-              
-              runNotes.forEach(note => {
-                const notesSection = document.createElement('div');
-                notesSection.className = 'notes-section';
-                notesSection.innerHTML = '<h3>Post-Run Notes</h3><p>' + note.text + '</p>';
-                
-                const form = document.querySelector('.post-notes-form');
-                form.parentNode.insertBefore(notesSection, form);
+
+              window.addEventListener('load', function() {
+                const allNotes = JSON.parse(localStorage.getItem('playwrightTestNotes') || '[]');
+                const runNotes = allNotes.filter(note => note.runId === '${{ github.run_id }}');
+
+                runNotes.forEach(note => {
+                  const notesSection = document.createElement('div');
+                  notesSection.className = 'notes-section';
+                  notesSection.innerHTML = '<h3>Post-Run Notes</h3><p>' + note.text + '</p>';
+
+                  const form = document.querySelector('.post-notes-form');
+                  form.parentNode.insertBefore(notesSection, form);
+                });
+
+               
+                initializeCombinedReport();
               });
-            });
-          </script>
-          </div></div></body></html>" >> merged-report/index.html
+
+              // Function to combine all report iframes into one view
+              function initializeCombinedReport() {
+                // Get all shard iframes
+                const shardReports = [];
+                for (let i = 1; i <= ${{ inputs.shard_count }}; i++) {
+                  if (document.querySelector('iframe[src="./shard-' + i + '/playwright-report/index.html"]')) {
+                    shardReports.push({
+                      id: i,
+                      path: './shard-' + i + '/playwright-report/index.html'
+                    });
+                  }
+                }
+
+                if (shardReports.length === 0) return;
+
+                // Set up the combined iframe
+                const combinedFrame = document.getElementById('combinedReportFrame');
+
+                // Create a combined HTML file that imports all reports
+                let combinedContent = `
+                  <!DOCTYPE html>
+                  <html>
+                  <head>
+                    <title>Combined Playwright Report</title>
+                    <style>
+                      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; margin: 0; padding: 0; }
+                      .report-container { margin-bottom: 20px; }
+                      .report-header { background: #f0f0f0; padding: 10px; border-radius: 4px; margin-bottom: 10px; }
+                      .report-content { width: 100%; border: none; }
+                      .test-results { padding: 0 16px; }
+                    </style>
+                  </head>
+                  <body>
+                    <h1 style="padding: 20px; margin: 0; background: #24292e; color: white;">Combined Test Report</h1>
+                    <div class="combined-reports">
+                `;
+
+                // Add each report's content using iframes
+                shardReports.forEach(report => {
+                  combinedContent += `
+                    <div class="report-container" id="report-${report.id}">
+                      <div class="report-header">
+                        <h3>Shard ${report.id}</h3>
+                      </div>
+                      <div class="test-results">
+                        <script>
+                          // Fetch and inject the test results content
+                          fetch('${report.path}')
+                            .then(response => response.text())
+                            .then(html => {
+                              // Extract just the test results part
+                              const parser = new DOMParser();
+                              const doc = parser.parseFromString(html, 'text/html');
+
+                              // Remove system info sections if they exist
+                              doc.querySelectorAll('.system-info').forEach(el => el.remove());
+
+                              // Get the main content
+                              const results = doc.querySelector('body > div');
+                              if (results) {
+                                document.querySelector('#report-${report.id} .test-results').innerHTML = results.innerHTML;
+
+                                // Fix relative scripts and styles
+                                const baseUrl = '${report.path}'.split('/').slice(0, -1).join('/') + '/';
+
+                                // Fix script sources
+                                document.querySelectorAll('#report-${report.id} script[src]').forEach(script => {
+                                  if (!script.src.startsWith('http')) {
+                                    script.src = baseUrl + script.getAttribute('src');
+                                  }
+                                });
+
+                                // Fix style sources
+                                document.querySelectorAll('#report-${report.id} link[rel="stylesheet"]').forEach(link => {
+                                  if (!link.href.startsWith('http')) {
+                                    link.href = baseUrl + link.getAttribute('href');
+                                  }
+                                });
+
+                                // Fix image sources
+                                document.querySelectorAll('#report-${report.id} img[src]').forEach(img => {
+                                  if (!img.src.startsWith('http')) {
+                                    img.src = baseUrl + img.getAttribute('src');
+                                  }
+                                });
+                              }
+                            })
+                            .catch(error => {
+                              console.error('Error loading report ${report.id}:', error);
+                            });
+                        </script>
+                      </div>
+                    </div>
+                  `;
+                });
+
+                combinedContent += `
+                    </div>
+                  </body>
+                  </html>
+                `;
+
+                // Create a blob URL for the combined content
+                const blob = new Blob([combinedContent], { type: 'text/html' });
+                const blobUrl = URL.createObjectURL(blob);
+
+                // Set the combined frame source
+                combinedFrame.src = blobUrl;
+
+                // Set up tab switching
+                document.getElementById('showCombinedReport').addEventListener('click', function() {
+                  this.classList.add('active');
+                  document.getElementById('showIndividualReports').classList.remove('active');
+                  document.getElementById('combinedReportView').style.display = 'block';
+                  document.getElementById('individualReportsView').style.display = 'none';
+                });
+
+                document.getElementById('showIndividualReports').addEventListener('click', function() {
+                  this.classList.add('active');
+                  document.getElementById('showCombinedReport').classList.remove('active');
+                  document.getElementById('combinedReportView').style.display = 'none';
+                  document.getElementById('individualReportsView').style.display = 'block';
+                });
+              }
+              </script>
+
+              <style>
+                /* Additional styles for the full report section */
+                .full-report-section {
+                  background: white;
+                  padding: 1rem;
+                  border-radius: 6px;
+                  margin: 1.5rem 0;
+                  border: 1px solid #eaecef;
+                }
+
+                .report-tabs {
+                  display: flex;
+                  gap: 10px;
+                  margin-bottom: 15px;
+                  border-bottom: 1px solid #eaecef;
+                  padding-bottom: 10px;
+                }
+
+                .tab-button {
+                  background: #f6f8fa;
+                  border: 1px solid #eaecef;
+                  border-radius: 4px;
+                  padding: 8px 16px;
+                  cursor: pointer;
+                  font-size: 14px;
+                }
+
+                .tab-button.active {
+                  background: var(--primary-color);
+                  color: white;
+                  border-color: var(--primary-color);
+                }
+
+                .combined-iframe-container {
+                  width: 100%;
+                  height: 800px;
+                  overflow: hidden;
+                  border: 1px solid #eaecef;
+                  border-radius: 4px;
+                }
+
+                .combined-report-frame {
+                  width: 100%;
+                  height: 100%;
+                  border: none;
+                }
+              </style>
+              </div></div></body></html>" >> merged-report/index.html
 
       - name: Upload merged report artifact
         uses: actions/upload-artifact@v4
