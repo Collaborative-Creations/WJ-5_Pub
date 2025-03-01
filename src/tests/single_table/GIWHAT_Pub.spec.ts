@@ -3,25 +3,17 @@ import { devices, test } from "../../base/basePageFixtures";
 import { testData } from "../../scenarios/single_table/GIWHAT_Pub.scenarios";
 import { getExamineeURL, getSiteUrl } from "../../utils/testData";
 import { setFilePathes } from "../../utils/global";
+import { ExamineeData } from "../../utils/types";
 
 test.describe.configure({ mode: "default" });
 
 let score: Map<string, string>;
 let txtFileContent: { [key: string]: { [key: string]: string } };
 
-interface ExamineeData {
-  examinee_ID: string;
-  dateOfBirth: string;
-}
-
 let pRetry;
 
 test.describe("GIWHAT.W5PA single table lookUp Scoring Export Automation ", () => {
   testData.forEach((data) => {
-    test.beforeAll(async () => {
-      pRetry = (await import("p-retry")).default;
-      await setFilePathes(data.lookUpModel);
-    });
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
       { tag: ["@GIWHAT", "@singleTable", "@smoke"] },
@@ -37,6 +29,8 @@ test.describe("GIWHAT.W5PA single table lookUp Scoring Export Automation ", () =
         },
         testInfo,
       ) => {
+        pRetry = (await import("p-retry")).default;
+        await setFilePathes(data.lookUpModel);
         test.setTimeout(6 * 60 * 1000);
 
         const examineeData = await pRetry(
