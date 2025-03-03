@@ -257,8 +257,7 @@ jobs:
           mkdir -p merged-report
           current_date=$(date +%Y-%m-%d_%H-%M-%S)
 
-          # Start of HTML file
-          cat << EOF > merged-report/index.html
+          cat << 'EOF' > merged-report/index.html
           <!DOCTYPE html>
           <html lang="en">
           <head>
@@ -481,23 +480,42 @@ jobs:
                 background: #0056b3;
               }
 
-              /* Styles for Full Report section */
               .full-report-section {
-                margin: 2rem 0;
                 background: white;
                 padding: 1rem;
-                border: 1px solid #e1e4e8;
                 border-radius: 6px;
+                margin: 1.5rem 0;
+                border: 1px solid #eaecef;
               }
 
-              .full-report-container h4 {
+              .shard-report {
+                margin-bottom: 1rem;
+              }
+
+              .shard-report h4 {
                 color: var(--primary-color);
                 margin: 1rem 0 0.5rem;
               }
 
-              .full-report-container iframe {
+              .shard-report iframe {
                 width: 100%;
+                height: 600px;
                 border: none;
+                display: none;
+              }
+
+              .load-button {
+                background: var(--primary-color);
+                color: white;
+                border: none;
+                padding: 0.5rem 1rem;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-top: 0.5rem;
+              }
+
+              .load-button:hover {
+                background: #0056b3;
               }
             </style>
           </head>
@@ -508,26 +526,23 @@ jobs:
 
           # Add pre-run notes if they exist
           if [ -f "all-artifacts/run-metadata/pre-run-notes.txt" ]; then
-            echo "
-              <div class='notes-section'>
-                <h3>Pre-Run Notes</h3>
-                <p>$(cat all-artifacts/run-metadata/pre-run-notes.txt)</p>
-              </div>" >> merged-report/index.html
+            echo "<div class='notes-section'><h3>Pre-Run Notes</h3><p>$(cat all-artifacts/run-metadata/pre-run-notes.txt)</p></div>" >> merged-report/index.html
           fi
 
           # Add meta information
-          echo "
-          <div class='meta-info'>
-            <p><strong>Environment:</strong> ${{ inputs.environment }}</p>
-            <p><strong>Browser:</strong> ${{ inputs.browser }}</p>
-            <p><strong>Test Pattern:</strong> ${{ inputs.test_pattern }}</p>
-            <p><strong>Total Shards:</strong> ${{ inputs.shard_count }}</p>
-            <p><strong>Retries:</strong> ${{ inputs.num_retries }}</p>
-            <p><strong>Video Mode:</strong> ${{ inputs.video_mode }}</p>
-            <p><strong>Trace Mode:</strong> ${{ inputs.trace_mode }}</p>
-            <p><strong>Last Updated:</strong> $current_date</p>
-          </div>
-              <div class='report-container'>" >> merged-report/index.html
+          cat << EOF >> merged-report/index.html
+              <div class='meta-info'>
+                <p><strong>Environment:</strong> ${{ inputs.environment }}</p>
+                <p><strong>Browser:</strong> ${{ inputs.browser }}</p>
+                <p><strong>Test Pattern:</strong> ${{ inputs.test_pattern }}</p>
+                <p><strong>Total Shards:</strong> ${{ inputs.shard_count }}</p>
+                <p><strong>Retries:</strong> ${{ inputs.num_retries }}</p>
+                <p><strong>Video Mode:</strong> ${{ inputs.video_mode }}</p>
+                <p><strong>Trace Mode:</strong> ${{ inputs.trace_mode }}</p>
+                <p><strong>Last Updated:</strong> $current_date</p>
+              </div>
+              <div class='report-container'>
+          EOF
 
           # Process each shard's report and system info
           for ((i=1; i<=${{ inputs.shard_count }}; i++)); do
@@ -556,7 +571,7 @@ jobs:
                 system_info=$(cat "$system_info_file")
               fi
               
-              echo "
+              cat << EOF >> merged-report/index.html
               <div class='report-wrapper'>
                 <div class='report-link'>
                   <span>Shard $i Report</span>
@@ -565,159 +580,132 @@ jobs:
                     <button class='expand-btn' data-shard='$i'>➤</button>
                   </div>
                 </div>
-
                 <div class='report-details' id='shard-$i-details'>
                   <div class='system-info-header'>
-                 <button class='system-info-toggle' data-shard='$i'>
-                   <span class="toggle-arrow">➤</span> System Information
-                 </button>
+                    <button class='system-info-toggle' data-shard='$i'>
+                      <span class="toggle-arrow">➤</span> System Information
+                    </button>
                   </div>
                   <div class='system-info' id='system-info-$i'>
                     <pre>$system_info</pre>
                   </div>
                   <iframe src='./shard-$i/playwright-report/index.html'></iframe>
                 </div>
-              </div>" >> merged-report/index.html
+              </div>
+          EOF
             fi
           done
 
-          # Add post-notes form
-          echo "
+          # Add post-notes form and Full Report section with lazy-loaded iframes
+          cat << 'EOF' >> merged-report/index.html
+              </div>
               <div class='post-notes-form'>
                 <h3>Add Post-Run Notes</h3>
                 <form id='postNotesForm'>
                   <textarea id='postNotes' placeholder='Enter your observations and notes about this test run...'></textarea>
                   <button type='submit'>Save Notes</button>
                 </form>
-              </div>" >> merged-report/index.html
-
-          # Add Full Report section
-          echo "
+              </div>
               <div class='full-report-section'>
                 <h3>Full Report</h3>
-                <div class='full-report-container' id='fullReportContainer'>
-                  <!-- Combined shard reports will be inserted here -->
-                </div>
-              </div>" >> merged-report/index.html
+                <div class='full-report-container' id='fullReportContainer'></div>
+              </div>
+              <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                  const fullReportContainer = document.getElementById('fullReportContainer');
+                  const shardCount = ${{ inputs.shard_count }};
 
-          # Add JavaScript for Full Report and interactivity
-          echo "
-          <script>
-            document.addEventListener('DOMContentLoaded', function() {
-              const fullReportContainer = document.getElementById('fullReportContainer');
-              const shardCount = ${{ inputs.shard_count }};
-
-              for (let i = 1; i <= shardCount; i++) {
-                const shardReportUrl = './shard-' + i + '/playwright-report/index.html';
-
-                fetch(shardReportUrl)
-                  .then(response => response.text())
-                  .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    const reportBody = doc.querySelector('body');
-                    const reportContent = reportBody ? reportBody.innerHTML : '<p>No content available</p>';
-
-                    // Create shard section, excluding System Information
+                  for (let i = 1; i <= shardCount; i++) {
                     const shardSection = document.createElement('div');
-                    shardSection.innerHTML = '<h4>Shard ' + i + '</h4>' + reportContent;
-                    const systemInfo = shardSection.querySelector('.system-info');
-                    if (systemInfo) systemInfo.remove(); // Remove System Information if present
-
+                    shardSection.className = 'shard-report';
+                    shardSection.innerHTML = `
+                      <h4>Shard ${i}</h4>
+                      <iframe src="./shard-${i}/playwright-report/index.html" onload="this.contentDocument.querySelector('.system-info')?.remove()"></iframe>
+                      <button class="load-button" data-shard="${i}">Load Shard ${i} Report</button>
+                    `;
                     fullReportContainer.appendChild(shardSection);
-                  })
-                  .catch(error => {
-                    console.error('Error loading shard report for shard ' + i + ':', error);
-                    const errorDiv = document.createElement('div');
-                    errorDiv.innerHTML = '<p>Error loading Shard ' + i + ' report</p>';
-                    fullReportContainer.appendChild(errorDiv);
+
+                    const iframe = shardSection.querySelector('iframe');
+                    const loadButton = shardSection.querySelector('.load-button');
+
+                    // Hide iframe initially
+                    iframe.style.display = 'none';
+
+                    // Load iframe content on button click
+                    loadButton.addEventListener('click', function() {
+                      iframe.style.display = 'block';
+                      this.style.display = 'none';
+                      // Ensure system info is removed after loading
+                      const systemInfo = iframe.contentDocument?.querySelector('.system-info');
+                      if (systemInfo) systemInfo.remove();
+                    });
+                  }
+                });
+
+                document.querySelectorAll('.system-info-toggle').forEach(toggle => {
+                  toggle.addEventListener('click', (e) => {
+                    const shardNum = e.currentTarget.dataset.shard;
+                    const systemInfo = document.getElementById('system-info-' + shardNum);
+                    const toggleBtn = e.currentTarget;
+                    if (systemInfo.style.display === 'block') {
+                      systemInfo.style.display = 'none';
+                    } else {
+                      systemInfo.style.display = 'block';
+                    }
+                    toggleBtn.classList.toggle('active');
                   });
-              }
-            });
+                });
 
-            // JavaScript for shard expansion and system info toggle
-            document.querySelectorAll('.system-info-toggle').forEach(toggle => {
-              toggle.addEventListener('click', (e) => {
-                const shardNum = e.currentTarget.dataset.shard;
-                const systemInfo = document.getElementById('system-info-' + shardNum);
-                const toggleBtn = e.currentTarget;
-                    
-                // Toggle visibility
-                if (systemInfo.style.display === 'block') {
-                  systemInfo.style.display = 'none';
-                } else {
-                  systemInfo.style.display = 'block';
-                }
-                
-                // Toggle active class for styling
-                toggleBtn.classList.toggle('active');
-              });
-            });
+                document.querySelectorAll('.report-link').forEach(link => {
+                  link.addEventListener('click', (e) => {
+                    const shardNum = e.currentTarget.querySelector('.expand-btn').dataset.shard;
+                    const detailsContainer = document.getElementById('shard-' + shardNum + '-details');
+                    const expandBtn = e.currentTarget.querySelector('.expand-btn');
+                    if (e.target.classList.contains('expand-btn')) {
+                      detailsContainer.classList.toggle('show');
+                      expandBtn.classList.toggle('active');
+                    } else if (!e.target.classList.contains('expand-btn')) {
+                      window.open('./shard-' + shardNum + '/playwright-report/index.html', '_blank');
+                    }
+                  });
+                });
 
-            document.querySelectorAll('.report-link').forEach(link => {
-              link.addEventListener('click', (e) => {
-                const shardNum = e.currentTarget.querySelector('.expand-btn').dataset.shard;
-                const detailsContainer = document.getElementById('shard-' + shardNum + '-details');
-                const expandBtn = e.currentTarget.querySelector('.expand-btn');
-                
-                // If clicked on the expand button
-                if (e.target.classList.contains('expand-btn')) {
-                  detailsContainer.classList.toggle('show');
-                  expandBtn.classList.toggle('active');
-                } 
-                // If clicked on the main link, navigate to the report
-                else if (!e.target.classList.contains('expand-btn')) {
-                  window.open('./shard-' + shardNum + '/playwright-report/index.html', '_blank');
-                }
-              });
-            });
+                document.getElementById('postNotesForm').addEventListener('submit', function(e) {
+                  e.preventDefault();
+                  const notes = document.getElementById('postNotes').value;
+                  const savedNotes = {
+                    text: notes,
+                    timestamp: new Date().toISOString(),
+                    runId: '${{ github.run_id }}'
+                  };
+                  const allNotes = JSON.parse(localStorage.getItem('playwrightTestNotes') || '[]');
+                  allNotes.push(savedNotes);
+                  localStorage.setItem('playwrightTestNotes', JSON.stringify(allNotes));
+                  const notesSection = document.createElement('div');
+                  notesSection.className = 'notes-section';
+                  notesSection.innerHTML = '<h3>Post-Run Notes</h3><p>' + notes + '</p>';
+                  const form = document.querySelector('.post-notes-form');
+                  form.parentNode.insertBefore(notesSection, form);
+                  document.getElementById('postNotes').value = '';
+                  alert('Notes saved successfully!');
+                });
 
-            // Handle post-run notes
-            document.getElementById('postNotesForm').addEventListener('submit', function(e) {
-              e.preventDefault();
-              const notes = document.getElementById('postNotes').value;
-              
-              // Save notes to localStorage with timestamp
-              const savedNotes = {
-                text: notes,
-                timestamp: new Date().toISOString(),
-                runId: '${{ github.run_id }}'
-              };
-              
-              const allNotes = JSON.parse(localStorage.getItem('playwrightTestNotes') || '[]');
-              allNotes.push(savedNotes);
-              localStorage.setItem('playwrightTestNotes', JSON.stringify(allNotes));
-              
-              // Show saved notes
-              const notesSection = document.createElement('div');
-              notesSection.className = 'notes-section';
-              notesSection.innerHTML = '<h3>Post-Run Notes</h3><p>' + notes + '</p>';
-              
-              const form = document.querySelector('.post-notes-form');
-              form.parentNode.insertBefore(notesSection, form);
-              
-              // Clear the form
-              document.getElementById('postNotes').value = '';
-              
-              alert('Notes saved successfully!');
-            });
-
-            // Load existing notes for this run
-            window.addEventListener('load', function() {
-              const allNotes = JSON.parse(localStorage.getItem('playwrightTestNotes') || '[]');
-              const runNotes = allNotes.filter(note => note.runId === '${{ github.run_id }}');
-              
-              runNotes.forEach(note => {
-                const notesSection = document.createElement('div');
-                notesSection.className = 'notes-section';
-                notesSection.innerHTML = '<h3>Post-Run Notes</h3><p>' + note.text + '</p>';
-                
-                const form = document.querySelector('.post-notes-form');
-                form.parentNode.insertBefore(notesSection, form);
-              });
-            });
-          </script>
-          </div></div></body></html>" >> merged-report/index.html
+                window.addEventListener('load', function() {
+                  const allNotes = JSON.parse(localStorage.getItem('playwrightTestNotes') || '[]');
+                  const runNotes = allNotes.filter(note => note.runId === '${{ github.run_id }}');
+                  runNotes.forEach(note => {
+                    const notesSection = document.createElement('div');
+                    notesSection.className = 'notes-section';
+                    notesSection.innerHTML = '<h3>Post-Run Notes</h3><p>' + note.text + '</p>';
+                    const form = document.querySelector('.post-notes-form');
+                    form.parentNode.insertBefore(notesSection, form);
+                  });
+                });
+              </script>
+            </div>
+          </body>
+          </html>
+          EOF
 
       - name: Upload merged report artifact
         uses: actions/upload-artifact@v4
