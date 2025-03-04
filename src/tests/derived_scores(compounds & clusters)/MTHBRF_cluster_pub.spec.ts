@@ -4,6 +4,7 @@ import { devices, test } from "../../base/basePageFixtures";
 import { testData } from "../../scenarios/derived_scores(compounds & clusters)/MTHBRF_Pub_cluster.scenarios";
 import { getExamineeURL, getSiteUrl } from "../../utils/testData";
 import { setFilePathes } from "../../utils/global";
+import { ScoreObject } from "../../utils/types";
 
 test.describe.configure({ mode: "default" });
 let score: Map<string, string>;
@@ -12,19 +13,11 @@ let wScores: number;
 let Wabil: number;
 let Semw: number;
 
-type ScoreObject = {
-  wScores: number;
-  Wabil: number;
-  Semw: number;
-};
 type ScoresRecord = Record<string, ScoreObject>;
 const scores: ScoresRecord = {};
 
 test.describe(" MTHBRF cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
-    test.beforeAll(async () => {
-      await setFilePathes(data.lookUpModel);
-    });
     test(
       `For ${data.typeOfTest} Complete The MTHBRF cluster & generate report`,
       { tag: ["@MTHBRF", "@reg", "@derivedScores"] },
@@ -40,6 +33,7 @@ test.describe(" MTHBRF cluster Derived Export Automation ", () => {
         },
         testInfo,
       ) => {
+        await setFilePathes(data.lookUpModel);
         test.setTimeout(8 * 60 * 1000);
 
         const url = getSiteUrl() + "home";
