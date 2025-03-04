@@ -500,7 +500,7 @@ jobs:
               .shard-report iframe {
                 width: 100%;
                 border: none;
-                overflow: hidden; /* Remove scrollbar */
+                overflow: hidden; /* Ensure no scrollbar */
               }
             </style>
           </head>
@@ -581,7 +581,7 @@ jobs:
             fi
           done
 
-          # Add post-notes form and Full Report section with auto-sized iframes
+          # Add post-notes form and Full Report section with improved resizing
           cat << 'EOF' >> merged-report/index.html
               </div>
               <div class='post-notes-form'>
@@ -605,11 +605,10 @@ jobs:
                     shardSection.className = 'shard-report';
                     shardSection.innerHTML = `
                       <h4>Shard ${i}</h4>
-                      <iframe src="./shard-${i}/playwright-report/index.html" onload="resizeIframe(this)"></iframe>
+                      <iframe src="./shard-${i}/playwright-report/index.html" onload="initIframeResize(this)"></iframe>
                     `;
                     fullReportContainer.appendChild(shardSection);
 
-                    // Remove system info from iframe content
                     const iframe = shardSection.querySelector('iframe');
                     iframe.addEventListener('load', function() {
                       const systemInfo = this.contentDocument.querySelector('.system-info');
@@ -617,9 +616,38 @@ jobs:
                     });
                   }
 
-                  // Function to resize iframe to fit content
+                  function initIframeResize(iframe) {
+                    // Initial resize
+                    resizeIframe(iframe);
+
+                    // Use MutationObserver to watch for content changes
+                    const observer = new MutationObserver(() => resizeIframe(iframe));
+                    if (iframe.contentDocument && iframe.contentDocument.body) {
+                      observer.observe(iframe.contentDocument.body, {
+                        childList: true,
+                        subtree: true,
+                        attributes: true
+                      });
+                    }
+
+                    // Fallback polling for 5 seconds
+                    let pollCount = 0;
+                    const pollInterval = setInterval(() => {
+                      resizeIframe(iframe);
+                      pollCount++;
+                      if (pollCount >= 10) clearInterval(pollInterval); // Stop after ~5 seconds (500ms * 10)
+                    }, 500);
+
+                    // Cleanup observer when iframe is removed
+                    iframe.addEventListener('unload', () => observer.disconnect());
+                  }
+
                   function resizeIframe(iframe) {
-                    iframe.style.height = iframe.contentWindow.document.body.scrollHeight + 'px';
+                    if (iframe.contentWindow && iframe.contentWindow.document.body) {
+                      const height = iframe.contentWindow.document.body.scrollHeight;
+                      iframe.style.height = height + 'px';
+                      iframe.style.minHeight = height + 'px'; // Ensure it doesn't shrink
+                    }
                   }
                 });
 
