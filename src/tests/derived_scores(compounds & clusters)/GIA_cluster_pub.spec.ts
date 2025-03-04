@@ -39,6 +39,8 @@ test.describe(" GIA cluster Derived Export Automation ", () => {
       ) => {
         pRetry = (await import("p-retry")).default;
         await setFilePathes(data.lookUpModel);
+        pRetry = (await import("p-retry")).default;
+        await setFilePathes(data.lookUpModel);
         test.setTimeout(25 * 60 * 1000);
 
         const url = getSiteUrl() + "home";

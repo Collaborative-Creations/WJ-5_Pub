@@ -8,3 +8,4 @@ export type ScoreObject = {
   Wabil: number;
   Semw: number;
 };
+

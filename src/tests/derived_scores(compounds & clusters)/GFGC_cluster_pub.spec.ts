@@ -40,9 +40,46 @@ test.describe(" GFGC cluster Derived Export Automation ", () => {
       ) => {
         pRetry = (await import("p-retry")).default;
         await setFilePathes(data.lookUpModel);
+        pRetry = (await import("p-retry")).default;
+        await setFilePathes(data.lookUpModel);
         test.setTimeout(20 * 60 * 1000);
 
         const url = getSiteUrl() + "home";
+        const examineeData = await pRetry(
+          async (): Promise<ExamineeData> => {
+            await wj5examiner.gotoUrl(url);
+            const result =
+              await wj5ExaminerDashPage.addNewExamineeAndUpdateTheTemplate(
+                getSiteUrl(),
+                data.examineeAge,
+                undefined,
+                undefined,
+                data.normBasis,
+                data.examineeGrade,
+              );
+
+            await wj5ExaminerDashPage.createTestAssignmentFromExamineeManagement(
+              data.blockName,
+              result.examinee_ID,
+              data.examineeGrade,
+            );
+
+            return result;
+          },
+          {
+            retries: 2, // Number of retries
+            onFailedAttempt: (error) => {
+              console.warn(
+                `Attempt ${error.attemptNumber} for adding and assigning test to an examinee has failed. ${error.retriesLeft} retries left.`,
+                error.message,
+              );
+            },
+            minTimeout: 5000,
+            maxTimeout: 15000,
+          },
+        );
+
+        const { examinee_ID, dateOfBirth } = examineeData;
         const examineeData = await pRetry(
           async (): Promise<ExamineeData> => {
             await wj5examiner.gotoUrl(url);
