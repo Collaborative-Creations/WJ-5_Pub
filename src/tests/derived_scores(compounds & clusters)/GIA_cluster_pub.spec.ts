@@ -5,6 +5,7 @@ import { testData } from "../../scenarios/derived_scores(compounds & clusters)/G
 import { getExamineeURL, getSiteUrl } from "../../utils/testData";
 import { setFilePathes } from "../../utils/global";
 import { ExamineeData } from "../../utils/types";
+import { ScoreObject } from "../../utils/types";
 
 test.describe.configure({ mode: "default" });
 let score: Map<string, string>;
@@ -13,11 +14,6 @@ let wScores: number;
 let Wabil: number;
 let Semw: number;
 
-type ScoreObject = {
-  wScores: number;
-  Wabil: number;
-  Semw: number;
-};
 type ScoresRecord = Record<string, ScoreObject>;
 const scores: ScoresRecord = {};
 
@@ -41,6 +37,8 @@ test.describe(" GIA cluster Derived Export Automation ", () => {
         },
         testInfo,
       ) => {
+        pRetry = (await import("p-retry")).default;
+        await setFilePathes(data.lookUpModel);
         pRetry = (await import("p-retry")).default;
         await setFilePathes(data.lookUpModel);
         test.setTimeout(25 * 60 * 1000);

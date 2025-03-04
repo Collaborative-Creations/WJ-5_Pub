@@ -19,9 +19,6 @@ let score: TestRunTimeData;
 
 test.describe("PICVOC.W5PA Test Data Export Automation ", () => {
   testData.forEach((data) => {
-    test.beforeAll(async () => {
-      await setFilePathes(data.lookUpModel);
-    });
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
       { tag: ["@PICVOC", "@testDe", "@reg"] },
@@ -38,6 +35,7 @@ test.describe("PICVOC.W5PA Test Data Export Automation ", () => {
         },
         testInfo,
       ) => {
+        await setFilePathes(data.lookUpModel);
         test.setTimeout(8 * 60 * 1000);
 
         await wj5examiner.gotoUrl(getSiteUrl() + "home");

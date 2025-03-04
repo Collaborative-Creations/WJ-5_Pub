@@ -4,6 +4,7 @@ import { devices, test } from "../../base/basePageFixtures";
 import { testData } from "../../scenarios/derived_scores(compounds & clusters)/ACDAPP_Pub_cluster.scenarios";
 import { getExamineeURL, getSiteUrl } from "../../utils/testData";
 import { setFilePathes } from "../../utils/global";
+import { ScoreObject } from "../../utils/types";
 
 test.describe.configure({ mode: "default" });
 let score: Map<string, string>;
@@ -12,19 +13,11 @@ let wScores: number;
 let Wabil: number;
 let Semw: number;
 
-type ScoreObject = {
-  wScores: number;
-  Wabil: number;
-  Semw: number;
-};
 type ScoresRecord = Record<string, ScoreObject>;
 const scores: ScoresRecord = {};
 
 test.describe("ACDAPP cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
-    test.beforeAll(async () => {
-      await setFilePathes(data.lookUpModel);
-    });
     test(
       `For ${data.typeOfTest} Complete The ACDAPP cluster & generate report`,
       { tag: ["@ACDAPP", "@reg", "@derivedScores"] },
@@ -40,6 +33,7 @@ test.describe("ACDAPP cluster Derived Export Automation ", () => {
         },
         testInfo,
       ) => {
+        await setFilePathes(data.lookUpModel);
         test.setTimeout(8 * 60 * 1000);
 
         const url = getSiteUrl() + "home";
@@ -81,7 +75,7 @@ test.describe("ACDAPP cluster Derived Export Automation ", () => {
             i,
           );
 
-          score = 
+          score =
             await wj5examnrTest_derivedScoresPage.completeTheTakenTestForDerivedScoresForACDAPPCluster(
               data.typeOfTest[i],
               data.testStemForm[i],

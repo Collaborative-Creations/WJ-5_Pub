@@ -19,9 +19,6 @@ let score: TestRunTimeData;
 
 test.describe("ANLSYN.W5PA Test Data Export Automation ", () => {
   testData.forEach((data) => {
-    test.beforeAll(async () => {
-      await setFilePathes(data.lookUpModel);
-    });
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
       { tag: ["@ANLSYN", "@testDe", "@reg"] },
@@ -38,6 +35,7 @@ test.describe("ANLSYN.W5PA Test Data Export Automation ", () => {
         },
         testInfo,
       ) => {
+        await setFilePathes(data.lookUpModel);
         test.setTimeout(20 * 60 * 1000);
 
         await wj5examiner.gotoUrl(getSiteUrl() + "home");
@@ -67,9 +65,11 @@ test.describe("ANLSYN.W5PA Test Data Export Automation ", () => {
           data.testName,
           data.SSP,
         );
-        
+
         score =
-        await wj5examinerTest_dataExportPage.completeTheTakenTestForTestDataExportForANLSYNTest(data.typeOfTest);
+          await wj5examinerTest_dataExportPage.completeTheTakenTestForTestDataExportForANLSYNTest(
+            data.typeOfTest,
+          );
         if (
           data.typeOfTest.match(
             /SampleItems (correct|incorrect)|Answer (correct|incorrect) But No Basel|Attain Basel but not ceiling/i,

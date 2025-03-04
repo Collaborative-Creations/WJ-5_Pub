@@ -4,6 +4,8 @@ import { devices, test } from "../../base/basePageFixtures";
 import { testData } from "../../scenarios/derived_scores(compounds & clusters)/PHNAWR_Pub_cluster.scenarios";
 import { getExamineeURL, getSiteUrl } from "../../utils/testData";
 import { setFilePathes } from "../../utils/global";
+import { ScoreObject } from "../../utils/types";
+import { ExamineeData } from "../../utils/types";
 
 test.describe.configure({ mode: "default" });
 let score: Map<string, string>;
@@ -12,27 +14,13 @@ let wScores: number;
 let Wabil: number;
 let Semw: number;
 
-type ScoreObject = {
-  wScores: number;
-  Wabil: number;
-  Semw: number;
-};
 type ScoresRecord = Record<string, ScoreObject>;
 const scores: ScoresRecord = {};
 let excelFileData;
-
-interface ExamineeData {
-  examinee_ID: string;
-  dateOfBirth: string;
-}
 let pRetry;
 
 test.describe(" PHNAWR cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
-    test.beforeAll(async () => {
-      pRetry = (await import('p-retry')).default;
-      await setFilePathes(data.lookUpModel);
-    });
     test(
       `For ${data.typeOfTest} Complete The PHNAWR cluster & generate report`,
       { tag: ["@PHNAWR", "@reg", "@derivedScores"] },
@@ -48,44 +36,46 @@ test.describe(" PHNAWR cluster Derived Export Automation ", () => {
         },
         testInfo,
       ) => {
+        pRetry = (await import("p-retry")).default;
+        await setFilePathes(data.lookUpModel);
         test.setTimeout(20 * 60 * 1000);
 
         const url = getSiteUrl() + "home";
         const examineeData = await pRetry(
-                  async (): Promise<ExamineeData> => {
-                    await wj5examiner.gotoUrl(url);
-                    const result =
-                      await wj5ExaminerDashPage.addNewExamineeAndUpdateTheTemplate(
-                        getSiteUrl(),
-                        data.examineeAge,
-                        undefined,
-                        undefined,
-                        data.normBasis,
-                        data.examineeGrade,
-                      );
-        
-                    await wj5ExaminerDashPage.createTestAssignmentFromExamineeManagement(
-                      data.blockName,
-                      result.examinee_ID,
-                      data.examineeGrade,
-                    );
-        
-                    return result;
-                  },
-                  {
-                    retries: 2, // Number of retries
-                    onFailedAttempt: (error) => {
-                      console.warn(
-                        `Attempt ${error.attemptNumber} for adding and assigning test to an examinee has failed. ${error.retriesLeft} retries left.`,
-                        error.message,
-                      );
-                    },
-                    minTimeout: 2000,
-                    maxTimeout: 5000,
-                  },
-                );
-        
-                const { examinee_ID, dateOfBirth } = examineeData;
+          async (): Promise<ExamineeData> => {
+            await wj5examiner.gotoUrl(url);
+            const result =
+              await wj5ExaminerDashPage.addNewExamineeAndUpdateTheTemplate(
+                getSiteUrl(),
+                data.examineeAge,
+                undefined,
+                undefined,
+                data.normBasis,
+                data.examineeGrade,
+              );
+
+            await wj5ExaminerDashPage.createTestAssignmentFromExamineeManagement(
+              data.blockName,
+              result.examinee_ID,
+              data.examineeGrade,
+            );
+
+            return result;
+          },
+          {
+            retries: 2, // Number of retries
+            onFailedAttempt: (error) => {
+              console.warn(
+                `Attempt ${error.attemptNumber} for adding and assigning test to an examinee has failed. ${error.retriesLeft} retries left.`,
+                error.message,
+              );
+            },
+            minTimeout: 2000,
+            maxTimeout: 5000,
+          },
+        );
+
+        const { examinee_ID, dateOfBirth } = examineeData;
 
         const ipad7 = devices["iPad (gen 7) landscape"];
         const sessionid = await wj5ExaminerDashPage.getSessionID();
