@@ -8,9 +8,9 @@ on:
         required: true
         default: "stage"
       test_pattern:
-        description: "Test pattern (e.g., @smoke, @testDe|@derivedScores, (?=.*@RDGBAS)(?=.*@derivedScores), (?=.*@derivedScores)(?=.*(@PHNMAN|@RDGBAS)), (?=.*@smoke)(?=.*(@testDe|@derivedScores|@singleTable|@multiTable)))"
+        description: "Test pattern (e.g., @Smoke, @TestDe|@DerivedScores, (?=.*@RDGBAS)(?=.*@DerivedScores), (?=.*@DerivedScores)(?=.*(@PHNMAN|@RDGBAS)), (?=.*@Smoke)(?=.*(@TestDe|@DerivedScores|@SingleTable|@MultiTable)))"
         required: true
-        default: "(?=.*@RDGBAS)(?=.*@derivedScores)"
+        default: "(?=.*@RDGBAS)(?=.*@DerivedScores)"
       shard_count:
         description: "Number of shards"
         required: true
