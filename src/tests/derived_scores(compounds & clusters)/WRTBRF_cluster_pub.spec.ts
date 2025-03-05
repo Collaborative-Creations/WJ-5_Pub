@@ -23,7 +23,7 @@ test.describe(" WRTBRF cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The WRTBRF cluster & generate report`,
-      { tag: ["@WRTBRF", "@reg", "@derivedScores"] },
+      { tag: ["@WRTBRF", "@Regression", "@DerivedScores"] },
       async (
         {
           wj5ah,

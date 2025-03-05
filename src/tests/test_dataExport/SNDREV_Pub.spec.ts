@@ -21,7 +21,7 @@ test.describe("SNDREV.W5PA Test Data Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
-      { tag: ["@SNDREV", "@testDe", "@smoke"] },
+      { tag: ["@SNDREV", "@TestDe", "@Smoke"] },
       async (
         {
           wj5ah,

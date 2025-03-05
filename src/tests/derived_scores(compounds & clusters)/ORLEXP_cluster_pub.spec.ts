@@ -20,7 +20,7 @@ test.describe(" ORLEXP cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The ORLEXP cluster & generate report`,
-      { tag: ["@ORLEXP", "@reg", "@derivedScores"] },
+      { tag: ["@ORLEXP", "@Regression", "@DerivedScores"] },
       async (
         {
           wj5ah,

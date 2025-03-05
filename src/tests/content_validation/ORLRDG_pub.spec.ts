@@ -28,7 +28,7 @@ test.describe(" Automating the content tests", () => {
 
     test(
       `For ${data.typeOfTest} do content validation`,
-      { tag: ["@reg", "@ORLRDG", "@content"] },
+      { tag: ["@Regression", "@ORLRDG", "@content"] },
       async ({
         wj5ah,
         wj5AhDashPage,

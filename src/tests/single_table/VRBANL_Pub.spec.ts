@@ -16,7 +16,7 @@ test.describe("VRBANL.W5PA single table lookUp Scoring Export Automation", () =>
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
-      { tag: ["@VRBANL", "@singleTable", "@smoke"] },
+      { tag: ["@VRBANL", "@SingleTable", "@Smoke"] },
       async (
         {
           wj5ah,

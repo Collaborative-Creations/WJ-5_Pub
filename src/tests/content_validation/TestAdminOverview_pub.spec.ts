@@ -15,7 +15,7 @@ test.describe(" Test Administration Overviews", () => {
 
     test(
       `For Standard tests do content validation`,
-      { tag: ["@reg", "@TESTADMINOVERVIEW", "@content"] },
+      { tag: ["@Regression", "@TESTADMINOVERVIEW", "@content"] },
       async ({
         wj5examiner,
         wj5ExaminerDashPage,

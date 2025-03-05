@@ -20,7 +20,7 @@ test.describe(" RDGBAS cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The RDGBAS cluster & generate report`,
-      { tag: ["@RDGBAS", "@reg", "@derivedScores"] },
+      { tag: ["@RDGBAS", "@Regression", "@DerivedScores"] },
       async (
         {
           wj5ah,

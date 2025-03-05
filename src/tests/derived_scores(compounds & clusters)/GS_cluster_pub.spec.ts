@@ -24,7 +24,7 @@ test.describe(" GS cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The GS cluster & generate report`,
-      { tag: ["@GS", "@reg", "@derivedScores"] },
+      { tag: ["@GS", "@Regression", "@DerivedScores"] },
       async (
         {
           wj5ah,

@@ -20,7 +20,7 @@ test.describe("ACDAPP cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The ACDAPP cluster & generate report`,
-      { tag: ["@ACDAPP", "@reg", "@derivedScores"] },
+      { tag: ["@ACDAPP", "@Regression", "@DerivedScores"] },
       async (
         {
           wj5ah,

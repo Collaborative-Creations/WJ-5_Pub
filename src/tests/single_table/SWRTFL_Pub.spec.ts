@@ -16,7 +16,7 @@ test.describe(" SWRTFL.W5PA WlookUp Scoring Export Automation ", () => {
     });
     test(
       `@wLookUpE2e @Regression For ${data.typeOfTest} login as AH Conduct test as Examiner and generate reports`,
-      { tag: ["@SWRTFL", "@singleTable", "@reg"] },
+      { tag: ["@SWRTFL", "@SingleTable", "@Regression"] },
       async (
         {
           wj5ah,

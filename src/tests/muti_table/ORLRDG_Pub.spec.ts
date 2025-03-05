@@ -15,7 +15,7 @@ test.describe(" ORLRDG.W5PA WlookUp Scoring Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `@wLookUpE2e @Regression For ${data.typeOfTest} login as AH Conduct test as Examiner and generate reports`,
-      { tag: ["@ORLRDG", "@multiTable", "@smoke"] },
+      { tag: ["@ORLRDG", "@MultiTable", "@Smoke"] },
       async (
         {
           wj5ah,

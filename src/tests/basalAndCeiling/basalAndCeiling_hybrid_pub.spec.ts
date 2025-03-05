@@ -31,7 +31,7 @@ test.describe(" Automating the basal and ceiling hybrid tests", () => {
 
     test(
       `For ${data.testName} Complete The basal and ceiling hybrid test`,
-      { tag: ["@reg", "@hybridBasalAndCeiling"] },
+      { tag: ["@Regression", "@hybridBasalAndCeiling"] },
       async (
         {
           wj5ah,
@@ -133,7 +133,7 @@ test.describe(" Automating the basal and ceiling hybrid tests", () => {
 
     test(
       `For ${data.testName} Complete The basal and ceiling test using left nav`,
-      { tag: ["@reg", "@hybridBasalAndCeiling"] },
+      { tag: ["@Regression", "@hybridBasalAndCeiling"] },
       async (
         {
           wj5ah,

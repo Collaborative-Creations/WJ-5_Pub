@@ -20,7 +20,7 @@ test.describe(" MTHPRB cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The MTHPRB cluster & generate report`,
-      { tag: ["@MTHPRB", "@reg", "@derivedScores"] },
+      { tag: ["@MTHPRB", "@Regression", "@DerivedScores"] },
       async (
         {
           wj5ah,

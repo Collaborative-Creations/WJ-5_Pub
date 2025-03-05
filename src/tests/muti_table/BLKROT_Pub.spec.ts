@@ -15,7 +15,7 @@ test.describe(" BLKROT.W5PA WlookUp Scoring Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `@wLookUpE2e @Regression For ${data.typeOfTest} login as AH Conduct test as Examiner and generate reports`,
-      { tag: ["@BLKROT", "@multiTable", "@smoke"] },
+      { tag: ["@BLKROT", "@MultiTable", "@Smoke"] },
       async (
         {
           wj5ah,

@@ -16,7 +16,7 @@ test.describe(" ACDVOC.W5PA WlookUp Scoring Export Automation ", () => {
     });
     test(
       `@wLookUpE2e @Regression For ${data.typeOfTest} login as AH Conduct test as Examiner and generate reports`,
-      { tag: ["@ACDVOC", "@singleTable", "@reg"] },
+      { tag: ["@ACDVOC", "@SingleTable", "@Regression"] },
       async (
         {
           wj5ah,

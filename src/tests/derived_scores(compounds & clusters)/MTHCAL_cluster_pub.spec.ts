@@ -23,7 +23,7 @@ test.describe(" MTHCAL cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The MTHCAL cluster & generate report`,
-      { tag: ["@MTHCAL", "@reg", "@derivedScores"] },
+      { tag: ["@MTHCAL", "@Regression", "@DerivedScores"] },
       async (
         {
           wj5ah,

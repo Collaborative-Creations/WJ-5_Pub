@@ -20,7 +20,7 @@ test.describe(" BIA cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The BIA cluster & generate report`,
-      { tag: ["@BIA", "@reg", "@derivedScores"] },
+      { tag: ["@BIA", "@Regression", "@DerivedScores"] },
       async (
         {
           wj5ah,

@@ -1,4 +1,4 @@
-import { test as base, Page, Locator, firefox } from "@playwright/test";
+import { test as base, Page, BrowserContext } from "@playwright/test";
 import Wj5LoginPage from "../pages/wj5_login.page";
 import Wj5DashboardPage from "../pages/wj5_dashBoard.page";
 import Utils from "../utils/utils";
@@ -63,8 +63,8 @@ import wj5SpellPage from "../pages/WJV_UI_Regression/wj5_SPELL.page";
 import wj5NumserPage from "../pages/WJV_UI_Regression/wj5_NUMSER.page";
 import wj5OrlcmpPage from "../pages/WJV_UI_Regression/wj5_ORLCMP.page";
 
-// import { getUserAuthFilePath } from "../utils/auth/UserAuthentication";
-// import { registerUserForTokenRefresh, startTokenRefreshLoop } from "../utils/auth/TokenRefreshManager";
+import { ensureLoggedIn, getUserAuthFilePath } from "../utils/auth/UserAuthentication";
+import { getWj5UserData } from "../utils/testData";
 
 
 type Fixtures = {
@@ -162,7 +162,6 @@ export const test = base.extend<Fixtures>({
         console.error(`Error creating new wj5ah page: ${error}`);
       }
   },
-
   wj5examiner: async ({ browser }, use) => {
       try {
         const context = await browser.newContext({
@@ -427,3 +426,18 @@ wj5examinerTest_wrdatkPage: async ({ context }, use) => {
   },
   
 });
+
+async function ensureUserFixtureIsLoggedIn(browser, user): Promise<{ page: Page, context: BrowserContext }> {
+  const storagePath = getUserAuthFilePath(user.accountType);
+  const context = await browser.newContext({ storageState: storagePath });
+  
+  // Add microphone permissions if this is the examiner user
+  if (user.accountType === 'examiner') {
+    await context.grantPermissions(["microphone"]);
+  }
+  
+  const page = await context.newPage();
+  await ensureLoggedIn(page, user);
+  
+  return { page, context };
+}

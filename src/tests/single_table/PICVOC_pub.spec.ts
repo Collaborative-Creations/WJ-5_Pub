@@ -16,7 +16,7 @@ test.describe("PICVOC.W5PA single table lookUp Scoring Export Automation", () =>
     });
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
-      { tag: ["@PICVOC", "@singleTable", "@reg"] },
+      { tag: ["@PICVOC", "@SingleTable", "@Regression"] },
       async (
         {
           wj5ah,

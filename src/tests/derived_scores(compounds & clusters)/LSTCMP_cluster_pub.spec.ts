@@ -20,7 +20,7 @@ test.describe(" LSTCMP cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The LSTCMP cluster & generate report`,
-      { tag: ["@LSTCMP", "@reg", "@derivedScores"] },
+      { tag: ["@LSTCMP", "@Regression", "@DerivedScores"] },
       async (
         {
           wj5ah,

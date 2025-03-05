@@ -31,7 +31,7 @@ test.describe(" Automating the basal and ceiling tests", () => {
 
     test(
       `For ${data.testName} Complete The basal and ceiling test`,
-      { tag: ["@reg", "@normalBasalAndCeiling"] },
+      { tag: ["@Regression", "@normalBasalAndCeiling"] },
       async (
         {
           wj5ah,
@@ -133,7 +133,7 @@ test.describe(" Automating the basal and ceiling tests", () => {
 
     test(
       `For ${data.testName} Complete The basal and ceiling test using left nav`,
-      { tag: ["@reg", "@normalBasalAndCeiling"] },
+      { tag: ["@Regression", "@normalBasalAndCeiling"] },
       async (
         {
           wj5ah,

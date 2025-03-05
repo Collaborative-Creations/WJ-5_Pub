@@ -17,6 +17,7 @@ let Semw: number;
 type ScoresRecord = Record<string, ScoreObject>;
 const scores: ScoresRecord = {};
 
+
 let pRetry;
 let excelFileData;
 
@@ -24,7 +25,7 @@ test.describe(" GIA cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The GIA cluster & generate report`,
-      { tag: ["@GIA", "@smoke", "@derivedScores"] },
+      { tag: ["@GIA", "@Smoke", "@DerivedScores"] },
       async (
         {
           wj5ah,

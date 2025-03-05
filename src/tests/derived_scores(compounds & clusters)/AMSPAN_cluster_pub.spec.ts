@@ -19,7 +19,7 @@ test.describe(" AMSPAN cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The AMSPAN cluster & generate report`,
-      { tag: ["@AMSPAN", "@reg", "@derivedScores"] },
+      { tag: ["@AMSPAN", "@Regression", "@DerivedScores"] },
       async (
         {
           wj5ah,
