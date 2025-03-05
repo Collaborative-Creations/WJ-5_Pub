@@ -16,7 +16,7 @@ test.describe(" LeftNav Automation ", () => {
     });
     test(
       `@Regression For ${data.typeOfTest} login as AH Conduct test as Examiner and End the test`,
-      { tag: ["@reg", "@SENREPLN", "@leftnav"] },
+      { tag: ["@Regression", "@SENREPLN", "@leftnav"] },
       async (
         {
           wj5ah,

@@ -20,7 +20,7 @@ test.describe(" GV cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The GV cluster & generate report`,
-      { tag: ["@GV", "@reg", "@derivedScores"] },
+      { tag: ["@GV", "@Regression", "@DerivedScores"] },
       async (
         {
           wj5ah,

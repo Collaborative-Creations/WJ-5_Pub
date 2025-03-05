@@ -20,7 +20,7 @@ test.describe(" VRBATN_ds.W5N Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The ORLVOC compound & generate report`,
-      { tag: ["@ORLVOC", "@reg", "@derivedScores"] },
+      { tag: ["@ORLVOC", "@Regression", "@DerivedScores"] },
       async (
         {
           wj5ah,

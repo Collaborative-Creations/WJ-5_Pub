@@ -16,7 +16,7 @@ test.describe("GIWHER.W5PA single table lookUp Scoring Export Automation ", () =
     });
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
-      { tag: ["@GIWHER", "@singleTable", "@reg"] },
+      { tag: ["@GIWHER", "@SingleTable", "@Regression"] },
       async (
         {
           wj5ah,

@@ -15,7 +15,7 @@ test.describe(" WRTSMP.W5PA WlookUp Scoring Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `@wLookUpE2e @Regression For ${data.typeOfTest} login as AH Conduct test as Examiner and generate reports`,
-      { tag: ["@WRTSMP", "@multiTable", "@smoke"] },
+      { tag: ["@WRTSMP", "@MultiTable", "@Smoke"] },
       async (
         {
           wj5ah,

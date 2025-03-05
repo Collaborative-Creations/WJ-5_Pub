@@ -20,7 +20,7 @@ test.describe(" ORLANG cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The ORLANG cluster & generate report`,
-      { tag: ["@ORLANG", "@reg", "@derivedScores"] },
+      { tag: ["@ORLANG", "@Regression", "@DerivedScores"] },
       async (
         {
           wj5ah,

@@ -23,7 +23,7 @@ test.describe(" PHGRKN cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The PHGRKN cluster & generate report`,
-      { tag: ["@PHGRKN", "@reg", "@derivedScores"] },
+      { tag: ["@PHGRKN", "@Regression", "@DerivedScores"] },
       async (
         {
           wj5ah,

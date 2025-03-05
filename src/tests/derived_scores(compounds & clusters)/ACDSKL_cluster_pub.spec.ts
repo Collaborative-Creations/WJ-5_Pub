@@ -20,7 +20,7 @@ test.describe(" ACDSKL cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The ACDSKL cluster & generate report`,
-      { tag: ["@ACDSKL", "@reg", "@derivedScores"] },
+      { tag: ["@ACDSKL", "@Regression", "@DerivedScores"] },
       async (
         {
           wj5ah,

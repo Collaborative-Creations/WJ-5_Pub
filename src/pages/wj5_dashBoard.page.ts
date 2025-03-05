@@ -18,12 +18,7 @@ import {
 import { getWj5UserData } from "../utils/testData";
 import { getUserData } from "../utils/userData";
 
-// import {ahData, examinerData } from "../tests/auth.setup";
-
-// const { accountHolder, examiner } = getWj5UserData();
-
-// const ahData = getUserData().accountHolder[0];
-// const examinerData = getUserData().examiner[0];
+const { accountHolder, examiner } = getWj5UserData();
 
 type DataItem = {
   testStemFormKey: string;

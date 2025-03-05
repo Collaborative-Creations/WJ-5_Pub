@@ -20,7 +20,7 @@ test.describe(" PHNMAN cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The PHNMAN cluster & generate report`,
-      { tag: ["@PHNMAN", "@reg", "@derivedScores"] },
+      { tag: ["@PHNMAN", "@Regression", "@DerivedScores"] },
       async (
         {
           wj5ah,

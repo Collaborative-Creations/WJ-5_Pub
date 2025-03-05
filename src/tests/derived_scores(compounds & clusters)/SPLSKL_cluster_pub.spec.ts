@@ -20,7 +20,7 @@ test.describe(" SPLSKL cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The SPLSKL cluster & generate report`,
-      { tag: ["@SPLSKL", "@reg", "@derivedScores"] },
+      { tag: ["@SPLSKL", "@Regression", "@DerivedScores"] },
       async (
         {
           wj5ah,

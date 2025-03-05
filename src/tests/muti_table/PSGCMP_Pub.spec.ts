@@ -16,7 +16,7 @@ test.describe(" PSGCMP.W5PA WlookUp Scoring Export Automation ", () => {
     });
     test(
       `@wLookUpE2e @Regression For ${data.typeOfTest} login as AH Conduct test as Examiner and generate reports`,
-      { tag: ["@PSGCMP", "@multiTable", "@reg"] },
+      { tag: ["@PSGCMP", "@MultiTable", "@Regression"] },
       async (
         {
           wj5ah,

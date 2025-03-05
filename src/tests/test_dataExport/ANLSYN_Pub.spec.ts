@@ -21,7 +21,7 @@ test.describe("ANLSYN.W5PA Test Data Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
-      { tag: ["@ANLSYN", "@testDe", "@reg"] },
+      { tag: ["@ANLSYN", "@TestDe", "@Regression"] },
       async (
         {
           wj5ah,

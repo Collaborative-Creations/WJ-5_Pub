@@ -16,7 +16,7 @@ test.describe(" SENREP.W5PA WlookUp Scoring Export Automation ", () => {
     });
     test(
       `@wLookUpE2e @Regression For ${data.typeOfTest} login as AH Conduct test as Examiner and generate reports`,
-      { tag: ["@SENREP", "@multiTable", "@reg"] },
+      { tag: ["@SENREP", "@MultiTable", "@Regression"] },
       async (
         {
           wj5ah,

@@ -21,7 +21,7 @@ test.describe("PICVOC.W5PA Test Data Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
-      { tag: ["@PICVOC", "@testDe", "@reg"] },
+      { tag: ["@PICVOC", "@TestDe", "@Regression"] },
       async (
         {
           wj5ah,

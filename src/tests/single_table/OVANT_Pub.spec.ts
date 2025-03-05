@@ -20,7 +20,7 @@ test.describe("OVANT.W5PA single table lookUp Scoring Export Automation", () => 
     });
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
-      { tag: ["@OVANT", "@singleTable", "@reg"] },
+      { tag: ["@OVANT", "@SingleTable", "@Regression"] },
       async (
         {
           wj5ah,

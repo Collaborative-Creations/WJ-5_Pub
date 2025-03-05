@@ -31,10 +31,10 @@ _Complete the following steps before running the Playwright suite:_
      npx cross-env test='qa' npx playwright test src/tests/single_table/OVSYN_Pub.spec.ts --project=chrome --debug
      ```
 
-   - To run any test with '@derivedScores' tags (--grep):
+   - To run any test with '@DerivedScores' tags (--grep):
 
      ```powershell
-     npx cross-env test='qa' npx playwright test --grep "@derivedScores" --project=chrome
+     npx cross-env test='qa' npx playwright test --grep "@DerivedScores" --project=chrome
      ```
 
 2. **Alternatively, you can run tests from `package.json > scripts`:**
@@ -58,3 +58,29 @@ _When running the Playwright suite, ensure you are in the home directory of the 
 
 _Playwright includes a built-in HTML reporter feature._
 The HTML report will be stored in the `playwright-report` folder.
+
+# Tag Naming Conventions
+
+## 1. General Naming Rules
+
+- All tag names should follow **PascalCase** (each word starts with a capital letter).
+- Tags should start with `@` and have no spaces.
+- **Example:**
+  - ✅ `@Regression`
+  - ✅ `@TestDe`
+  - ✅ `@DerivedScores`
+  - ✅ `@SingleTable`
+  - ✅ `@MultiTable`
+
+## 2. Specific Naming Rules
+
+- **Test Category Tags** → PascalCase
+  - `@Regression`, `@Smoke`, `@TestDe`, `@DerivedScores`
+- **Stem Form, Cluster, and Composite Names** → ALL CAPS
+  - `@OVSYN`, `@GIA`, `@WABIL`, `@GIWHAT`, `@GIWHER`
+
+## 3. Additional Guidelines
+
+- **Avoid Tags in Test Descriptions**
+  - Do **not** include tags inside test descriptions
+  - Use the tag property to associate tags with tests

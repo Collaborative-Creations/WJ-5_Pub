@@ -273,15 +273,12 @@ export default class wj5TestPage {
 
   async pickTheTestNeeded(testName: string) {
     await this.page.bringToFront();
-    await this.page.waitForTimeout(Number(2000));
-
-    // if((await this.administrationOverviewPageTestName.textContent()).includes(testName)) return;
-
-    // if (await this.page.locator(".top-line").isVisible() && this.page.locator(".blue-button").getByText("Letʼs Begin").isVisible()) {
-    //   await this.page.locator(".blue-button").getByText("Letʼs Begin").click();
-    // }
+    await this.page.waitForTimeout(2000); // Number() unnecessary since 2000 is already a number
+  
+    // Wait for navigation buttons to appear
     await expect(this.plainNextButtonOrEndButton).toBeVisible();
-
+  
+    // Navigate through intro screens
     while (await this.plainNextButtonOrEndButton.isVisible()) {
       const introDetails: string = (await this.introDetails.textContent())!;
       if (introDetails === "Intro 1" || introDetails === "Intro 2") {
@@ -293,12 +290,29 @@ export default class wj5TestPage {
           .click();
       }
     }
+  
+    // Open the test selection menu
     await this.page.locator(".plain-button.menu-button").click();
     await this.page.locator(".main .plain-button:nth-child(3)").click();
-    await this.page
-      .locator(".second-level .test-name")
-      .getByText(testName, { exact: true })
-      .click();
+  
+    // Locate the test button
+    const testButton = this.page.locator(".second-level .test-name").getByText(testName, { exact: true });
+    await testButton.waitFor({ state: 'visible', timeout: 10000 }); // Ensure it’s present
+  
+    // Check if the test is already selected (disabled)
+    const isDisabled = await testButton.isDisabled();
+    const buttonText = await testButton.textContent();
+    if (isDisabled && buttonText === testName) {
+      console.log(`Test "${testName}" is already selected and disabled; closing menu`);
+      const closeButton = this.page.locator('button.plain-button.close-btn[aria-label="Close"]');
+      await closeButton.waitFor({ state: 'visible', timeout: 5000 });
+      await closeButton.click();
+      return; // Exit early since the test is already selected
+    }
+  
+    // If not disabled, proceed to select the test
+    await testButton.click();
+    console.log(`Selected test "${testName}"`);
   }
 
   async clickOnLetsBeginButtonAndStartTest(testName: string, ssp: string) {

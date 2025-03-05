@@ -14,8 +14,8 @@ let pRetry;
 test.describe(" ANLSYN.W5PA WlookUp Scoring Export Automation ", () => {
   testData.forEach((data) => {
     test(
-      `@wLookUpE2e @Regression For ${data.typeOfTest} login as AH Conduct test as Examiner and generate reports`,
-      { tag: ["@ANLSYN", "@multiTable", "@smoke"] },
+      `For ${data.typeOfTest} login as AH Conduct test as Examiner and generate reports`,
+      { tag: ["@ANLSYN", "@MultiTable", "@Smoke"] },
       async (
         {
           wj5ah,

@@ -25,7 +25,7 @@ test.describe("LWIDNT.W5PA Test Data Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
-      { tag: ["@LWIDNT", "@testDe", "@reg"] },
+      { tag: ["@LWIDNT", "@TestDe", "@Regression"] },
       async (
         {
           wj5ah,

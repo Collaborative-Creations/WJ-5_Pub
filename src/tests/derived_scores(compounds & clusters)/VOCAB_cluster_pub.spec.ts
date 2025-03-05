@@ -20,7 +20,7 @@ test.describe(" VOCAB cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The VOCAB cluster & generate report`,
-      { tag: ["@VOCAB", "@reg", "@derivedScores"] },
+      { tag: ["@VOCAB", "@Regression", "@DerivedScores"] },
       async (
         {
           wj5ah,

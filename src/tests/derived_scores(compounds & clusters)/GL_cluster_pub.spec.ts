@@ -20,7 +20,7 @@ test.describe(" GL cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The GL cluster & generate report`,
-      { tag: ["@GL", "@reg", "@derivedScores"] },
+      { tag: ["@GL", "@Regression", "@DerivedScores"] },
       async (
         {
           wj5ah,

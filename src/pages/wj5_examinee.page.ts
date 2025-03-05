@@ -43,33 +43,63 @@ export default class wj5ExamineePage {
       await this.page.reload({ waitUntil: "load" });
       await this.sessionIdInputBox.fill(this.$sessionID, { timeout: 60000 });
     }
-
-    while (!(await this.acceptButton.isVisible())) {
-      await this.page.waitForTimeout(3500);
-      if (await this.acceptButton.isVisible()) {
-        break;
-      }
+  
+    for (let attempt = 0; attempt < this.maxRetries; attempt++) {
+      console.log(`Attempt ${attempt + 1} to join the session.`);
+  
       try {
-        await this.joinSessionButton.click({ clickCount: 2, timeout: 5000 });
+        await expect(this.joinSessionButton).toBeEnabled({ timeout: 5000 });
+        await this.joinSessionButton.click({ timeout: 5000 });
+        console.log("Clicked Join Session button.");
+        return;
       } catch (e) {
-        console.log(`facing issues with the sync accept Button ${e}`);
+        console.log(`Retry ${attempt + 1} failed: ${e}`);
       }
     }
   }
 
   async clickOnAcceptBUtton() {
-    await expect(this.acceptButton).toBeVisible({ timeout: 60000 });
-    while (await this.acceptButton.isVisible()) {
-      await this.acceptButton.click();
-      await this.page.waitForTimeout(3500);
-      const noExamineeContent: boolean = await this.slothIcon.isVisible();
-      if (noExamineeContent) {
-        await this.page.waitForTimeout(3500);
-        if (await this.acceptButton.isVisible()) {
-          await this.acceptButton.click();
+    await expect(this.acceptButton).toBeVisible({ timeout: 10000 });
+  
+    let attempt = 0;
+  
+    while (attempt < this.maxRetries) {
+      try {
+        console.log(`Attempt ${attempt + 1}: Checking accept button readiness.`);
+        
+        // Precondition check: Ensure the button is enabled before clicking
+        const isEnabled = await this.acceptButton.isEnabled();
+        if (!isEnabled) {
+          console.warn("Accept button is not enabled. Waiting...");
+          await this.page.waitForTimeout(1000); // Short delay to retry
+          attempt++;
+          continue;
         }
-        break;
+  
+        console.log("Accept button is enabled. Clicking now.");
+        await this.acceptButton.click();
+
+        // Check if the sloth icon is visible after clicking
+        if (await this.slothIcon.isVisible({ timeout: 5000 })) {
+          console.log("Sloth icon detected. Accept process completed.");
+          return; // Exit the loop if the sloth icon is visible
+        }
+  
+        // Re-check if the accept button is still visible
+        if (!(await this.acceptButton.isVisible({ timeout: 5000 }))) {
+          console.log("Accept button is no longer visible. Exiting.");
+          return; // Exit if the button has disappeared
+        }
+      } catch (error) {
+        console.warn(`Attempt ${attempt + 1} failed: ${error.message}`);
       }
+  
+      attempt++;
+    }
+  
+    // Final fallback: If the accept button is still visible, throw an error
+    if (await this.acceptButton.isVisible()) {
+      throw new Error("Accept button did not disappear after all retry attempts.");
     }
   }
 

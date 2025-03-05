@@ -20,7 +20,7 @@ test.describe(" AWKMEM cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The AWKMEM cluster & generate report`,
-      { tag: ["@AWKMEM", "@reg", "@derivedScores"] },
+      { tag: ["@AWKMEM", "@Regression", "@DerivedScores"] },
       async (
         {
           wj5ah,

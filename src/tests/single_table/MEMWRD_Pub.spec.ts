@@ -16,7 +16,7 @@ test.describe("MEMWRD.W5PA single table lookUp Scoring Export Automation", () =>
     });
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
-      { tag: ["@MEMWRD", "@singleTable", "@reg"] },
+      { tag: ["@MEMWRD", "@SingleTable", "@Regression"] },
       async (
         {
           wj5ah,

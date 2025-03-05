@@ -25,7 +25,7 @@ test.describe("OVSYN.W5PA Test Data Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
-      { tag: ["@OVSYN", "@testDe", "@smoke"] },
+      { tag: ["@OVSYN", "@TestDe", "@Smoke"] },
       async (
         {
           wj5ah,

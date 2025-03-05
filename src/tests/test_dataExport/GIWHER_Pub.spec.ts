@@ -25,7 +25,7 @@ test.describe(" GIWHER.W5PA Test Data Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `@Test_De For ${data.typeOfTest} login as AH Conduct test as Examiner and generate reports`,
-      { tag: ["@GIWHER", "@testDe", "@smoke"] },
+      { tag: ["@GIWHER", "@TestDe", "@Smoke"] },
       async (
         {
           wj5ah,

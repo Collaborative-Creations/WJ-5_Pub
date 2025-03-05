@@ -16,7 +16,7 @@ test.describe("SNDBLN.W5PA single table lookUp Scoring Export Automation", () =>
     });
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
-      { tag: ["@SNDBLN", "@singleTable", "@reg"] },
+      { tag: ["@SNDBLN", "@SingleTable", "@Regression"] },
       async (
         {
           wj5ah,

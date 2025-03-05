@@ -24,7 +24,7 @@ test.describe(" NUMPAT.W5PA WlookUp Scoring Export Automation ", () => {
     });
     test(
       `For ${data.typeOfTest} login as AH Conduct test as Examiner and generate reports`,
-      { tag: ["@NUMPAT", "@singleTable", "@reg"] },
+      { tag: ["@NUMPAT", "@SingleTable", "@Regression"] },
       async (
         {
           wj5ah,

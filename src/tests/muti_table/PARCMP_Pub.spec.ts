@@ -16,7 +16,7 @@ test.describe(" PARCMP.W5PA WlookUp Scoring Export Automation ", () => {
     });
     test(
       `@wLookUpE2e @Regression For ${data.typeOfTest} login as AH Conduct test as Examiner and generate reports`,
-      { tag: ["@PARCMP", "@multiTable", "@reg"] },
+      { tag: ["@PARCMP", "@MultiTable", "@Regression"] },
       async (
         {
           wj5ah,

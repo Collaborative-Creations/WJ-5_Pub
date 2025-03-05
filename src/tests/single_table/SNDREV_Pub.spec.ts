@@ -16,7 +16,7 @@ test.describe("SNDREV.W5PA single table lookUp Scoring Export Automation", () =>
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
-      { tag: ["@SNDREV", "@singleTable", "@smoke"] },
+      { tag: ["@SNDREV", "@SingleTable", "@Smoke"] },
       async (
         {
           wj5ah,

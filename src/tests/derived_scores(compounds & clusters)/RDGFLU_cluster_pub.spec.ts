@@ -23,7 +23,7 @@ test.describe(" RDGFLU cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The RDGFLU cluster & generate report`,
-      { tag: ["@RDGFLU", "@reg", "@derivedScores"] },
+      { tag: ["@RDGFLU", "@Regression", "@DerivedScores"] },
       async (
         {
           wj5ah,

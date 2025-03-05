@@ -16,7 +16,7 @@ test.describe("NWDREP.W5PA single table lookUp Scoring Export Automation", () =>
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
-      { tag: ["@NWDREP", "@singleTable", "@smoke"] },
+      { tag: ["@NWDREP", "@SingleTable", "@Smoke"] },
       async (
         {
           wj5ah,

@@ -21,7 +21,7 @@ test.describe("MATRCZ.W5PA Test Data Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
-      { tag: ["@MATRCZ", "@testDe", "@smoke"] },
+      { tag: ["@MATRCZ", "@TestDe", "@Smoke"] },
       async (
         {
           wj5ah,

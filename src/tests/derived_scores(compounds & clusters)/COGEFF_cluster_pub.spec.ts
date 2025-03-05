@@ -20,7 +20,7 @@ test.describe(" COGEFF cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The COGEFF cluster & generate report`,
-      { tag: ["@COGEFF", "@reg", "@derivedScores"] },
+      { tag: ["@COGEFF", "@Regression", "@DerivedScores"] },
       async (
         {
           wj5ah,

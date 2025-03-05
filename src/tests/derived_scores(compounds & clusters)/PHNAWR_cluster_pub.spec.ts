@@ -23,7 +23,7 @@ test.describe(" PHNAWR cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The PHNAWR cluster & generate report`,
-      { tag: ["@PHNAWR", "@reg", "@derivedScores"] },
+      { tag: ["@PHNAWR", "@Regression", "@DerivedScores"] },
       async (
         {
           wj5ah,

@@ -16,7 +16,7 @@ test.describe(" SEMRET.W5PA WlookUp Scoring Export Automation ", () => {
     });
     test(
       `@wLookUpE2e @Regression For ${data.typeOfTest} login as AH Conduct test as Examiner and generate reports`,
-      { tag: ["@SEMRET", "@singleTable", "@reg"] },
+      { tag: ["@SEMRET", "@SingleTable", "@Regression"] },
       async (
         {
           wj5ah,

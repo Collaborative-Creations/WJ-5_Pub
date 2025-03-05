@@ -20,7 +20,7 @@ test.describe(" GENINF_ds.W5N Derived Export Automation ", () => {
   testData.forEach((data) => {
     test(
       `For ${data.typeOfTest} Complete The GENINF compound & generate report`,
-      { tag: ["@GENINF", "@reg", "@derivedScores"] },
+      { tag: ["@GENINF", "@Regression", "@DerivedScores"] },
       async (
         {
           wj5ah,

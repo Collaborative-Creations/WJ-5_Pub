@@ -16,7 +16,7 @@ test.describe(" RPDPHO.W5PA WlookUp Scoring Export Automation ", () => {
     });
     test(
       `@wLookUpE2e @Regression For ${data.typeOfTest} login as AH Conduct test as Examiner and generate reports`,
-      { tag: ["@RPDPHO", "@decileTable", "@reg"] },
+      { tag: ["@RPDPHO", "@decileTable", "@Regression"] },
       async (
         {
           wj5ah,

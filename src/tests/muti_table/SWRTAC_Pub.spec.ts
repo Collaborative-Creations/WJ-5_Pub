@@ -16,7 +16,7 @@ test.describe(" SWRTAC.W5PA WlookUp Scoring Export Automation ", () => {
     });
     test(
       `@wLookUpE2e @Regression For ${data.typeOfTest} login as AH Conduct test as Examiner and generate reports`,
-      { tag: ["@SWRTAC", "@multiTable", "@reg"] },
+      { tag: ["@SWRTAC", "@MultiTable", "@Regression"] },
       async (
         {
           wj5ah,
