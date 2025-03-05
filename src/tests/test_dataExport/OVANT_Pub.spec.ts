@@ -3,6 +3,7 @@ import { devices, test } from "../../base/basePageFixtures";
 import { testData } from "../../scenarios/test_dataExport/OVANT_Pub.scenarios";
 import { getExamineeURL, getSiteUrl } from "../../utils/testData";
 import { setFilePathes } from "../../utils/global";
+import { ExamineeData } from "../../utils/types";
 
 interface TestRunTimeData {
   [key: string]: {
@@ -11,11 +12,6 @@ interface TestRunTimeData {
     Response: string;
     Score: number;
   };
-}
-
-interface ExamineeData {
-  examinee_ID: string;
-  dateOfBirth: string;
 }
 
 let pRetry;
@@ -27,10 +23,6 @@ let score: TestRunTimeData;
 
 test.describe("OVANT.W5PA Test Data Export Automation ", () => {
   testData.forEach((data) => {
-    test.beforeAll(async () => {
-      pRetry = (await import("p-retry")).default;
-      await setFilePathes(data.lookUpModel);
-    });
     test(
       `For ${data.typeOfTest} Conduct test and validate report`,
       { tag: ["@OVANT", "@testDe"] },
@@ -47,6 +39,8 @@ test.describe("OVANT.W5PA Test Data Export Automation ", () => {
         },
         testInfo,
       ) => {
+        pRetry = (await import("p-retry")).default;
+        await setFilePathes(data.lookUpModel);
         test.setTimeout(8 * 60 * 1000);
 
         const examineeData = await pRetry(

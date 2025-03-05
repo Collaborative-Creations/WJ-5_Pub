@@ -4,6 +4,8 @@ import { devices, test } from "../../base/basePageFixtures";
 import { testData } from "../../scenarios/derived_scores(compounds & clusters)/MTHCAL_Pub_cluster.scenarios";
 import { getExamineeURL, getSiteUrl } from "../../utils/testData";
 import { setFilePathes } from "../../utils/global";
+import { ScoreObject } from "../../utils/types";
+import { ExamineeData } from "../../utils/types";
 
 test.describe.configure({ mode: "default" });
 let score: Map<string, string>;
@@ -12,27 +14,13 @@ let wScores: number;
 let Wabil: number;
 let Semw: number;
 
-type ScoreObject = {
-  wScores: number;
-  Wabil: number;
-  Semw: number;
-};
 type ScoresRecord = Record<string, ScoreObject>;
 const scores: ScoresRecord = {};
 let excelFileData;
-
-interface ExamineeData {
-  examinee_ID: string;
-  dateOfBirth: string;
-}
 let pRetry;
 
 test.describe(" MTHCAL cluster Derived Export Automation ", () => {
   testData.forEach((data) => {
-    test.beforeAll(async () => {
-      pRetry = (await import("p-retry")).default;
-      await setFilePathes(data.lookUpModel);
-    });
     test(
       `For ${data.typeOfTest} Complete The MTHCAL cluster & generate report`,
       { tag: ["@MTHCAL", "@reg", "@derivedScores"] },
@@ -48,6 +36,8 @@ test.describe(" MTHCAL cluster Derived Export Automation ", () => {
         },
         testInfo,
       ) => {
+        pRetry = (await import("p-retry")).default;
+        await setFilePathes(data.lookUpModel);
         test.setTimeout(25 * 60 * 1000);
 
         const url = getSiteUrl() + "home";
