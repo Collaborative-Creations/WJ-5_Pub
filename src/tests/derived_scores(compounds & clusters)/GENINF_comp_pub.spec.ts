@@ -5,6 +5,7 @@ import { testData } from "../../scenarios/derived_scores(compounds & clusters)/G
 import { getExamineeURL, getSiteUrl } from "../../utils/testData";
 import { setFilePathes } from "../../utils/global";
 import { ScoreObject } from "../../utils/types";
+import { ExamineeData } from "../../utils/types";
 
 test.describe.configure({ mode: "default" });
 let score: Map<string, string>;
@@ -15,6 +16,9 @@ let Semw: number;
 
 type ScoresRecord = Record<string, ScoreObject>;
 const scores: ScoresRecord = {};
+
+let pRetry;
+let excelFileData;
 
 test.describe(" GENINF_ds.W5N Derived Export Automation ", () => {
   testData.forEach((data) => {
@@ -33,26 +37,46 @@ test.describe(" GENINF_ds.W5N Derived Export Automation ", () => {
         },
         testInfo,
       ) => {
+        pRetry = (await import("p-retry")).default;
         await setFilePathes(data.lookUpModel);
         test.setTimeout(8 * 60 * 1000);
 
         const url = getSiteUrl() + "home";
-        await wj5examiner.gotoUrl(url);
-        const { examinee_ID, dateOfBirth } =
-          await wj5ExaminerDashPage.addNewExamineeAndUpdateTheTemplate(
-            getSiteUrl(),
-            data.examineeAge,
-            undefined,
-            undefined,
-            data.normBasis,
-            data.examineeGrade,
-          );
+        const examineeData = await pRetry(
+          async (): Promise<ExamineeData> => {
+            await wj5examiner.gotoUrl(url);
+            const result =
+              await wj5ExaminerDashPage.addNewExamineeAndUpdateTheTemplate(
+                getSiteUrl(),
+                data.examineeAge,
+                undefined,
+                undefined,
+                data.normBasis,
+                data.examineeGrade,
+              );
 
-        await wj5ExaminerDashPage.createTestAssignmentFromExamineeManagement(
-          data.blockName,
-          examinee_ID,
-          data.examineeGrade,
+            await wj5ExaminerDashPage.createTestAssignmentFromExamineeManagement(
+              data.blockName,
+              result.examinee_ID,
+              data.examineeGrade,
+            );
+
+            return result;
+          },
+          {
+            retries: 2, // Number of retries
+            onFailedAttempt: (error) => {
+              console.warn(
+                `Attempt ${error.attemptNumber} for adding and assigning test to an examinee has failed. ${error.retriesLeft} retries left.`,
+                error.message,
+              );
+            },
+            minTimeout: 5000,
+            maxTimeout: 15000,
+          },
         );
+
+        const { examinee_ID, dateOfBirth } = examineeData;
 
         const ipad7 = devices["iPad (gen 7) landscape"];
         const sessionid = await wj5ExaminerDashPage.getSessionID();
@@ -133,34 +157,51 @@ test.describe(" GENINF_ds.W5N Derived Export Automation ", () => {
           }
         }
 
-        await wj5AhDashPage.uploadExportTemplete("derived scores");
-        await wj5AhDashPage.clickOnTheResportToDownload(testInfo);
-        await wj5AhDashPage.extractTheDownloadedZipFile();
-        await wj5AhDashPage.printAllThedatafromTheFileRequired(
-          "Derived_Score",
-          "derived scores",
-        );
-        txtFileContent = await wj5examinerUtils.readAllTxtContentToObj();
-        console.log(`returnValues = `, txtFileContent);
-        // console.log(`score MAp = `, score);
-        const excelFileData =
-          await wj5examnrTest_derivedScoresPage.getExcelFileDate(
-            "WJV NormTable",
-          );
+        await pRetry(
+          async () => {
+            await wj5ah.gotoUrl(url);
+            await wj5AhDashPage.welcomeTextToBeVisable();
+            await wj5AhDashPage.uploadExportTemplete("derived scores");
+            await wj5AhDashPage.clickOnTheResportToDownload(testInfo);
+            await wj5AhDashPage.extractTheDownloadedZipFile();
+            await wj5AhDashPage.printAllThedatafromTheFileRequired(
+              "Derived_Score",
+              "derived scores",
+            );
+            txtFileContent = await wj5examinerUtils.readAllTxtContentToObj();
+            console.log(`returnValues = `, txtFileContent);
+            // console.log(`score MAp = `, score);
+            excelFileData =
+              await wj5examnrTest_derivedScoresPage.getExcelFileDate(
+                "WJV NormTable",
+              );
 
-        for (let i = 0; i < data.testName.length; i++) {
-          await wj5examnrTest_derivedScoresPage.validateTheDownloadedDerivedScoresReportWithRunTimeData(
-            txtFileContent,
-            examinee_ID,
-            data.taskStem[i],
-            data.testStemForm[i],
-            dateOfBirth,
-            data.examineeGrade,
-            scores,
-            excelFileData,
-            data.normBasis,
-          );
-        }
+            for (let i = 0; i < data.testName.length; i++) {
+              await wj5examnrTest_derivedScoresPage.validateTheDownloadedDerivedScoresReportWithRunTimeData(
+                txtFileContent,
+                examinee_ID,
+                data.taskStem[i],
+                data.testStemForm[i],
+                dateOfBirth,
+                data.examineeGrade,
+                scores,
+                excelFileData,
+                data.normBasis,
+              );
+            }
+          },
+          {
+            retries: 2, // Number of retries
+            onFailedAttempt: (error) => {
+              console.warn(
+                `Attempt ${error.attemptNumber} for fetching the report failed. ${error.retriesLeft} retries left.`,
+                error.message,
+              );
+            },
+            minTimeout: 5000,
+            maxTimeout: 15000,
+          },
+        );
 
         for (let i = 0; i < data.compositesOrClustersTaskStemForm.length; i++) {
           const compositesOrClustersTaskStem: string =

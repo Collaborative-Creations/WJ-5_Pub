@@ -17,7 +17,6 @@ let Semw: number;
 type ScoresRecord = Record<string, ScoreObject>;
 const scores: ScoresRecord = {};
 
-
 let pRetry;
 let excelFileData;
 
