@@ -316,6 +316,7 @@ export default class wj5TestPage {
   }
 
   async clickOnLetsBeginButtonAndStartTest(testName: string, ssp: string) {
+    await this.loading.waitFor({ state: "visible", timeout: 0.5 * 60 * 1000 });
     await this.loading.waitFor({ state: "hidden", timeout: 5 * 60 * 1000 });
     expect(await this.testNameAtAdminOverview.textContent(), {
       message: "The test name didnt match at Administration Overview page",

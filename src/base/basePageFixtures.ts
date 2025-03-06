@@ -63,7 +63,7 @@ import wj5SpellPage from "../pages/WJV_UI_Regression/wj5_SPELL.page";
 import wj5NumserPage from "../pages/WJV_UI_Regression/wj5_NUMSER.page";
 import wj5OrlcmpPage from "../pages/WJV_UI_Regression/wj5_ORLCMP.page";
 
-import { ensureLoggedIn, getUserAuthFilePath } from "../utils/auth/UserAuthentication";
+// import { ensureLoggedIn, getUserAuthFilePath } from "../utils/auth/UserAuthentication";
 import { getWj5UserData } from "../utils/testData";
 
 
@@ -427,17 +427,17 @@ wj5examinerTest_wrdatkPage: async ({ context }, use) => {
   
 });
 
-async function ensureUserFixtureIsLoggedIn(browser, user): Promise<{ page: Page, context: BrowserContext }> {
-  const storagePath = getUserAuthFilePath(user.accountType);
-  const context = await browser.newContext({ storageState: storagePath });
+// async function ensureUserFixtureIsLoggedIn(browser, user): Promise<{ page: Page, context: BrowserContext }> {
+//   const storagePath = getUserAuthFilePath(user.accountType);
+//   const context = await browser.newContext({ storageState: storagePath });
   
-  // Add microphone permissions if this is the examiner user
-  if (user.accountType === 'examiner') {
-    await context.grantPermissions(["microphone"]);
-  }
+//   // Add microphone permissions if this is the examiner user
+//   if (user.accountType === 'examiner') {
+//     await context.grantPermissions(["microphone"]);
+//   }
   
-  const page = await context.newPage();
-  await ensureLoggedIn(page, user);
+//   const page = await context.newPage();
+//   await ensureLoggedIn(page, user);
   
-  return { page, context };
-}
+//   return { page, context };
+// }
