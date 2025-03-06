@@ -479,29 +479,6 @@ jobs:
               .post-notes-form button:hover {
                 background: #0056b3;
               }
-
-              .full-report-section {
-                background: white;
-                padding: 1rem;
-                border-radius: 6px;
-                margin: 1.5rem 0;
-                border: 1px solid #eaecef;
-              }
-
-              .shard-report {
-                margin-bottom: 1rem;
-              }
-
-              .shard-report h4 {
-                color: var(--primary-color);
-                margin: 1rem 0 0.5rem;
-              }
-
-              .shard-report iframe {
-                width: 100%;
-                border: none;
-                overflow: hidden; /* Ensure no scrollbar */
-              }
             </style>
           </head>
           <body>
@@ -574,14 +551,14 @@ jobs:
                   <div class='system-info' id='system-info-$i'>
                     <pre>$system_info</pre>
                   </div>
-                  <iframe src='./shard-$i/playwright-report/index.html'></iframe>
+                  <iframe data-src='./shard-$i/playwright-report/index.html'></iframe>
                 </div>
               </div>
           EOF
             fi
           done
 
-          # Add post-notes form and Full Report section with improved resizing
+          # Add post-notes form and JavaScript (without Full Report section)
           cat << 'EOF' >> merged-report/index.html
               </div>
               <div class='post-notes-form'>
@@ -591,123 +568,82 @@ jobs:
                   <button type='submit'>Save Notes</button>
                 </form>
               </div>
-              <div class='full-report-section'>
-                <h3>Full Report</h3>
-                <div class='full-report-container' id='fullReportContainer'></div>
-              </div>
               <script>
                 document.addEventListener('DOMContentLoaded', function() {
-                  const fullReportContainer = document.getElementById('fullReportContainer');
-                  const shardCount = ${{ inputs.shard_count }};
-
-                  for (let i = 1; i <= shardCount; i++) {
-                    const shardSection = document.createElement('div');
-                    shardSection.className = 'shard-report';
-                    shardSection.innerHTML = `
-                      <h4>Shard ${i}</h4>
-                      <iframe src="./shard-${i}/playwright-report/index.html" onload="initIframeResize(this)"></iframe>
-                    `;
-                    fullReportContainer.appendChild(shardSection);
-
-                    const iframe = shardSection.querySelector('iframe');
-                    iframe.addEventListener('load', function() {
-                      const systemInfo = this.contentDocument.querySelector('.system-info');
-                      if (systemInfo) systemInfo.remove();
+                  // Lazy load iframes
+                  const iframes = document.querySelectorAll('.report-details iframe');
+                  const observer = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                      if (entry.isIntersecting) {
+                        const iframe = entry.target;
+                        if (!iframe.src && iframe.dataset.src) {
+                          iframe.src = iframe.dataset.src;
+                        }
+                        observer.unobserve(iframe);
+                      }
                     });
-                  }
+                  }, { rootMargin: '0px 0px 200px 0px' });
 
-                  function initIframeResize(iframe) {
-                    // Initial resize
-                    resizeIframe(iframe);
+                  iframes.forEach(iframe => observer.observe(iframe));
 
-                    // Use MutationObserver to watch for content changes
-                    const observer = new MutationObserver(() => resizeIframe(iframe));
-                    if (iframe.contentDocument && iframe.contentDocument.body) {
-                      observer.observe(iframe.contentDocument.body, {
-                        childList: true,
-                        subtree: true,
-                        attributes: true
-                      });
-                    }
-
-                    // Fallback polling for 5 seconds
-                    let pollCount = 0;
-                    const pollInterval = setInterval(() => {
-                      resizeIframe(iframe);
-                      pollCount++;
-                      if (pollCount >= 10) clearInterval(pollInterval); // Stop after ~5 seconds (500ms * 10)
-                    }, 500);
-
-                    // Cleanup observer when iframe is removed
-                    iframe.addEventListener('unload', () => observer.disconnect());
-                  }
-
-                  function resizeIframe(iframe) {
-                    if (iframe.contentWindow && iframe.contentWindow.document.body) {
-                      const height = iframe.contentWindow.document.body.scrollHeight;
-                      iframe.style.height = height + 'px';
-                      iframe.style.minHeight = height + 'px'; // Ensure it doesn't shrink
-                    }
-                  }
-                });
-
-                document.querySelectorAll('.system-info-toggle').forEach(toggle => {
-                  toggle.addEventListener('click', (e) => {
-                    const shardNum = e.currentTarget.dataset.shard;
-                    const systemInfo = document.getElementById('system-info-' + shardNum);
-                    const toggleBtn = e.currentTarget;
-                    if (systemInfo.style.display === 'block') {
-                      systemInfo.style.display = 'none';
-                    } else {
-                      systemInfo.style.display = 'block';
-                    }
-                    toggleBtn.classList.toggle('active');
+                  // Toggle system info
+                  document.querySelectorAll('.system-info-toggle').forEach(toggle => {
+                    toggle.addEventListener('click', (e) => {
+                      const shardNum = e.currentTarget.dataset.shard;
+                      const systemInfo = document.getElementById('system-info-' + shardNum);
+                      const toggleBtn = e.currentTarget;
+                      systemInfo.style.display = systemInfo.style.display === 'block' ? 'none' : 'block';
+                      toggleBtn.classList.toggle('active');
+                    });
                   });
-                });
 
-                document.querySelectorAll('.report-link').forEach(link => {
-                  link.addEventListener('click', (e) => {
-                    const shardNum = e.currentTarget.querySelector('.expand-btn').dataset.shard;
-                    const detailsContainer = document.getElementById('shard-' + shardNum + '-details');
-                    const expandBtn = e.currentTarget.querySelector('.expand-btn');
-                    if (e.target.classList.contains('expand-btn')) {
-                      detailsContainer.classList.toggle('show');
-                      expandBtn.classList.toggle('active');
-                    } else if (!e.target.classList.contains('expand-btn')) {
-                      window.open('./shard-' + shardNum + '/playwright-report/index.html', '_blank');
-                    }
+                  // Toggle report details
+                  document.querySelectorAll('.report-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                      const shardNum = e.currentTarget.querySelector('.expand-btn').dataset.shard;
+                      const detailsContainer = document.getElementById('shard-' + shardNum + '-details');
+                      const expandBtn = e.currentTarget.querySelector('.expand-btn');
+                      if (e.target.classList.contains('expand-btn')) {
+                        detailsContainer.classList.toggle('show');
+                        expandBtn.classList.toggle('active');
+                      } else if (!e.target.classList.contains('expand-btn')) {
+                        window.open('./shard-' + shardNum + '/playwright-report/index.html', '_blank');
+                      }
+                    });
                   });
-                });
 
-                document.getElementById('postNotesForm').addEventListener('submit', function(e) {
-                  e.preventDefault();
-                  const notes = document.getElementById('postNotes').value;
-                  const savedNotes = {
-                    text: notes,
-                    timestamp: new Date().toISOString(),
-                    runId: '${{ github.run_id }}'
-                  };
-                  const allNotes = JSON.parse(localStorage.getItem('playwrightTestNotes') || '[]');
-                  allNotes.push(savedNotes);
-                  localStorage.setItem('playwrightTestNotes', JSON.stringify(allNotes));
-                  const notesSection = document.createElement('div');
-                  notesSection.className = 'notes-section';
-                  notesSection.innerHTML = '<h3>Post-Run Notes</h3><p>' + notes + '</p>';
-                  const form = document.querySelector('.post-notes-form');
-                  form.parentNode.insertBefore(notesSection, form);
-                  document.getElementById('postNotes').value = '';
-                  alert('Notes saved successfully!');
-                });
-
-                window.addEventListener('load', function() {
-                  const allNotes = JSON.parse(localStorage.getItem('playwrightTestNotes') || '[]');
-                  const runNotes = allNotes.filter(note => note.runId === '${{ github.run_id }}');
-                  runNotes.forEach(note => {
+                  // Post-run notes form handling
+                  document.getElementById('postNotesForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const notes = document.getElementById('postNotes').value;
+                    const savedNotes = {
+                      text: notes,
+                      timestamp: new Date().toISOString(),
+                      runId: '${{ github.run_id }}'
+                    };
+                    const allNotes = JSON.parse(localStorage.getItem('playwrightTestNotes') || '[]');
+                    allNotes.push(savedNotes);
+                    localStorage.setItem('playwrightTestNotes', JSON.stringify(allNotes));
                     const notesSection = document.createElement('div');
                     notesSection.className = 'notes-section';
-                    notesSection.innerHTML = '<h3>Post-Run Notes</h3><p>' + note.text + '</p>';
+                    notesSection.innerHTML = '<h3>Post-Run Notes</h3><p>' + notes + '</p>';
                     const form = document.querySelector('.post-notes-form');
                     form.parentNode.insertBefore(notesSection, form);
+                    document.getElementById('postNotes').value = '';
+                    alert('Notes saved successfully!');
+                  });
+
+                  // Load existing post-run notes
+                  window.addEventListener('load', function() {
+                    const allNotes = JSON.parse(localStorage.getItem('playwrightTestNotes') || '[]');
+                    const runNotes = allNotes.filter(note => note.runId === '${{ github.run_id }}');
+                    runNotes.forEach(note => {
+                      const notesSection = document.createElement('div');
+                      notesSection.className = 'notes-section';
+                      notesSection.innerHTML = '<h3>Post-Run Notes</h3><p>' + note.text + '</p>';
+                      const form = document.querySelector('.post-notes-form');
+                      form.parentNode.insertBefore(notesSection, form);
+                    });
                   });
                 });
               </script>
