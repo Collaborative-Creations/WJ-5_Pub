@@ -701,9 +701,12 @@ jobs:
             --max-size=100M \
             "../new-report/" "reports/${{ steps.run-info.outputs.run_number }}/"
 
-          # Preserve the run metadata in a permanent location
+          # Ensure current run metadata is preserved
           if [ -f "../new-report/metadata/run-info.json" ]; then
             cp "../new-report/metadata/run-info.json" "reports-metadata/run-info-${{ steps.run-info.outputs.run_number }}.json"
+            echo "Current run metadata copied to reports-metadata/run-info-${{ steps.run-info.outputs.run_number }}.json"
+          else
+            echo "Warning: Current run metadata file not found in new-report/metadata/run-info.json"
           fi
 
           echo "Checking for large files..."
@@ -770,10 +773,7 @@ jobs:
               if [[ $line == Large\ file\ detected:* ]]; then
                 file_path=$(echo "$line" | sed 's/Large file detected: \(.*\) (\(.*\) MB)/\1/')
                 file_size=$(echo "$line" | sed 's/Large file detected: \(.*\) (\(.*\) MB)/\2/')
-                echo "          <tr>
-                <td>$file_path</td>
-                <td>$file_size MB</td>
-              </tr>" >> "reports/${{ steps.run-info.outputs.run_number }}/large-files-info/index.html"
+                echo "          <tr><td>$file_path</td><td>$file_size MB</td></tr>" >> "reports/${{ steps.run-info.outputs.run_number }}/large-files-info/index.html"
                 placeholder_dir=$(dirname "reports/${{ steps.run-info.outputs.run_number }}/$file_path")
                 mkdir -p "$placeholder_dir"
                 placeholder_file_html="${placeholder_dir}/$(basename "${file_path%.*}").html"
@@ -805,7 +805,7 @@ jobs:
           EOF_PLACEHOLDER
               fi
             done < large_files_list.txt
-            cat >> "reports/${{ steps.run-info.outputs.run_number }}/large-files-info/index.html" << EOF
+            cat >> "manent-run-info-${{ steps.run-info.outputs.run_number }}.json"reports/${{ steps.run-info.outputs.run_number }}/large-files-info/index.html" << EOF
             </table>
             <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" 
                class="artifact-link" target="_blank" style="font-size: 16px; padding: 12px 24px; text-align: center; display: block; margin: 20px auto; max-width: 300px;">
@@ -830,59 +830,67 @@ jobs:
             sudo apt-get update && sudo apt-get install -y jq || { echo "Failed to install jq"; exit 1; }
           fi
 
-          # Build reports data from all stored run-info files
+          # Build REPORTS_DATA with debugging
           REPORTS_DATA=""
+          echo "Building REPORTS_DATA..."
 
-          # First collect all existing metadata files
+          # Collect all existing metadata files
           if [ -d "reports-metadata" ]; then
             for META_FILE in reports-metadata/run-info-*.json; do
               if [ -f "$META_FILE" ]; then
                 RUN_NUM=$(jq -r '.runNumber' "$META_FILE")
                 TIMESTAMP=$(jq -r '.timestamp // ""' "$META_FILE")
                 RUN_REASON=$(jq -r '.runReason // "No reason provided"' "$META_FILE")
-                # Only add if timestamp is not empty
                 if [ -n "$TIMESTAMP" ]; then
                   REPORTS_DATA="${REPORTS_DATA}addReportEntry('$RUN_NUM', '$TIMESTAMP', '$RUN_REASON');\n    "
+                  echo "Added historical run: $RUN_NUM with timestamp $TIMESTAMP"
+                else
+                  echo "Skipping $META_FILE due to empty timestamp"
                 fi
               fi
             done
+          else
+            echo "No reports-metadata directory found"
           fi
 
-          # Then look at existing report directories for any missing metadata
+          # Scan reports directories for any missing metadata
           if [ -d "reports" ]; then
             for RUN_DIR in reports/*; do
-              if [ -d "$RUN_DIR" ]; then
+              if [ -d "$RUN_DIR" ] && [ "$(basename "$RUN_DIR")" != "*" ]; then
                 RUN_NUM=$(basename "$RUN_DIR")
-                # Check if we already have metadata for this run
-                if [ ! -f "reports-metadata/run-info-$RUN_NUM.json" ]; then
-                  # Try to find metadata in the report directory
-                  METADATA_FILE="$RUN_DIR/metadata/run-info.json"
-                  if [ -f "$METADATA_FILE" ]; then
-                    # Copy to permanent location
-                    cp "$METADATA_FILE" "reports-metadata/run-info-$RUN_NUM.json"
-                    TIMESTAMP=$(jq -r '.timestamp // ""' "$METADATA_FILE")
-                    RUN_REASON=$(jq -r '.runReason // "No reason provided"' "$METADATA_FILE")
-                    # Only add if timestamp is not empty
-                    if [ -n "$TIMESTAMP" ]; then
-                      REPORTS_DATA="${REPORTS_DATA}addReportEntry('$RUN_NUM', '$TIMESTAMP', '$RUN_REASON');\n    "
-                    fi
+                METADATA_FILE="$RUN_DIR/metadata/run-info.json"
+                if [ -f "$METADATA_FILE" ] && [ ! -f "reports-metadata/run-info-$RUN_NUM.json" ]; then
+                  cp "$METADATA_FILE" "reports-metadata/run-info-$RUN_NUM.json"
+                  TIMESTAMP=$(jq -r '.timestamp // ""' "$METADATA_FILE")
+                  RUN_REASON=$(jq -r '.runReason // "No reason provided"' "$METADATA_FILE")
+                  if [ -n "$TIMESTAMP" ]; then
+                    REPORTS_DATA="${REPORTS_DATA}addReportEntry('$RUN_NUM', '$TIMESTAMP', '$RUN_REASON');\n    "
+                    echo "Added missing run from reports dir: $RUN_NUM with timestamp $TIMESTAMP"
                   fi
                 fi
               fi
             done
           fi
 
-          # Finally add the current run if needed
+          # Always add the current run
           CURRENT_META_FILE="../new-report/metadata/run-info.json"
           if [ -f "$CURRENT_META_FILE" ]; then
             CURRENT_RUN_NUM="${{ steps.run-info.outputs.run_number }}"
             CURRENT_TIMESTAMP=$(jq -r '.timestamp // ""' "$CURRENT_META_FILE")
             CURRENT_REASON=$(jq -r '.runReason // "No reason provided"' "$CURRENT_META_FILE")
-            # Only add if timestamp is not empty and we haven't added it above
-            if [ -n "$CURRENT_TIMESTAMP" ] && [ ! -f "reports-metadata/run-info-$CURRENT_RUN_NUM.json" ]; then
-              REPORTS_DATA="${REPORTS_DATA}addReportEntry('$CURRENT_RUN_NUM', '$CURRENT_TIMESTAMP', '$CURRENT_REASON');"
+            if [ -n "$CURRENT_TIMESTAMP" ]; then
+              REPORTS_DATA="${REPORTS_DATA}addReportEntry('$CURRENT_RUN_NUM', '$CURRENT_TIMESTAMP', '$CURRENT_REASON');\n    "
+              echo "Added current run: $CURRENT_RUN_NUM with timestamp $CURRENT_TIMESTAMP"
+            else
+              echo "Warning: Current run timestamp is empty"
             fi
+          else
+            echo "Error: Current run metadata file not found"
           fi
+
+          # Log the final REPORTS_DATA for debugging
+          echo "Final REPORTS_DATA content:"
+          echo -e "$REPORTS_DATA"
 
           # Generate index.html
           cat > index.html << EOF
@@ -1001,7 +1009,6 @@ jobs:
                   </a>
                 \`;
                 
-                // Avoid duplicates
                 const existingCard = document.querySelector(\`.report-card[data-run-number="\${runNumber}"]\`);
                 if (existingCard) {
                   existingCard.replaceWith(card);
