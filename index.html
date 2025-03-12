@@ -86,14 +86,23 @@
       const container = document.getElementById('reportsContainer');
       const card = document.createElement('div');
       card.className = 'report-card';
+      card.dataset.runNumber = runNumber;
+      
       let dateStr = timestamp;
       if (timestamp.includes('_')) {
         const [datePart, timePart] = timestamp.split('_');
         dateStr = datePart.slice(0,4) + '-' + datePart.slice(4,6) + '-' + datePart.slice(6,8) + 
                   'T' + timePart.slice(0,2) + ':' + timePart.slice(2,4) + ':' + timePart.slice(4,6);
       }
-      const date = new Date(dateStr);
-      const formattedDate = date.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+      
+      let formattedDate;
+      try {
+        const date = new Date(dateStr);
+        formattedDate = date.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+      } catch (e) {
+        formattedDate = "Invalid date format";
+      }
+      
       card.innerHTML = `
         <a href="./reports/${runNumber}/index.html" class="report-link">
           <h3>Run #${runNumber}</h3>
@@ -103,51 +112,17 @@
           </div>
         </a>
       `;
-      container.appendChild(card);
+      
+      // Avoid duplicates
+      const existingCard = document.querySelector(`.report-card[data-run-number="${runNumber}"]`);
+      if (existingCard) {
+        existingCard.replaceWith(card);
+      } else {
+        container.appendChild(card);
+      }
     }
-    addReportEntry('100', '20250312_201929', 'No metadata available');
-    addReportEntry('101', '20250312_201929', 'No metadata available');
-    addReportEntry('102', '20250312_201929', 'No metadata available');
-    addReportEntry('103', '20250312_201929', 'No metadata available');
-    addReportEntry('104', '20250312_201929', 'No metadata available');
-    addReportEntry('105', '20250312_201929', 'No metadata available');
-    addReportEntry('106', '20250312_201929', 'No metadata available');
-    addReportEntry('107', '20250312_201929', 'No metadata available');
-    addReportEntry('108', '20250312_201929', 'No metadata available');
-    addReportEntry('109', '20250312_201929', 'No metadata available');
-    addReportEntry('111', '20250312_201929', 'No metadata available');
-    addReportEntry('112', '20250312_201929', 'No metadata available');
-    addReportEntry('114', '20250312_201929', 'No metadata available');
-    addReportEntry('115', '20250312_201929', 'No metadata available');
-    addReportEntry('116', '20250312_201929', 'No metadata available');
-    addReportEntry('117', '20250312_201929', 'No metadata available');
-    addReportEntry('118', '20250312_201929', 'No metadata available');
-    addReportEntry('119', '20250312_201929', 'No metadata available');
-    addReportEntry('120', '20250312_201929', 'No metadata available');
-    addReportEntry('121', '20250312_201929', 'No metadata available');
-    addReportEntry('122', '20250312_201929', 'No metadata available');
-    addReportEntry('123', '20250312_201929', 'No metadata available');
-    addReportEntry('124', '20250312_201929', 'No metadata available');
-    addReportEntry('127', '20250312_201929', 'No metadata available');
-    addReportEntry('129', '20250312_201929', 'No metadata available');
-    addReportEntry('130', '20250312_201929', 'No metadata available');
-    addReportEntry('131', '20250312_201929', 'No metadata available');
-    addReportEntry('132', '20250312_201929', 'No metadata available');
-    addReportEntry('133', '20250312_201929', 'No metadata available');
-    addReportEntry('134', '20250312_201929', 'No metadata available');
-    addReportEntry('135', '20250312_201929', 'No metadata available');
-    addReportEntry('136', '20250312_201929', 'No metadata available');
-    addReportEntry('137', '20250312_201929', 'No metadata available');
-    addReportEntry('138', '20250312_201929', 'No metadata available');
-    addReportEntry('139', '20250312_201929', 'No metadata available');
-    addReportEntry('140', '20250312_201929', 'No metadata available');
-    addReportEntry('141', '20250312_201929', 'No metadata available');
-    addReportEntry('142', '20250312_201929', 'No metadata available');
-    addReportEntry('143', '20250312_201929', 'No metadata available');
-    addReportEntry('144', '20250312_201929', 'No metadata available');
-    addReportEntry('145', '20250312_201929', 'No metadata available');
-    addReportEntry('146', '20250312_201244', 'Notes before run , dash 3 trial 2');
-    addReportEntry('99', '20250312_201929', 'No metadata available');
+    
+    addReportEntry('147', '20250312_230759', 'Trial 4 Dashboard 01 time 12 mar 25 , 11 06 pm iste ');\n    
     
     document.getElementById('searchInput').addEventListener('input', (e) => {
       const searchTerm = e.target.value.toLowerCase();
@@ -157,19 +132,27 @@
         card.style.display = text.includes(searchTerm) ? '' : 'none';
       });
     });
+    
     document.getElementById('sortSelect').addEventListener('change', (e) => {
+      sortReports(e.target.value);
+    });
+    
+    function sortReports(sortOrder) {
       const container = document.getElementById('reportsContainer');
       const cards = Array.from(container.children);
+      
       cards.sort((a, b) => {
         const aNum = parseInt(a.querySelector('h3').textContent.split('#')[1]);
         const bNum = parseInt(b.querySelector('h3').textContent.split('#')[1]);
-        return e.target.value === 'newest' ? bNum - aNum : aNum - bNum;
+        return sortOrder === 'newest' ? bNum - aNum : aNum - bNum;
       });
+      
       container.innerHTML = '';
       cards.forEach(card => container.appendChild(card));
-    });
+    }
+    
     window.onload = function() {
-      document.getElementById('sortSelect').dispatchEvent(new Event('change'));
+      sortReports('newest');
     };
   </script>
 </body>
