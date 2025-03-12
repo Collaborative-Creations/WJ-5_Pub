@@ -93,7 +93,6 @@ permissions:
   id-token: write
 
 jobs:
-  # [prepare, test, merge-reports jobs unchanged as per your instruction]
   prepare:
     runs-on: ubuntu-latest
     outputs:
@@ -192,6 +191,9 @@ jobs:
           CI: "true"
         run: |
           echo "Running shard ${{ matrix.shard }} of ${{ github.event.inputs.shard_count }}"
+          # Capture execution start time in IST
+          mkdir -p test-metadata
+          TZ=Asia/Kolkata date +'%Y%m%d_%H%M%S' > test-metadata/execution-time.txt
           npx cross-env test=${{ env.TEST_ENV }} npx playwright test \
             --grep '${{ github.event.inputs.test_pattern }}' \
             --project=${{ github.event.inputs.browser }} \
@@ -207,6 +209,7 @@ jobs:
             playwright-report/
             test-results/
             system-info/
+            test-metadata/
           retention-days: 30
       - name: Create status file
         if: always()
@@ -246,6 +249,24 @@ jobs:
         run: |
           mkdir -p merged-report
           current_date=$(date +%Y-%m-%d_%H-%M-%S)
+          # Determine earliest execution time from all shards (in IST)
+          EXECUTION_TIME=""
+          for ((i=1; i<=${{ inputs.shard_count }}; i++)); do
+            if [ -f "all-artifacts/playwright-report-shard-$i/test-metadata/execution-time.txt" ]; then
+              SHARD_TIME=$(cat "all-artifacts/playwright-report-shard-$i/test-metadata/execution-time.txt")
+              if [ -z "$EXECUTION_TIME" ] || [ "$SHARD_TIME" < "$EXECUTION_TIME" ]; then
+                EXECUTION_TIME="$SHARD_TIME"
+              fi
+            fi
+          done
+          # If no shard time found, fallback to current time in IST
+          if [ -z "$EXECUTION_TIME" ]; then
+            EXECUTION_TIME=$(TZ=Asia/Kolkata date +'%Y%m%d_%H%M%S')
+          fi
+          # Create run-info.json with execution time and run reason
+          mkdir -p merged-report/metadata
+          echo "{\"runNumber\": \"${{ github.run_number }}\", \"timestamp\": \"$EXECUTION_TIME\", \"runReason\": \"${{ inputs.run_reason }}\"}" > merged-report/metadata/run-info.json
+          
           cat << 'EOF' > merged-report/index.html
           <!DOCTYPE html>
           <html lang="en">
@@ -444,11 +465,9 @@ jobs:
             <div class="container">
               <h1>Playwright Test Reports</h1>
           EOF
-          # Add pre-run notes if they exist
           if [ -f "all-artifacts/run-metadata/pre-run-notes.txt" ]; then
             echo "<div class='notes-section'><h3>Pre-Run Notes</h3><p>$(cat all-artifacts/run-metadata/pre-run-notes.txt)</p></div>" >> merged-report/index.html
           fi
-          # Add meta information
           cat << EOF >> merged-report/index.html
               <div class='meta-info'>
                 <p><strong>Environment:</strong> ${{ inputs.environment }}</p>
@@ -458,11 +477,11 @@ jobs:
                 <p><strong>Retries:</strong> ${{ inputs.num_retries }}</p>
                 <p><strong>Video Mode:</strong> ${{ inputs.video_mode }}</p>
                 <p><strong>Trace Mode:</strong> ${{ inputs.trace_mode }}</p>
+                <p><strong>Execution Time (IST):</strong> ${EXECUTION_TIME:0:4}-${EXECUTION_TIME:4:2}-${EXECUTION_TIME:6:2} ${EXECUTION_TIME:9:2}:${EXECUTION_TIME:11:2}:${EXECUTION_TIME:13:2}</p>
                 <p><strong>Last Updated:</strong> $current_date</p>
               </div>
               <div class='report-container'>
           EOF
-          # Process each shard's report and system info
           for ((i=1; i<=${{ inputs.shard_count }}; i++)); do
             report_source="all-artifacts/playwright-report-shard-$i"
             status_file="all-artifacts/test-status-shard-$i/status.txt"
@@ -480,7 +499,6 @@ jobs:
                   status_class="status-failure"
                 fi
               fi
-              # Read system info
               system_info="System information not available"
               if [ -f "$system_info_file" ]; then
                 system_info=$(cat "$system_info_file")
@@ -509,7 +527,6 @@ jobs:
           EOF
             fi
           done
-          # Add post-notes form and JavaScript (without Full Report section)
           cat << 'EOF' >> merged-report/index.html
               </div>
               <div class='post-notes-form'>
@@ -613,14 +630,6 @@ jobs:
         id: run-info
         run: |
           echo "run_number=$GITHUB_RUN_NUMBER" >> $GITHUB_OUTPUT
-          # Use GitHub's run start time as the execution timestamp
-          echo "timestamp=$(date -d "${{ github.event.workflow_run.created_at || github.event.created_at }}" +'%Y%m%d_%H%M%S')" >> $GITHUB_OUTPUT
-
-      - name: Create Run Metadata
-        run: |
-          mkdir -p new-report/metadata
-          # Include run_reason in metadata
-          echo "{\"runNumber\": \"${{ steps.run-info.outputs.run_number }}\", \"timestamp\": \"${{ steps.run-info.outputs.timestamp }}\", \"runReason\": \"${{ inputs.run_reason }}\"}" > new-report/metadata/run-info.json
 
       - name: Checkout gh-pages branch
         uses: actions/checkout@v4
@@ -651,21 +660,16 @@ jobs:
       - name: Organize reports
         run: |
           cd gh-pages
-
-          # Create directory for new report
           mkdir -p "reports/${{ steps.run-info.outputs.run_number }}"
-
-          # Copy files (excluding large ones, unchanged logic)
           echo "Copying files to gh-pages branch directory..."
           rsync -av --exclude="*.zip" --exclude="*.png" --exclude="*.jpg" --exclude="*.jpeg" --exclude="*.mp4" --exclude="*.webm" \
             --exclude="*.gif" --exclude="*.trace" --exclude="*.webp" --max-size=100M \
             "../new-report/" "reports/${{ steps.run-info.outputs.run_number }}/"
 
-          # Handle large files (unchanged logic)
           echo "Checking for large files..."
           large_files=()
           large_file_sizes=()
-          max_file_size=$((100 * 1024 * 1024)) # 100MB in bytes
+          max_file_size=$((100 * 1024 * 1024))
           find ../new-report -type f -size +${max_file_size}c | while read -r file; do
             file_size=$(du -b "$file" | cut -f1)
             file_size_mb=$(echo "scale=2; $file_size / 1048576" | bc)
@@ -781,10 +785,8 @@ jobs:
             fi
           fi
 
-          # Install jq for JSON parsing
           sudo apt-get update && sudo apt-get install -y jq
 
-          # Collect information about all existing reports with deduplication
           REPORTS_DATA=""
           declare -A seen_runs
           if [ -d "reports" ]; then
@@ -801,7 +803,7 @@ jobs:
                   fi
                 else
                   RUN_NUM=$(basename "$RUN_DIR")
-                  TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+                  TIMESTAMP=$(TZ=Asia/Kolkata date +"%Y%m%d_%H%M%S")
                   RUN_REASON="No metadata available"
                   if [ -z "${seen_runs[$RUN_NUM]}" ]; then
                     REPORTS_DATA="${REPORTS_DATA}addReportEntry('$RUN_NUM', '$TIMESTAMP', '$RUN_REASON');\n    "
@@ -812,15 +814,14 @@ jobs:
             done
           fi
 
-          # Add current run (only if not already added)
-          CURRENT_TIMESTAMP="${{ steps.run-info.outputs.timestamp }}"
-          CURRENT_REASON="${{ inputs.run_reason }}"
+          # Use the execution time from the merged report
+          CURRENT_TIMESTAMP=$(jq -r '.timestamp' "../new-report/metadata/run-info.json")
+          CURRENT_REASON=$(jq -r '.runReason' "../new-report/metadata/run-info.json")
           if [ -z "${seen_runs[${{ steps.run-info.outputs.run_number }}]}" ]; then
             REPORTS_DATA="${REPORTS_DATA}addReportEntry('${{ steps.run-info.outputs.run_number }}', '$CURRENT_TIMESTAMP', '$CURRENT_REASON');"
             seen_runs[${{ steps.run-info.outputs.run_number }}]=1
           fi
 
-          # Create or update main index with run reason
           cat > index.html << EOF
           <!DOCTYPE html>
           <html>
@@ -904,7 +905,6 @@ jobs:
               </select>
             </div>
             <div class="reports-container" id="reportsContainer">
-              <!-- Report entries will be dynamically inserted here -->
             </div>
             <script>
               function addReportEntry(runNumber, timestamp, runReason) {
@@ -918,12 +918,12 @@ jobs:
                             'T' + timePart.slice(0,2) + ':' + timePart.slice(2,4) + ':' + timePart.slice(4,6);
                 }
                 const date = new Date(dateStr);
-                const formattedDate = date.toLocaleString();
+                const formattedDate = date.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
                 card.innerHTML = \`
                   <a href="./reports/\${runNumber}/index.html" class="report-link">
                     <h3>Run #\${runNumber}</h3>
                     <div class="report-meta">
-                      <div>Executed: \${formattedDate}</div>
+                      <div>Executed: \${formattedDate} (IST)</div>
                       <div>Reason: \${runReason}</div>
                     </div>
                   </a>
