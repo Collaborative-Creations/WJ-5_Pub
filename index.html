@@ -80,7 +80,6 @@
     </select>
   </div>
   <div class="reports-container" id="reportsContainer">
-    <!-- Report entries will be dynamically inserted here -->
   </div>
   <script>
     function addReportEntry(runNumber, timestamp, runReason) {
@@ -94,57 +93,58 @@
                   'T' + timePart.slice(0,2) + ':' + timePart.slice(2,4) + ':' + timePart.slice(4,6);
       }
       const date = new Date(dateStr);
-      const formattedDate = date.toLocaleString();
+      const formattedDate = date.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
       card.innerHTML = `
         <a href="./reports/${runNumber}/index.html" class="report-link">
           <h3>Run #${runNumber}</h3>
           <div class="report-meta">
-            <div>Executed: ${formattedDate}</div>
+            <div>Executed: ${formattedDate} (IST)</div>
             <div>Reason: ${runReason}</div>
           </div>
         </a>
       `;
       container.appendChild(card);
     }
-    addReportEntry('100', '20250312_105040', 'No metadata available');
-    addReportEntry('101', '20250312_105040', 'No metadata available');
-    addReportEntry('102', '20250312_105040', 'No metadata available');
-    addReportEntry('103', '20250312_105040', 'No metadata available');
-    addReportEntry('104', '20250312_105040', 'No metadata available');
-    addReportEntry('105', '20250312_105040', 'No metadata available');
-    addReportEntry('106', '20250312_105040', 'No metadata available');
-    addReportEntry('107', '20250312_105040', 'No metadata available');
-    addReportEntry('108', '20250312_105040', 'No metadata available');
-    addReportEntry('109', '20250312_105040', 'No metadata available');
-    addReportEntry('111', '20250312_105040', 'No metadata available');
-    addReportEntry('112', '20250312_105040', 'No metadata available');
-    addReportEntry('114', '20250312_105040', 'No metadata available');
-    addReportEntry('115', '20250312_105040', 'No metadata available');
-    addReportEntry('116', '20250312_105040', 'No metadata available');
-    addReportEntry('117', '20250312_105040', 'No metadata available');
-    addReportEntry('118', '20250312_105040', 'No metadata available');
-    addReportEntry('119', '20250312_105040', 'No metadata available');
-    addReportEntry('120', '20250312_105040', 'No metadata available');
-    addReportEntry('121', '20250312_105040', 'No metadata available');
-    addReportEntry('122', '20250312_105040', 'No metadata available');
-    addReportEntry('123', '20250312_105040', 'No metadata available');
-    addReportEntry('124', '20250312_105040', 'No metadata available');
-    addReportEntry('127', '20250312_105040', 'No metadata available');
-    addReportEntry('129', '20250312_105040', 'No metadata available');
-    addReportEntry('130', '20250312_105040', 'No metadata available');
-    addReportEntry('131', '20250312_105040', 'No metadata available');
-    addReportEntry('132', '20250312_105040', 'No metadata available');
-    addReportEntry('133', '20250312_105040', 'No metadata available');
-    addReportEntry('134', '20250312_105040', 'No metadata available');
-    addReportEntry('135', '20250312_105040', 'No metadata available');
-    addReportEntry('136', '20250312_105040', 'No metadata available');
-    addReportEntry('137', '20250312_105040', 'No metadata available');
-    addReportEntry('138', '20250312_105040', 'No metadata available');
-    addReportEntry('139', '20250312_105040', 'No metadata available');
-    addReportEntry('140', '20250312_105040', 'No metadata available');
-    addReportEntry('141', '20250312_105040', 'No metadata available');
-    addReportEntry('142', '20250312_000000', 'check the dash board twice');
-    addReportEntry('99', '20250312_105040', 'No metadata available');
+    addReportEntry('100', '20250312_165039', 'No metadata available');
+    addReportEntry('101', '20250312_165039', 'No metadata available');
+    addReportEntry('102', '20250312_165039', 'No metadata available');
+    addReportEntry('103', '20250312_165039', 'No metadata available');
+    addReportEntry('104', '20250312_165039', 'No metadata available');
+    addReportEntry('105', '20250312_165039', 'No metadata available');
+    addReportEntry('106', '20250312_165039', 'No metadata available');
+    addReportEntry('107', '20250312_165039', 'No metadata available');
+    addReportEntry('108', '20250312_165039', 'No metadata available');
+    addReportEntry('109', '20250312_165039', 'No metadata available');
+    addReportEntry('111', '20250312_165039', 'No metadata available');
+    addReportEntry('112', '20250312_165039', 'No metadata available');
+    addReportEntry('114', '20250312_165039', 'No metadata available');
+    addReportEntry('115', '20250312_165039', 'No metadata available');
+    addReportEntry('116', '20250312_165039', 'No metadata available');
+    addReportEntry('117', '20250312_165039', 'No metadata available');
+    addReportEntry('118', '20250312_165039', 'No metadata available');
+    addReportEntry('119', '20250312_165039', 'No metadata available');
+    addReportEntry('120', '20250312_165039', 'No metadata available');
+    addReportEntry('121', '20250312_165039', 'No metadata available');
+    addReportEntry('122', '20250312_165039', 'No metadata available');
+    addReportEntry('123', '20250312_165039', 'No metadata available');
+    addReportEntry('124', '20250312_165039', 'No metadata available');
+    addReportEntry('127', '20250312_165039', 'No metadata available');
+    addReportEntry('129', '20250312_165039', 'No metadata available');
+    addReportEntry('130', '20250312_165039', 'No metadata available');
+    addReportEntry('131', '20250312_165039', 'No metadata available');
+    addReportEntry('132', '20250312_165039', 'No metadata available');
+    addReportEntry('133', '20250312_165039', 'No metadata available');
+    addReportEntry('134', '20250312_165039', 'No metadata available');
+    addReportEntry('135', '20250312_165039', 'No metadata available');
+    addReportEntry('136', '20250312_165039', 'No metadata available');
+    addReportEntry('137', '20250312_165039', 'No metadata available');
+    addReportEntry('138', '20250312_165039', 'No metadata available');
+    addReportEntry('139', '20250312_165039', 'No metadata available');
+    addReportEntry('140', '20250312_165039', 'No metadata available');
+    addReportEntry('141', '20250312_165039', 'No metadata available');
+    addReportEntry('142', '20250312_165039', 'No metadata available');
+    addReportEntry('143', '20250312_164438', 'Trial2 With mets dat dashbd-1');
+    addReportEntry('99', '20250312_165039', 'No metadata available');
     
     document.getElementById('searchInput').addEventListener('input', (e) => {
       const searchTerm = e.target.value.toLowerCase();
