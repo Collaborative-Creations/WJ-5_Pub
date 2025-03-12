@@ -133,8 +133,13 @@ jobs:
           mkdir -p run-metadata
           echo "${{ inputs.pre_run_notes }}" > run-metadata/pre-run-notes.txt
 
-      - name: Upload pre-run notes
-        if: inputs.pre_run_notes != ''
+      # Added: Save run reason as an artifact
+      - name: Save run reason
+        run: |
+          mkdir -p run-metadata
+          echo "${{ inputs.run_reason }}" > run-metadata/run-reason.txt
+
+      - name: Upload run metadata
         uses: actions/upload-artifact@v4
         with:
           name: run-metadata
@@ -191,7 +196,6 @@ jobs:
           CI: "true"
         run: |
           echo "Running shard ${{ matrix.shard }} of ${{ github.event.inputs.shard_count }}"
-          # Capture execution start time in IST
           mkdir -p test-metadata
           TZ=Asia/Kolkata date +'%Y%m%d_%H%M%S' > test-metadata/execution-time.txt
           npx cross-env test=${{ env.TEST_ENV }} npx playwright test \
@@ -249,23 +253,17 @@ jobs:
         run: |
           mkdir -p merged-report
           current_date=$(date +%Y-%m-%d_%H-%M-%S)
-          # Determine earliest execution time from all shards (in IST)
+          # Use shard 1's execution time as the canonical time for this run
           EXECUTION_TIME=""
-          for ((i=1; i<=${{ inputs.shard_count }}; i++)); do
-            if [ -f "all-artifacts/playwright-report-shard-$i/test-metadata/execution-time.txt" ]; then
-              SHARD_TIME=$(cat "all-artifacts/playwright-report-shard-$i/test-metadata/execution-time.txt")
-              if [ -z "$EXECUTION_TIME" ] || [ "$SHARD_TIME" < "$EXECUTION_TIME" ]; then
-                EXECUTION_TIME="$SHARD_TIME"
-              fi
-            fi
-          done
-          # If no shard time found, fallback to current time in IST
-          if [ -z "$EXECUTION_TIME" ]; then
-            EXECUTION_TIME=$(TZ=Asia/Kolkata date +'%Y%m%d_%H%M%S')
+          if [ -f "all-artifacts/playwright-report-shard-1/test-metadata/execution-time.txt" ]; then
+            EXECUTION_TIME=$(cat "all-artifacts/playwright-report-shard-1/test-metadata/execution-time.txt")
+          else
+            EXECUTION_TIME=$(TZ=Asia/Kolkata date +'%Y%m%d_%H%M%S')  # Fallback if no shard data
           fi
-          # Create run-info.json with execution time and run reason
+          # Read run reason from artifact, fallback to input
+          RUN_REASON=$(cat "all-artifacts/run-metadata/run-reason.txt" || echo "${{ inputs.run_reason }}")
           mkdir -p merged-report/metadata
-          echo "{\"runNumber\": \"${{ github.run_number }}\", \"timestamp\": \"$EXECUTION_TIME\", \"runReason\": \"${{ inputs.run_reason }}\"}" > merged-report/metadata/run-info.json
+          echo "{\"runNumber\": \"${{ github.run_number }}\", \"timestamp\": \"$EXECUTION_TIME\", \"runReason\": \"$RUN_REASON\"}" > merged-report/metadata/run-info.json
           
           cat << 'EOF' > merged-report/index.html
           <!DOCTYPE html>
@@ -795,7 +793,7 @@ jobs:
                 METADATA_FILE="$RUN_DIR/metadata/run-info.json"
                 if [ -f "$METADATA_FILE" ]; then
                   RUN_NUM=$(jq -r '.runNumber' "$METADATA_FILE")
-                  TIMESTAMP=$(jq -r '.timestamp' "$METADATA_FILE")
+                  TIMESTAMP=$(jq -r '.timestamp // "'$(TZ=Asia/Kolkata date +'%Y%m%d_%H%M%S')'"' "$METADATA_FILE")
                   RUN_REASON=$(jq -r '.runReason // "No reason provided"' "$METADATA_FILE")
                   if [ -z "${seen_runs[$RUN_NUM]}" ]; then
                     REPORTS_DATA="${REPORTS_DATA}addReportEntry('$RUN_NUM', '$TIMESTAMP', '$RUN_REASON');\n    "
@@ -814,7 +812,6 @@ jobs:
             done
           fi
 
-          # Use the execution time from the merged report
           CURRENT_TIMESTAMP=$(jq -r '.timestamp' "../new-report/metadata/run-info.json")
           CURRENT_REASON=$(jq -r '.runReason' "../new-report/metadata/run-info.json")
           if [ -z "${seen_runs[${{ steps.run-info.outputs.run_number }}]}" ]; then
@@ -835,7 +832,7 @@ jobs:
                 max-width: 1200px;
                 margin: 0 auto;
                 padding: 20px;
-                background: #f6f8fa;
+                background: #f8f9fa;
               }
               .header {
                 background: white;
