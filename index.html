@@ -10,7 +10,7 @@
       max-width: 1200px;
       margin: 0 auto;
       padding: 20px;
-      background: #f8f9fa;
+      background: #f6f8fa;
     }
     .header {
       background: white;
@@ -65,6 +65,10 @@
       border: 1px solid #ddd;
       border-radius: 4px;
     }
+    .run-reason {
+      margin-top: 5px;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
@@ -72,6 +76,7 @@
     <h1>Playwright Test Reports History</h1>
     <p>Historical test execution reports with retention</p>
   </div>
+  
   <div class="filter-bar">
     <input type="text" class="search-input" placeholder="Search reports..." id="searchInput">
     <select class="sort-select" id="sortSelect">
@@ -79,81 +84,87 @@
       <option value="oldest">Oldest First</option>
     </select>
   </div>
+  
   <div class="reports-container" id="reportsContainer">
+    <!-- Report entries will be dynamically inserted here -->
   </div>
+  
   <script>
-    function addReportEntry(runNumber, timestamp, runReason) {
-      const container = document.getElementById('reportsContainer');
-      const card = document.createElement('div');
-      card.className = 'report-card';
-      card.dataset.runNumber = runNumber;
+  // Updated function to include reason and handle parsing errors
+  function addReportEntry(runNumber, timestamp, reason) {
+    const container = document.getElementById('reportsContainer');
+    const card = document.createElement('div');
+    card.className = 'report-card';
+  
+    // Parse date from timestamp format safely
+    let formattedDate = "Unknown Date";
+    try {
+      if (timestamp) {
+        // Handle both ISO format and custom format with underscore
+        let dateStr = timestamp;
+        if (timestamp.includes('_')) {
+          const [datePart, timePart] = timestamp.split('_');
+          dateStr = datePart.slice(0,4) + '-' + datePart.slice(4,6) + '-' + datePart.slice(6,8) + 
+                    'T' + timePart.slice(0,2) + ':' + timePart.slice(2,4) + ':' + (timePart.slice(4,6) || '00');
+        }
       
-      let dateStr = timestamp;
-      if (timestamp.includes('_')) {
-        const [datePart, timePart] = timestamp.split('_');
-        dateStr = datePart.slice(0,4) + '-' + datePart.slice(4,6) + '-' + datePart.slice(6,8) + 
-                  'T' + timePart.slice(0,2) + ':' + timePart.slice(2,4) + ':' + timePart.slice(4,6);
-      }
-      
-      let formattedDate;
-      try {
         const date = new Date(dateStr);
-        formattedDate = date.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
-      } catch (e) {
-        formattedDate = "Invalid date format";
+        if (!isNaN(date.getTime())) { // Check if date is valid
+          formattedDate = date.toLocaleString();
+        }
       }
-      
-      card.innerHTML = `
-        <a href="./reports/${runNumber}/index.html" class="report-link">
-          <h3>Run #${runNumber}</h3>
-          <div class="report-meta">
-            <div>Executed: ${formattedDate} (IST)</div>
-            <div>Reason: ${runReason}</div>
-          </div>
-        </a>
-      `;
-      
-      // Avoid duplicates
-      const existingCard = document.querySelector(`.report-card[data-run-number="${runNumber}"]`);
-      if (existingCard) {
-        existingCard.replaceWith(card);
-      } else {
-        container.appendChild(card);
-      }
+    } catch (e) {
+      console.error("Error parsing date:", e);
     }
-    
-    addReportEntry('147', '20250312_230759', 'Trial 4 Dashboard 01 time 12 mar 25 , 11 06 pm iste ');\n    
-    
-    document.getElementById('searchInput').addEventListener('input', (e) => {
-      const searchTerm = e.target.value.toLowerCase();
-      const cards = document.querySelectorAll('.report-card');
-      cards.forEach(card => {
-        const text = card.textContent.toLowerCase();
-        card.style.display = text.includes(searchTerm) ? '' : 'none';
-      });
+  
+    const reasonHtml = reason ? `<div class="run-reason">Reason: ${reason}</div>` : '';
+  
+    card.innerHTML = `
+      <a href="./reports/${runNumber}/index.html" class="report-link">
+        <h3>Run #${runNumber}</h3>
+        <div class="report-meta">
+          <div>Executed: ${formattedDate}</div>
+          ${reasonHtml}
+        </div>
+      </a>
+    `;
+  
+    container.appendChild(card);
+  }
+
+  // Add all report entries
+  addReportEntry('100', '2025-03-13T08:20:39Z', '');  addReportEntry('101', '2025-03-13T08:20:39Z', '');  addReportEntry('102', '2025-03-13T08:20:39Z', '');  addReportEntry('103', '2025-03-13T08:20:39Z', '');  addReportEntry('104', '2025-03-13T08:20:39Z', '');  addReportEntry('105', '2025-03-13T08:20:39Z', '');  addReportEntry('106', '2025-03-13T08:20:39Z', '');  addReportEntry('107', '2025-03-13T08:20:43Z', '');  addReportEntry('108', '2025-03-13T08:20:46Z', '');  addReportEntry('109', '2025-03-13T08:20:46Z', '');  addReportEntry('111', '2025-03-13T08:20:46Z', '');  addReportEntry('112', '2025-03-13T08:20:46Z', '');  addReportEntry('114', '2025-03-13T08:20:46Z', '');  addReportEntry('115', '2025-03-13T08:20:46Z', '');  addReportEntry('116', '2025-03-13T08:20:46Z', '');  addReportEntry('117', '2025-03-13T08:20:46Z', '');  addReportEntry('118', '2025-03-13T08:20:46Z', '');  addReportEntry('119', '2025-03-13T08:20:46Z', '');  addReportEntry('120', '2025-03-13T08:20:46Z', '');  addReportEntry('121', '2025-03-13T08:20:46Z', '');  addReportEntry('122', '2025-03-13T08:20:47Z', '');  addReportEntry('123', '2025-03-13T08:20:47Z', '');  addReportEntry('124', '2025-03-13T08:20:47Z', '');  addReportEntry('127', '2025-03-13T08:20:47Z', '');  addReportEntry('129', '2025-03-13T08:20:47Z', '');  addReportEntry('130', '2025-03-13T08:20:47Z', '');  addReportEntry('131', '2025-03-13T08:20:47Z', '');  addReportEntry('132', '2025-03-13T08:20:47Z', '');  addReportEntry('133', '2025-03-13T08:20:47Z', '');  addReportEntry('134', '2025-03-13T08:20:47Z', '');  addReportEntry('135', '2025-03-13T08:20:47Z', '');  addReportEntry('136', '2025-03-13T08:20:47Z', '');  addReportEntry('137', '2025-03-13T08:20:47Z', '');  addReportEntry('138', '2025-03-13T08:20:47Z', '');  addReportEntry('139', '2025-03-13T08:20:47Z', '');  addReportEntry('140', '2025-03-13T08:20:47Z', '');  addReportEntry('141', '2025-03-13T08:20:47Z', '');  addReportEntry('142', '2025-03-13T08:20:47Z', '');  addReportEntry('143', '2025-03-13T08:20:47Z', '');  addReportEntry('144', '2025-03-13T08:20:47Z', '');  addReportEntry('145', '2025-03-13T08:20:47Z', '');  addReportEntry('146', '2025-03-13T08:20:47Z', '');  addReportEntry('147', '2025-03-13T08:20:47Z', '');  addReportEntry('151', '2025-03-13T08:18:09Z', 'Day2 Dashboard update trial 03');  addReportEntry('99', '2025-03-13T08:20:47Z', '');  addReportEntry('151', '20250313_082010', 'Day2 Dashboard update trial 03');
+
+  // Search functionality
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const cards = document.querySelectorAll('.report-card');
+    cards.forEach(card => {
+      const text = card.textContent.toLowerCase();
+      card.style.display = text.includes(searchTerm) ? '' : 'none';
     });
-    
-    document.getElementById('sortSelect').addEventListener('change', (e) => {
-      sortReports(e.target.value);
+  });
+
+  // Sorting functionality
+  document.getElementById('sortSelect').addEventListener('change', (e) => {
+    const container = document.getElementById('reportsContainer');
+    const cards = Array.from(container.children);
+
+    cards.sort((a, b) => {
+      const aNum = parseInt(a.querySelector('h3').textContent.split('#')[1]);
+      const bNum = parseInt(b.querySelector('h3').textContent.split('#')[1]);
+
+      return e.target.value === 'newest' ? bNum - aNum : aNum - bNum;
     });
-    
-    function sortReports(sortOrder) {
-      const container = document.getElementById('reportsContainer');
-      const cards = Array.from(container.children);
-      
-      cards.sort((a, b) => {
-        const aNum = parseInt(a.querySelector('h3').textContent.split('#')[1]);
-        const bNum = parseInt(b.querySelector('h3').textContent.split('#')[1]);
-        return sortOrder === 'newest' ? bNum - aNum : aNum - bNum;
-      });
-      
-      container.innerHTML = '';
-      cards.forEach(card => container.appendChild(card));
-    }
-    
-    window.onload = function() {
-      sortReports('newest');
-    };
+
+    container.innerHTML = '';
+    cards.forEach(card => container.appendChild(card));
+  });
+
+  // Sort by newest first by default (after all entries have been added)
+  window.onload = function() {
+    document.getElementById('sortSelect').dispatchEvent(new Event('change'));
+  };
   </script>
 </body>
 </html>
