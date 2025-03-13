@@ -159,32 +159,42 @@
   
   <script>
     // Load the run history from the JSON file
-    fetch('./run-history.json')
-      .then(response => response.json())
-      .then(runHistory => {
-        // Initially sort by newest first
+  fetch('./run-history.json')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error();
+      }
+      return response.json();
+    })
+    .then(runHistory => {
+      console.log();
+      // Sort by newest first
+      runHistory.sort((a, b) => parseInt(b.runNumber) - parseInt(a.runNumber));
+      
+      // Populate both the sidebar and main container
+      populateRunsList(runHistory);
+      populateReportsContainer(runHistory);
+      
+      // Set up event listeners
+      setupEventListeners(runHistory);
+    })
+    .catch(error => {
+      console.error('Error loading run history:', error);
+      document.getElementById('runsList').innerHTML = 
+        '<p style="color: #f85149;">Error loading run history. Please check the console for details.</p>';
+    });
+    
+      function populateRunsList(runHistory) {
+        const runsList = document.getElementById('runsList');
+        runsList.innerHTML = '';
+
+        // Sort by run number descending by default
         runHistory.sort((a, b) => parseInt(b.runNumber) - parseInt(a.runNumber));
 
-        // Populate both the sidebar and main container
-        populateRunsList(runHistory);
-        populateReportsContainer(runHistory);
-
-        // Set up event listeners for filtering and sorting
-        setupEventListeners(runHistory);
-      })
-      .catch(error => {
-        console.error('Error loading run history:', error);
-        document.getElementById('runsList').innerHTML = '<p style="color: #f85149;">Error loading run history. Please check the console for details.</p>';
-      });
-    
-    function populateRunsList(runHistory) {
-      const runsList = document.getElementById('runsList');
-      runsList.innerHTML = '';
-
-      runHistory.forEach(run => {
-        const runItem = document.createElement('div');
-        runItem.className = 'run-item';
-        runItem.dataset.runNumber = run.runNumber;
+        runHistory.forEach(run => {
+          const runItem = document.createElement('div');
+          runItem.className = 'run-item';
+          runItem.dataset.runNumber = run.runNumber;
 
         // Format the timestamp
         let formattedDate = 'Unknown date';
@@ -207,6 +217,7 @@
             console.warn('Error formatting date:', e);
           }
         }
+          
 
         runItem.innerHTML = `
           <h3>Run #${run.runNumber}</h3>
@@ -225,6 +236,8 @@
 
         runsList.appendChild(runItem);
       });
+       // Log the number of runs displayed
+      console.log();
     }
 
     function populateReportsContainer(runHistory) {
