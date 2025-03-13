@@ -1214,16 +1214,25 @@ jobs:
             git checkout gh-pages
           fi
 
-          # Pull with rebase first
+          # Stage and commit changes from Organize reports before pulling
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Committing changes before pulling..."
+            git add .
+            git commit -m "Add test report for run #${{ steps.run-info.outputs.run_number }} (Reason: ${{ inputs.run_reason }}) - Initial commit"
+          fi
+
+          # Pull with rebase to integrate upstream changes
           git pull origin gh-pages --rebase --allow-unrelated-histories
 
-          # Commit and push if there are changes
-          if [ -n "$(git status --porcelain)" ] || [ "$(git log origin/gh-pages..HEAD --oneline | wc -l)" -gt 0 ]; then
-            if [ -n "$(git status --porcelain)" ]; then
-              echo "Committing changes..."
-              git add .
-              git commit -m "Add test report for run #${{ steps.run-info.outputs.run_number }} (Reason: ${{ inputs.run_reason }})"
-            fi
+          # Commit any additional changes after rebase (unlikely but possible)
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Committing additional changes after rebase..."
+            git add .
+            git commit -m "Add test report for run #${{ steps.run-info.outputs.run_number }} (Reason: ${{ inputs.run_reason }}) - Post-rebase commit"
+          fi
+
+          # Push with retry logic if there are commits ahead
+          if [ "$(git log origin/gh-pages..HEAD --oneline | wc -l)" -gt 0 ]; then
             MAX_RETRIES=3
             RETRY_COUNT=0
             while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
@@ -1240,7 +1249,7 @@ jobs:
               fi
             done
           else
-            echo "No changes to commit or push"
+            echo "No changes to push after rebase"
           fi
 
       - name: Setup Pages
