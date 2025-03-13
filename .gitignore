@@ -160,5 +160,6 @@ user
 auth
 src/utils/environment.ts
 **.json
+!run-history.json
 
 **/Old/
