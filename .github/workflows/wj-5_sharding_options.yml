@@ -11,7 +11,6 @@ on:
         description: "Reason for this test run"
         required: true
         type: string
-
       test_pattern:
         description: "Test pattern (e.g., @Smoke, @TestDe|@DerivedScores, (?=.*@RDGBAS)(?=.*@DerivedScores), (?=.*@DerivedScores)(?=.*(@PHNMAN|@RDGBAS)), (?=.*@Smoke)(?=.*(@TestDe|@DerivedScores|@SingleTable|@MultiTable)))"
         required: true
@@ -92,9 +91,6 @@ permissions:
   pages: write
   id-token: write
 
-# Keep the existing jobs (prepare, test, merge-reports) unchanged
-# Only modify the deploy-report job
-
 jobs:
   prepare:
     runs-on: ubuntu-latest
@@ -130,12 +126,10 @@ jobs:
               ;;
           esac
 
-      # Updated "Save pre-run notes and run metadata" step
       - name: Save pre-run notes and run metadata
         run: |
           mkdir -p run-metadata
           echo "${{ inputs.pre_run_notes }}" > run-metadata/pre-run-notes.txt
-          # Add timestamp and run reason to metadata
           echo "{\"actualRunTime\": \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\", \"runReason\": \"${{ inputs.run_reason }}\"}" > run-metadata/run-metadata.json
 
       - name: Upload pre-run notes
@@ -152,11 +146,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.49.1-noble
-
     strategy:
       fail-fast: false
       matrix: ${{fromJson(needs.prepare.outputs.matrix)}}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -203,7 +195,6 @@ jobs:
           CI: "true"
         run: |
           echo "Running shard ${{ matrix.shard }} of ${{ github.event.inputs.shard_count }}"
-
           npx cross-env test=${{ env.TEST_ENV }} npx playwright test \
             --grep '${{ github.event.inputs.test_pattern }}' \
             --project=${{ github.event.inputs.browser }} \
@@ -263,7 +254,6 @@ jobs:
         run: |
           mkdir -p merged-report
           current_date=$(date +%Y-%m-%d_%H-%M-%S)
-
           cat << 'EOF' > merged-report/index.html
           <!DOCTYPE html>
           <html lang="en">
@@ -278,7 +268,6 @@ jobs:
                 --failure-color: #dc3545;
                 --neutral-color: #6c757d;
               }
-              
               body {
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
                 line-height: 1.6;
@@ -287,7 +276,6 @@ jobs:
                 background: #f8f9fa;
                 color: #24292e;
               }
-              
               .container {
                 max-width: 1200px;
                 margin: 0 auto;
@@ -296,14 +284,12 @@ jobs:
                 border-radius: 10px;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.1);
               }
-              
               h1 {
                 color: var(--primary-color);
                 border-bottom: 2px solid #eaecef;
                 padding-bottom: 0.5rem;
                 margin-bottom: 1.5rem;
               }
-              
               .meta-info {
                 background: #f6f8fa;
                 padding: 1rem;
@@ -311,27 +297,22 @@ jobs:
                 margin: 1rem 0;
                 border: 1px solid #eaecef;
               }
-              
               .meta-info p {
                 margin: 0.5rem 0;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
               }
-              
               .meta-info strong {
                 color: var(--neutral-color);
               }
-              
               .report-container {
                 margin: 2rem 0;
               }
-              
               .report-wrapper {
                 margin: 1rem 0;
                 position: relative;
               }
-              
               .report-link {
                 display: block;
                 padding: 1rem;
@@ -346,12 +327,10 @@ jobs:
                 align-items: center;
                 justify-content: space-between;
               }
-              
               .report-link:hover {
                 border-color: var(--primary-color);
                 background: #f6f8fa;
               }
-              
               .expand-btn {
                 background: none;
                 border: none;
@@ -360,11 +339,9 @@ jobs:
                 transition: transform 0.3s ease;
                 padding: 0.5rem;
               }
-              
               .expand-btn.active {
                 transform: rotate(90deg);
               }
-              
               .report-details {
                 display: none;
                 margin-top: 0.5rem;
@@ -372,17 +349,14 @@ jobs:
                 border-radius: 0 0 6px 6px;
                 overflow: hidden;
               }
-              
               .report-details.show {
                 display: block;
               }
-              
               .report-details iframe {
                 width: 100%;
                 height: 600px;
                 border: none;
               }
-              
               .status-badge {
                 padding: 0.25rem 0.75rem;
                 border-radius: 2rem;
@@ -390,22 +364,18 @@ jobs:
                 font-weight: 500;
                 text-transform: uppercase;
               }
-              
               .status-success {
                 background: #e6ffed;
                 color: var(--success-color);
               }
-              
               .status-failure {
                 background: #ffeef0;
                 color: var(--failure-color);
               }
-              
               .status-neutral {
                 background: #f6f8fa;
                 color: var(--neutral-color);
               }
-              
               .system-info {
                 background: #f8f9fa;
                 padding: 1rem;
@@ -417,13 +387,11 @@ jobs:
                 overflow-y: auto;
                 display: none;
               }
-              
               .system-info-header {
                 background: #f1f3f5;
                 padding: 0.5rem;
                 border-bottom: 1px solid #e1e4e8;
               }
-              
               .system-info-toggle {
                 background: none;
                 border: none;
@@ -435,16 +403,13 @@ jobs:
                 align-items: center;
                 gap: 0.5rem;
               }
-
               .system-info-toggle .toggle-arrow {
                 display: inline-block;
                 transition: transform 0.2s ease;
               }
-
               .system-info-toggle.active .toggle-arrow {
                 transform: rotate(90deg);
               }
-              
               .notes-section {
                 background: #fff3cd;
                 border: 1px solid #ffeeba;
@@ -452,19 +417,16 @@ jobs:
                 border-radius: 6px;
                 margin: 1rem 0;
               }
-              
               .notes-section h3 {
                 color: #856404;
                 margin-top: 0;
               }
-              
               .post-notes-form {
                 background: #e9ecef;
                 padding: 1rem;
                 border-radius: 6px;
                 margin: 1rem 0;
               }
-              
               .post-notes-form textarea {
                 width: 100%;
                 min-height: 100px;
@@ -473,7 +435,6 @@ jobs:
                 border: 1px solid #ced4da;
                 border-radius: 4px;
               }
-              
               .post-notes-form button {
                 background: var(--primary-color);
                 color: white;
@@ -482,7 +443,6 @@ jobs:
                 border-radius: 4px;
                 cursor: pointer;
               }
-              
               .post-notes-form button:hover {
                 background: #0056b3;
               }
@@ -493,12 +453,10 @@ jobs:
               <h1>Playwright Test Reports</h1>
           EOF
 
-          # Add pre-run notes if they exist
           if [ -f "all-artifacts/run-metadata/pre-run-notes.txt" ]; then
             echo "<div class='notes-section'><h3>Pre-Run Notes</h3><p>$(cat all-artifacts/run-metadata/pre-run-notes.txt)</p></div>" >> merged-report/index.html
           fi
 
-          # Add meta information
           cat << EOF >> merged-report/index.html
               <div class='meta-info'>
                 <p><strong>Environment:</strong> ${{ inputs.environment }}</p>
@@ -513,16 +471,13 @@ jobs:
               <div class='report-container'>
           EOF
 
-          # Process each shard's report and system info
           for ((i=1; i<=${{ inputs.shard_count }}; i++)); do
             report_source="all-artifacts/playwright-report-shard-$i"
             status_file="all-artifacts/test-status-shard-$i/status.txt"
             system_info_file="$report_source/system-info/specs.txt"
-            
             if [ -d "$report_source" ]; then
               mkdir -p "merged-report/shard-$i"
               cp -r "$report_source"/* "merged-report/shard-$i/"
-              
               status="N/A"
               status_class="status-neutral"
               if [ -f "$status_file" ]; then
@@ -533,13 +488,10 @@ jobs:
                   status_class="status-failure"
                 fi
               fi
-              
-              # Read system info
               system_info="System information not available"
               if [ -f "$system_info_file" ]; then
                 system_info=$(cat "$system_info_file")
               fi
-              
               cat << EOF >> merged-report/index.html
               <div class='report-wrapper'>
                 <div class='report-link'>
@@ -565,7 +517,6 @@ jobs:
             fi
           done
 
-          # Add post-notes form and JavaScript (without Full Report section)
           cat << 'EOF' >> merged-report/index.html
               </div>
               <div class='post-notes-form'>
@@ -577,7 +528,6 @@ jobs:
               </div>
               <script>
                 document.addEventListener('DOMContentLoaded', function() {
-                  // Lazy load iframes
                   const iframes = document.querySelectorAll('.report-details iframe');
                   const observer = new IntersectionObserver((entries, observer) => {
                     entries.forEach(entry => {
@@ -590,10 +540,7 @@ jobs:
                       }
                     });
                   }, { rootMargin: '0px 0px 200px 0px' });
-
                   iframes.forEach(iframe => observer.observe(iframe));
-
-                  // Toggle system info
                   document.querySelectorAll('.system-info-toggle').forEach(toggle => {
                     toggle.addEventListener('click', (e) => {
                       const shardNum = e.currentTarget.dataset.shard;
@@ -603,8 +550,6 @@ jobs:
                       toggleBtn.classList.toggle('active');
                     });
                   });
-
-                  // Toggle report details
                   document.querySelectorAll('.report-link').forEach(link => {
                     link.addEventListener('click', (e) => {
                       const shardNum = e.currentTarget.querySelector('.expand-btn').dataset.shard;
@@ -618,8 +563,6 @@ jobs:
                       }
                     });
                   });
-
-                  // Post-run notes form handling
                   document.getElementById('postNotesForm').addEventListener('submit', function(e) {
                     e.preventDefault();
                     const notes = document.getElementById('postNotes').value;
@@ -639,8 +582,6 @@ jobs:
                     document.getElementById('postNotes').value = '';
                     alert('Notes saved successfully!');
                   });
-
-                  // Load existing post-run notes
                   window.addEventListener('load', function() {
                     const allNotes = JSON.parse(localStorage.getItem('playwrightTestNotes') || '[]');
                     const runNotes = allNotes.filter(note => note.runId === '${{ github.run_id }}');
@@ -666,10 +607,9 @@ jobs:
           path: merged-report/
           retention-days: 30
 
-  # The deploy-report job is completely rewritten
   deploy-report:
     name: Deploy Report to GitHub Pages
-    timeout-minutes: 10 # Add timeout
+    timeout-minutes: 10
     if: always()
     needs: merge-reports
     runs-on: ubuntu-latest
@@ -693,7 +633,7 @@ jobs:
         run: |
           mkdir -p new-report/metadata
           ACTUAL_RUN_TIME=$(cat run-metadata/run-metadata.json | jq -r '.actualRunTime' 2>/dev/null || echo "$(date +'%Y-%m-%dT%H:%M:%SZ')")
-          RUN_REASON=$(cat run-metadata/run-metadata.json | jq -r '.runReason' 2>/dev/null || echo "")
+          RUN_REASON=$(cat run-metadata/run-metadata.json | jq -r '.runReason' 2>/dev/null || echo "${{ inputs.run_reason }}")
           echo "{\"runNumber\": \"${{ steps.run-info.outputs.run_number }}\", \"timestamp\": \"$ACTUAL_RUN_TIME\", \"runReason\": \"$RUN_REASON\"}" > new-report/metadata/run-info.json
 
       - name: Checkout gh-pages branch
@@ -701,7 +641,7 @@ jobs:
         with:
           ref: gh-pages
           path: gh-pages
-          fetch-depth: 0 # Get full history
+          fetch-depth: 0
           token: ${{ secrets.GH_PAT }}
 
       - name: Initialize gh-pages if needed
@@ -729,12 +669,11 @@ jobs:
           # Create directory for new report
           mkdir -p "reports/${{ steps.run-info.outputs.run_number }}"
 
-          # First, identify large files before copying
+          # Check for large files
           echo "Checking for large files..."
           large_files=()
           large_file_sizes=()
-          max_file_size=$((100 * 1024 * 1024)) # 100MB in bytes
-
+          max_file_size=$((100 * 1024 * 1024))
           find ../new-report -type f -size +${max_file_size}c | while read -r file; do
             file_size=$(du -b "$file" | cut -f1)
             file_size_mb=$(echo "scale=2; $file_size / 1048576" | bc)
@@ -744,7 +683,7 @@ jobs:
             echo "Large file detected: $relative_path ($file_size_mb MB)"
           done > large_files_list.txt
 
-          # Copy files, excluding the large ones
+          # Copy files, excluding large ones
           echo "Copying files to gh-pages branch directory..."
           rsync -av --exclude="*.zip" --exclude="*.png" --exclude="*.jpg" --exclude="*.jpeg" --exclude="*.mp4" --exclude="*.webm" \
             --exclude="*.gif" --exclude="*.trace" --exclude="*.webp" --max-size=100M \
@@ -755,47 +694,42 @@ jobs:
             echo "Creating placeholders for large files..."
             mkdir -p "reports/${{ steps.run-info.outputs.run_number }}/large-files-info"
             cp large_files_list.txt "reports/${{ steps.run-info.outputs.run_number }}/large-files-info/"
-            
-            # Create an HTML file listing large files with artifact links
-              cat > "reports/${{ steps.run-info.outputs.run_number }}/large-files-info/index.html" << EOF
-              <!DOCTYPE html>
-              <html>
-              <head>
-                <title>Large Files Information</title>
-                <style>
-                  body { font-family: -apple-system, system-ui, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
-                  .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin-bottom: 20px; }
-                  .info-box { background: #e7f5fe; border-left: 4px solid #0366d6; padding: 15px; margin-bottom: 20px; }
-                  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                  th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; }
-                  th { background-color: #f6f8fa; }
-                  .artifact-link { display: inline-block; background: #0366d6; color: white; padding: 6px 12px; 
-                                  text-decoration: none; border-radius: 4px; margin-top: 10px; }
-                  .artifact-link:hover { background: #0258b8; }
-                </style>
-              </head>
-              <body>
-                <h1>Large Files Excluded from GitHub Pages</h1>
-
-                <div class="warning">
-                  <h3>⚠️ Some files were too large to be included in the GitHub Pages deployment</h3>
-                  <p>GitHub has a 100MB file size limit for regular Git repositories. The files listed below exceeded this limit 
-                  and were excluded from the deployment.</p>
-                </div>
-
-                <div class="info-box">
-                  <h3>📋 Access Complete Artifacts</h3>
-                  <p>You can access the complete test results, including these large files, from the GitHub Actions artifacts.</p>
-                  <p>The artifacts are stored for 30 days and contain all test results, including videos, traces, and screenshots.</p>
-                  <p>To download the artifacts:</p>
-                  <ol>
-                    <li>Go to the GitHub Actions run page (link below)</li>
-                    <li>Scroll down to the "Artifacts" section</li>
-                    <li>Download the artifact that includes your files of interest</li>
-                  </ol>
-                  <p><strong>Note:</strong> Large video and trace files are typically most useful for debugging test failures.</p>
-                </div>
-              
+            cat > "reports/${{ steps.run-info.outputs.run_number }}/large-files-info/index.html" << EOF
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <title>Large Files Information</title>
+              <style>
+                body { font-family: -apple-system, system-ui, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+                .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin-bottom: 20px; }
+                .info-box { background: #e7f5fe; border-left: 4px solid #0366d6; padding: 15px; margin-bottom: 20px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; }
+                th { background-color: #f6f8fa; }
+                .artifact-link { display: inline-block; background: #0366d6; color: white; padding: 6px 12px; 
+                                text-decoration: none; border-radius: 4px; margin-top: 10px; }
+                .artifact-link:hover { background: #0258b8; }
+              </style>
+            </head>
+            <body>
+              <h1>Large Files Excluded from GitHub Pages</h1>
+              <div class="warning">
+                <h3>⚠️ Some files were too large to be included in the GitHub Pages deployment</h3>
+                <p>GitHub has a 100MB file size limit for regular Git repositories. The files listed below exceeded this limit 
+                and were excluded from the deployment.</p>
+              </div>
+              <div class="info-box">
+                <h3>📋 Access Complete Artifacts</h3>
+                <p>You can access the complete test results, including these large files, from the GitHub Actions artifacts.</p>
+                <p>The artifacts are stored for 30 days and contain all test results, including videos, traces, and screenshots.</p>
+                <p>To download the artifacts:</p>
+                <ol>
+                  <li>Go to the GitHub Actions run page (link below)</li>
+                  <li>Scroll down to the "Artifacts" section</li>
+                  <li>Download the artifact that includes your files of interest</li>
+                </ol>
+                <p><strong>Note:</strong> Large video and trace files are typically most useful for debugging test failures.</p>
+              </div>
               <h2>Excluded Files</h2>
               <table>
                 <tr>
@@ -803,23 +737,16 @@ jobs:
                   <th>Size</th>
                 </tr>
             EOF
-            
-            # Add each large file to the HTML
             while IFS= read -r line; do
               if [[ $line == Large\ file\ detected:* ]]; then
                 file_path=$(echo "$line" | sed 's/Large file detected: \(.*\) (\(.*\) MB)/\1/')
                 file_size=$(echo "$line" | sed 's/Large file detected: \(.*\) (\(.*\) MB)/\2/')
-                
                 echo "          <tr>
                   <td>$file_path</td>
                   <td>$file_size MB</td>
                 </tr>" >> "reports/${{ steps.run-info.outputs.run_number }}/large-files-info/index.html"
-                
-                # Create placeholder directories if needed
                 placeholder_dir=$(dirname "reports/${{ steps.run-info.outputs.run_number }}/$file_path")
                 mkdir -p "$placeholder_dir"
-                
-                # Create a placeholder HTML file with a link to the large-files-info
                 placeholder_file_html="${placeholder_dir}/$(basename "${file_path%.*}").html"
                 cat > "$placeholder_file_html" << EOF_PLACEHOLDER
                 <!DOCTYPE html>
@@ -836,39 +763,30 @@ jobs:
                 </head>
                 <body>
                   <h1>Large File Placeholder</h1>
-                  
                   <div class="warning">
                     <h3>⚠️ This file was too large to be included in GitHub Pages</h3>
                     <p>The original file <strong>$(basename "$file_path")</strong> is $file_size MB, which exceeds GitHub's 100MB limit.</p>
                   </div>
-                  
                   <div class="info">
                     <p>Please refer to the GitHub Actions artifacts to access the complete file.</p>
                   </div>
-                  
                   <a href="../../large-files-info/index.html" class="link">View All Large Files Info</a>
                 </body>
                 </html>
           EOF_PLACEHOLDER
               fi
             done < large_files_list.txt
-            
-            # Finish the HTML file
             cat >> "reports/${{ steps.run-info.outputs.run_number }}/large-files-info/index.html" << EOF
               </table>
-              
-            <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" 
-               class="artifact-link" target="_blank" style="font-size: 16px; padding: 12px 24px; text-align: center; display: block; margin: 20px auto; max-width: 300px;">
-              📥 Download Complete Artifacts
-            </a>
-            <p style="text-align: center; margin-top: 5px; color: #586069;">Artifacts include all videos, traces, and large files</p>
+              <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" 
+                 class="artifact-link" target="_blank" style="font-size: 16px; padding: 12px 24px; text-align: center; display: block; margin: 20px auto; max-width: 300px;">
+                📥 Download Complete Artifacts
+              </a>
+              <p style="text-align: center; margin-top: 5px; color: #586069;">Artifacts include all videos, traces, and large files</p>
             </body>
             </html>
           EOF
-            
-            # Add a warning to the main report index.html about large files
             if [ -f "reports/${{ steps.run-info.outputs.run_number }}/index.html" ]; then
-              # Insert the warning after the opening body tag
               sed -i '/<body>/a \
               <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0;"> \
                 <h3 style="margin-top: 0;">⚠️ Some files were too large to be included in this report</h3> \
@@ -878,42 +796,55 @@ jobs:
             fi
           fi
 
-          # Install jq for JSON parsing
+          # Install jq
           sudo apt-get update && sudo apt-get install -y jq
 
-          # Collect information about all existing reports
-          REPORTS_DATA=""
+          # Collect and deduplicate reports
+          REPORTS_JSON="[]"
           if [ -d "reports" ]; then
             for RUN_DIR in reports/*; do
               if [ -d "$RUN_DIR" ]; then
                 RUN_NUM=$(basename "$RUN_DIR")
                 METADATA_FILE="$RUN_DIR/metadata/run-info.json"
-
-                # Default values in case we can't read the file
                 TIMESTAMP=""
                 RUN_REASON=""
-
                 if [ -f "$METADATA_FILE" ]; then
-                  # Get data from metadata file if it exists
                   TIMESTAMP=$(jq -r '.timestamp // empty' "$METADATA_FILE" 2>/dev/null || echo "")
                   RUN_REASON=$(jq -r '.runReason // empty' "$METADATA_FILE" 2>/dev/null || echo "")
-                else
-                  # For older reports, use directory modification time
-                  TIMESTAMP=$(date -r "$RUN_DIR" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || echo "$(date +"%Y-%m-%dT%H:%M:%SZ")")
                 fi
-
-                # Escape any single quotes in the reason to prevent script errors
                 ESCAPED_REASON=$(echo "$RUN_REASON" | sed "s/'/\\\\'/g")
-
-                # Add to the reports data
-                REPORTS_DATA="${REPORTS_DATA}addReportEntry('$RUN_NUM', '$TIMESTAMP', '$ESCAPED_REASON');  "
+                REPORTS_JSON=$(echo "$REPORTS_JSON" | jq --arg num "$RUN_NUM" --arg ts "$TIMESTAMP" --arg reason "$ESCAPED_REASON" \
+                  'del(.[] | select(.runNumber == $num)) | . + [{"runNumber": $num, "timestamp": $ts, "reason": $reason}]')
               fi
             done
           fi
 
           # Add current run
-          CURRENT_TIMESTAMP="${{ steps.run-info.outputs.timestamp }}"
-          REPORTS_DATA="${REPORTS_DATA}addReportEntry('${{ steps.run-info.outputs.run_number }}', '$CURRENT_TIMESTAMP', '${{ inputs.run_reason }}');"
+          CURRENT_TIMESTAMP=$(cat run-metadata/run-metadata.json | jq -r '.actualRunTime' 2>/dev/null || echo "$(date +'%Y-%m-%dT%H:%M:%SZ')")
+          CURRENT_REASON=$(cat run-metadata/run-metadata.json | jq -r '.runReason' 2>/dev/null || echo "${{ inputs.run_reason }}")
+          ESCAPED_CURRENT_REASON=$(echo "$CURRENT_REASON" | sed "s/'/\\\\'/g")
+          REPORTS_JSON=$(echo "$REPORTS_JSON" | jq --arg num "${{ steps.run-info.outputs.run_number }}" --arg ts "$CURRENT_TIMESTAMP" --arg reason "$ESCAPED_CURRENT_REASON" \
+            'del(.[] | select(.runNumber == $num)) | . + [{"runNumber": $num, "timestamp": $ts, "reason": $reason}]')
+
+          # Limit to 60 latest runs
+          REPORTS_JSON=$(echo "$REPORTS_JSON" | jq -r 'sort_by(.runNumber | tonumber) | reverse | .[0:60]')
+
+          # Clean up old reports
+          echo "Cleaning up old reports (keeping latest 60)..."
+          find reports/ -maxdepth 1 -type d | while read -r dir; do
+            RUN_NUM=$(basename "$dir")
+            if ! echo "$REPORTS_JSON" | jq -e --arg num "$RUN_NUM" '.[] | select(.runNumber == $num)' > /dev/null; then
+              echo "Removing old report: $dir"
+              rm -rf "$dir"
+            fi
+          done
+
+          # Generate REPORTS_DATA
+          REPORTS_DATA=""
+          for row in $(echo "$REPORTS_JSON" | jq -r '.[] | [.runNumber, .timestamp, .reason] | join("\t")'); do
+            IFS=$'\t' read -r RUN_NUM TIMESTAMP REASON <<< "$row"
+            REPORTS_DATA="${REPORTS_DATA}addReportEntry('$RUN_NUM', '$TIMESTAMP', '$REASON');  "
+          done
 
           # Create or update main index
           cat > index.html << EOF
@@ -995,7 +926,6 @@ jobs:
               <h1>Playwright Test Reports History</h1>
               <p>Historical test execution reports with retention</p>
             </div>
-            
             <div class="filter-bar">
               <input type="text" class="search-input" placeholder="Search reports..." id="searchInput">
               <select class="sort-select" id="sortSelect">
@@ -1003,41 +933,32 @@ jobs:
                 <option value="oldest">Oldest First</option>
               </select>
             </div>
-            
             <div class="reports-container" id="reportsContainer">
               <!-- Report entries will be dynamically inserted here -->
             </div>
-            
             <script>
-            // Updated function to include reason and handle parsing errors
             function addReportEntry(runNumber, timestamp, reason) {
               const container = document.getElementById('reportsContainer');
               const card = document.createElement('div');
               card.className = 'report-card';
-            
-              // Parse date from timestamp format safely
               let formattedDate = "Unknown Date";
               try {
                 if (timestamp) {
-                  // Handle both ISO format and custom format with underscore
                   let dateStr = timestamp;
                   if (timestamp.includes('_')) {
                     const [datePart, timePart] = timestamp.split('_');
                     dateStr = datePart.slice(0,4) + '-' + datePart.slice(4,6) + '-' + datePart.slice(6,8) + 
                               'T' + timePart.slice(0,2) + ':' + timePart.slice(2,4) + ':' + (timePart.slice(4,6) || '00');
                   }
-                
                   const date = new Date(dateStr);
-                  if (!isNaN(date.getTime())) { // Check if date is valid
+                  if (!isNaN(date.getTime())) {
                     formattedDate = date.toLocaleString();
                   }
                 }
               } catch (e) {
                 console.error("Error parsing date:", e);
               }
-            
               const reasonHtml = reason ? \`<div class="run-reason">Reason: \${reason}</div>\` : '';
-            
               card.innerHTML = \`
                 <a href="./reports/\${runNumber}/index.html" class="report-link">
                   <h3>Run #\${runNumber}</h3>
@@ -1047,14 +968,9 @@ jobs:
                   </div>
                 </a>
               \`;
-            
               container.appendChild(card);
             }
-
-            // Add all report entries
             ${REPORTS_DATA}
-
-            // Search functionality
             document.getElementById('searchInput').addEventListener('input', (e) => {
               const searchTerm = e.target.value.toLowerCase();
               const cards = document.querySelectorAll('.report-card');
@@ -1063,24 +979,17 @@ jobs:
                 card.style.display = text.includes(searchTerm) ? '' : 'none';
               });
             });
-
-            // Sorting functionality
             document.getElementById('sortSelect').addEventListener('change', (e) => {
               const container = document.getElementById('reportsContainer');
               const cards = Array.from(container.children);
-
               cards.sort((a, b) => {
                 const aNum = parseInt(a.querySelector('h3').textContent.split('#')[1]);
                 const bNum = parseInt(b.querySelector('h3').textContent.split('#')[1]);
-
                 return e.target.value === 'newest' ? bNum - aNum : aNum - bNum;
               });
-
               container.innerHTML = '';
               cards.forEach(card => container.appendChild(card));
             });
-
-            // Sort by newest first by default (after all entries have been added)
             window.onload = function() {
               document.getElementById('sortSelect').dispatchEvent(new Event('change'));
             };
@@ -1099,23 +1008,14 @@ jobs:
       - name: Commit and Push Changes
         run: |
           cd gh-pages
-
-          # Ensure we're on the right branch
           git fetch origin gh-pages
           git checkout gh-pages
-
-          # Check for changes
           if [ -n "$(git status --porcelain)" ]; then
             echo "Changes detected, committing..."
-            
-            # Try to commit and push
             git add .
             git commit -m "Add test report for run #${{ steps.run-info.outputs.run_number }}"
-            
-            # Attempt to push, with retry logic
             MAX_RETRIES=3
             RETRY_COUNT=0
-            
             while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
               if git push origin gh-pages; then
                 echo "Successfully pushed changes"
