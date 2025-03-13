@@ -7,10 +7,29 @@
   <style>
     body {
       font-family: -apple-system, system-ui, sans-serif;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
+      margin: 0;
+      padding: 0;
       background: #f6f8fa;
+      display: flex;
+      min-height: 100vh;
+    }
+    .sidebar {
+      width: 280px;
+      background: #24292e;
+      color: white;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+    }
+    .main-content {
+      flex: 1;
+      margin-left: 280px;
+      padding: 20px;
+      box-sizing: border-box;
     }
     .header {
       background: white;
@@ -24,142 +43,313 @@
       gap: 15px;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     }
-    .report-card {
+    .report-card, .run-item {
       background: white;
       padding: 15px;
       border-radius: 8px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       transition: transform 0.2s;
+      margin-bottom: 10px;
     }
     .report-card:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
+    .run-item {
+      background: #2f363d;
+      cursor: pointer;
+    }
+    .run-item:hover, .run-item.active {
+      background: #444d56;
+    }
+    .run-item h3 {
+      margin-top: 0;
+      color: #58a6ff;
+    }
     .report-link {
       text-decoration: none;
       color: #0366d6;
     }
-    .report-meta {
+    .report-meta, .run-meta {
       color: #586069;
       font-size: 0.9em;
       margin-top: 10px;
     }
+    .run-meta {
+      color: #8b949e;
+    }
     .filter-bar {
-      background: white;
+      background: #2f363d;
       padding: 15px;
       border-radius: 8px;
       margin-bottom: 20px;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
     }
     .search-input {
       padding: 8px;
-      border: 1px solid #ddd;
+      border: 1px solid #444d56;
       border-radius: 4px;
-      flex: 1;
+      background: #1f2428;
+      color: white;
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 10px;
     }
     .sort-select {
       padding: 8px;
-      border: 1px solid #ddd;
+      border: 1px solid #444d56;
       border-radius: 4px;
+      background: #1f2428;
+      color: white;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .sidebar-header {
+      margin-top: 0;
+      color: white;
+      border-bottom: 1px solid #444d56;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      .main-content {
+        margin-left: 0;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <h1>Playwright Test Reports History</h1>
-    <p>Historical test execution reports with retention</p>
+  <div class="sidebar">
+    <h2 class="sidebar-header">Run History</h2>
+    <div class="filter-bar">
+      <input type="text" class="search-input" placeholder="Search reasons or runs..." id="sidebarSearch">
+      <select class="sort-select" id="sidebarSort">
+        <option value="newest">Newest First</option>
+        <option value="oldest">Oldest First</option>
+      </select>
+    </div>
+    <div id="runsList">
+      <!-- Run items will be dynamically inserted here -->
+    </div>
   </div>
-
-  <div class="filter-bar">
-    <input type="text" class="search-input" placeholder="Search reports..." id="searchInput">
-    <select class="sort-select" id="sortSelect">
-      <option value="newest">Newest First</option>
-      <option value="oldest">Oldest First</option>
-    </select>
+  
+  <div class="main-content">
+    <div class="header">
+      <h1>Playwright Test Reports History</h1>
+      <p>Historical test execution reports with retention</p>
+    </div>
+    <div class="filter-bar" style="background: white;">
+      <input type="text" class="search-input" placeholder="Search reports..." id="searchInput" style="background: white; color: black; border: 1px solid #ddd;">
+      <select class="sort-select" id="sortSelect" style="background: white; color: black; border: 1px solid #ddd;">
+        <option value="newest">Newest First</option>
+        <option value="oldest">Oldest First</option>
+      </select>
+    </div>
+    <div class="reports-container" id="reportsContainer">
+      <!-- Report entries will be dynamically inserted here -->
+    </div>
   </div>
-
-  <div class="reports-container" id="reportsContainer">
-    <!-- Report entries will be dynamically inserted here -->
-  </div>
-
+  
   <script>
-    // Function to add a new report entry
-    function addReportEntry(runNumber, timestamp) {
-      const container = document.getElementById('reportsContainer');
-      const card = document.createElement('div');
-      card.className = 'report-card';
+    // Load the run history from the JSON file
+    fetch('./run-history.json')
+      .then(response => {
+        if (!response.ok) throw new Error();
+        return response.json();
+      })
+      .then(runHistory => {
+        if (!Array.isArray(runHistory) || runHistory.length === 0) {
+          throw new Error('Run history is empty or invalid');
+        }
+        // Normalize and sort by runNumber descending
+        const normalizedHistory = runHistory.map(run => ({
+          ...run,
+          runNumber: String(run.runNumber) // Ensure consistency
+        })).sort((a, b) => parseInt(b.runNumber) - parseInt(a.runNumber));
 
-      // Parse date from timestamp format YYYYMMDD_HHMMSS
-      let dateStr = timestamp;
-      if (timestamp.includes('_')) {
-        const [datePart, timePart] = timestamp.split('_');
-        dateStr = datePart.slice(0,4) + '-' + datePart.slice(4,6) + '-' + datePart.slice(6,8) + 
-                  'T' + timePart.slice(0,2) + ':' + timePart.slice(2,4) + ':' + timePart.slice(4,6);
-      }
+        populateRunsList(normalizedHistory);
+        populateReportsContainer(normalizedHistory);
+        setupEventListeners(normalizedHistory);
+      })
+      .catch(error => {
+        console.error('Error loading run history:', error);
+        document.getElementById('runsList').innerHTML = '<p style="color: #f85149;">Failed to load run history. Check console.</p>';
+        document.getElementById('reportsContainer').innerHTML = '<p style="color: #f85149;">No reports available.</p>';
+      });
+    
+      function populateRunsList(runHistory) {
+        const runsList = document.getElementById('runsList');
+        runsList.innerHTML = '';
 
-      const date = new Date(dateStr);
-      const formattedDate = date.toLocaleString();
+        // Sort by run number descending by default
+        runHistory.sort((a, b) => parseInt(b.runNumber) - parseInt(a.runNumber));
 
-      card.innerHTML = `
-        <a href="./reports/${runNumber}/index.html" class="report-link">
-          <h3>Run #${runNumber}</h3>
-          <div class="report-meta">
+        runHistory.forEach(run => {
+          const runItem = document.createElement('div');
+          runItem.className = 'run-item';
+          runItem.dataset.runNumber = run.runNumber;
+
+        // Format the timestamp
+        let formattedDate = 'Unknown date';
+        if (run.timestamp) {
+          try {
+            const parts = run.timestamp.split('_');
+            if (parts.length === 2) {
+              const datePart = parts[0];
+              const timePart = parts[1];
+              const year = datePart.substring(0, 4);
+              const month = datePart.substring(4, 6);
+              const day = datePart.substring(6, 8);
+              const hour = timePart.substring(0, 2);
+              const minute = timePart.substring(2, 4);
+              const second = timePart.substring(4, 6);
+              const date = new Date(Date.UTC(year, month-1, day, hour, minute, second));
+              formattedDate = date.toLocaleString();
+            }
+          } catch (e) {
+            console.warn('Error formatting date:', e);
+          }
+        }
+          
+
+        runItem.innerHTML = `
+          <h3>Run #${run.runNumber}</h3>
+          <div class="run-meta">
             <div>Executed: ${formattedDate}</div>
+            <div>Reason: ${run.runReason || 'Not specified'}</div>
+            <div>Environment: ${run.environment || 'Not specified'}</div>
+            <div>Browser: ${run.browser || 'Not specified'}</div>
           </div>
-        </a>
-      `;
+        `;
 
-      container.appendChild(card);
+        runItem.addEventListener('click', () => {
+          // Navigate to the report when clicked
+          window.location.href = `./reports/${run.runNumber}/index.html`;
+        });
+
+        runsList.appendChild(runItem);
+      });
+       // Log the number of runs displayed
+      console.log();
     }
 
-    // Add all report entries
-    addReportEntry('154', '20250313_192220');
-    addReportEntry('155', '20250313_192220');
-    addReportEntry('156', '20250313_192220');
-    addReportEntry('157', '20250313_192220');
-    addReportEntry('158', '20250313_192220');
-    addReportEntry('159', '20250313_192220');
-    addReportEntry('160', '20250313_192220');
-    addReportEntry('161', '20250313_192220');
-    addReportEntry('166', '20250313_192220');
-    addReportEntry('167', '20250313_192220');
-    addReportEntry('169', '20250313_192135');
-    addReportEntry('169', '20250313_192135');
+    function populateReportsContainer(runHistory) {
+      const container = document.getElementById('reportsContainer');
+      container.innerHTML = '';
 
-    // Search functionality
-    document.getElementById('searchInput').addEventListener('input', (e) => {
-      const searchTerm = e.target.value.toLowerCase();
+      runHistory.forEach(run => {
+        const card = document.createElement('div');
+        card.className = 'report-card';
+
+        let formattedDate = 'Unknown date';
+        if (run.timestamp) {
+          try {
+            const parts = run.timestamp.split('_');
+            if (parts.length === 2) {
+              const datePart = parts[0];
+              const timePart = parts[1];
+              const year = datePart.substring(0, 4);
+              const month = datePart.substring(4, 6);
+              const day = datePart.substring(6, 8);
+              const hour = timePart.substring(0, 2);
+              const minute = timePart.substring(2, 4);
+              const second = timePart.substring(4, 6);
+              const date = new Date(Date.UTC(year, month-1, day, hour, minute, second));
+              formattedDate = date.toLocaleString();
+            }
+          } catch (e) {
+            console.warn('Error formatting date:', e);
+          }
+        }
+
+        card.innerHTML = `
+          <a href="./reports/${run.runNumber}/index.html" class="report-link">
+            <h3>Run #${run.runNumber}</h3>
+            <div class="report-meta">
+              <div>Executed: ${formattedDate}</div>
+              <div>Reason: ${run.runReason || 'Not specified'}</div>
+              <div>Environment: ${run.environment || 'Not specified'}</div>
+              <div>Browser: ${run.browser || 'Not specified'}</div>
+            </div>
+          </a>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function setupEventListeners(originalRunHistory) {
+      // Main search
+      document.getElementById('searchInput').addEventListener('input', (e) => {
+        filterReports(e.target.value.toLowerCase());
+      });
+
+      // Main sort
+      document.getElementById('sortSelect').addEventListener('change', (e) => {
+        sortReports(e.target.value);
+      });
+
+      // Sidebar search
+      document.getElementById('sidebarSearch').addEventListener('input', (e) => {
+        filterSidebar(e.target.value.toLowerCase());
+      });
+
+      // Sidebar sort
+      document.getElementById('sidebarSort').addEventListener('change', (e) => {
+        sortSidebar(e.target.value);
+      });
+    }
+
+    function filterReports(searchTerm) {
       const cards = document.querySelectorAll('.report-card');
-
       cards.forEach(card => {
         const text = card.textContent.toLowerCase();
         card.style.display = text.includes(searchTerm) ? '' : 'none';
       });
-    });
+    }
 
-    // Sorting functionality
-    document.getElementById('sortSelect').addEventListener('change', (e) => {
+    function sortReports(sortOrder) {
       const container = document.getElementById('reportsContainer');
       const cards = Array.from(container.children);
 
       cards.sort((a, b) => {
         const aNum = parseInt(a.querySelector('h3').textContent.split('#')[1]);
         const bNum = parseInt(b.querySelector('h3').textContent.split('#')[1]);
-
-        return e.target.value === 'newest' ? bNum - aNum : aNum - bNum;
+        return sortOrder === 'newest' ? bNum - aNum : aNum - bNum;
       });
 
       container.innerHTML = '';
       cards.forEach(card => container.appendChild(card));
-    });
+    }
 
-    // Sort by newest first by default (after all entries have been added)
-    window.onload = function() {
-      document.getElementById('sortSelect').dispatchEvent(new Event('change'));
-    };
+    function filterSidebar(searchTerm) {
+      const items = document.querySelectorAll('.run-item');
+      items.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.style.display = text.includes(searchTerm) ? '' : 'none';
+      });
+    }
+
+    function sortSidebar(sortOrder) {
+      const container = document.getElementById('runsList');
+      const items = Array.from(container.children);
+
+      items.sort((a, b) => {
+        const aNum = parseInt(a.dataset.runNumber);
+        const bNum = parseInt(b.dataset.runNumber);
+        return sortOrder === 'newest' ? bNum - aNum : aNum - bNum;
+      });
+
+      container.innerHTML = '';
+      items.forEach(item => container.appendChild(item));
+    }
   </script>
 </body>
 </html>
