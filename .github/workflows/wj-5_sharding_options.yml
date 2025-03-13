@@ -649,38 +649,21 @@ jobs:
         run: |
           cd gh-pages
 
-          # Make a folder for the new report (like reports/168)
+          # Create directory for new report
           mkdir -p "reports/${{ steps.run-info.outputs.run_number }}"
 
-          # Copy the new report files (but skip big ones like videos)
+          # Copy files (excluding large ones)
           echo "Copying files to gh-pages branch directory..."
           rsync -av --exclude="*.zip" --exclude="*.png" --exclude="*.jpg" --exclude="*.jpeg" --exclude="*.mp4" --exclude="*.webm" \
             --exclude="*.gif" --exclude="*.trace" --exclude="*.webp" --max-size=100M \
             "../new-report/" "reports/${{ steps.run-info.outputs.run_number }}/"
 
-          # Make info for the current run (like run #168)
+          # Create and Update Run History
           CURRENT_RUN="{\"runNumber\": \"${{ steps.run-info.outputs.run_number }}\", \"timestamp\": \"${{ steps.run-info.outputs.timestamp }}\", \"runReason\": \"${{ inputs.run_reason }}\", \"environment\": \"${{ inputs.environment }}\", \"browser\": \"${{ inputs.browser }}\", \"testPattern\": \"${{ inputs.test_pattern }}\"}"
           mkdir -p "../new-report/metadata"
           echo "$CURRENT_RUN" > "../new-report/metadata/run-info.json"
-
-          # If run-history.json is missing or empty, rebuild it from old reports
-          if [ ! -f "run-history.json" ] || [ "$(cat run-history.json)" = "[]" ]; then
-            echo "Rebuilding run-history.json from old reports..."
-            find reports -name "run-info.json" -type f | sort -r | while read -r file; do
-              if [ -f "run-history.json" ]; then
-                jq -s 'flatten | unique_by(.runNumber) | sort_by(.runNumber | tonumber) | reverse' \
-                  run-history.json "$file" > run-history.tmp
-              else
-                jq -s 'flatten | unique_by(.runNumber) | sort_by(.runNumber | tonumber) | reverse' \
-                  "$file" > run-history.tmp
-              fi
-              mv run-history.tmp run-history.json
-            done
-          fi
-
-          # Add the new run to run-history.json
           if [ -f "run-history.json" ]; then
-            echo "Adding new run to run-history.json..."
+            echo "Updating existing run history..."
             jq --argjson newRun "$CURRENT_RUN" '
               if (map(.runNumber == $newRun.runNumber) | any) then
                 map(if .runNumber == $newRun.runNumber then $newRun else . end)
@@ -690,12 +673,10 @@ jobs:
             ' run-history.json > run-history.tmp
             mv run-history.tmp run-history.json
           else
-            echo "Creating run-history.json with the new run..."
+            echo "Creating new run history..."
             echo "[$CURRENT_RUN]" > run-history.json
           fi
-
-          # Show what’s in run-history.json to check it
-          echo "Here’s what’s in run-history.json:"
+          echo "Contents of run history file:"
           cat run-history.json
 
           # Handle large files (unchanged logic)
