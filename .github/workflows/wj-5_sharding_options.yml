@@ -906,7 +906,7 @@ jobs:
                 ESCAPED_REASON=$(echo "$RUN_REASON" | sed "s/'/\\\\'/g")
 
                 # Add to the reports data
-                REPORTS_DATA="${REPORTS_DATA}addReportEntry('$RUN_NUM', '$TIMESTAMP', '$ESCAPED_REASON');\n    "
+                REPORTS_DATA="${REPORTS_DATA}addReportEntry('$RUN_NUM', '$TIMESTAMP', '$ESCAPED_REASON');  "
               fi
             done
           fi
@@ -1036,9 +1036,9 @@ jobs:
                 console.error("Error parsing date:", e);
               }
             
-              const reasonHtml = reason ? `<div class="run-reason">Reason: ${reason}</div>` : '';
+              const reasonHtml = reason ? \`<div class="run-reason">Reason: \${reason}</div>\` : '';
             
-              card.innerHTML = `
+              card.innerHTML = \`
                 <a href="./reports/\${runNumber}/index.html" class="report-link">
                   <h3>Run #\${runNumber}</h3>
                   <div class="report-meta">
@@ -1046,13 +1046,13 @@ jobs:
                     \${reasonHtml}
                   </div>
                 </a>
-              `;
+              \`;
             
               container.appendChild(card);
             }
 
             // Add all report entries
-            $(echo -e "$REPORTS_DATA")
+            ${REPORTS_DATA}
 
             // Search functionality
             document.getElementById('searchInput').addEventListener('input', (e) => {
