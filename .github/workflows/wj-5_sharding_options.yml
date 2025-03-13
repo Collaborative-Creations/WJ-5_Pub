@@ -616,36 +616,6 @@ jobs:
           # Use GitHub's run start time as the execution timestamp
           echo "timestamp=$(date -d "${{ github.event.workflow_run.created_at || github.event.created_at }}" +'%Y%m%d_%H%M%S')" >> $GITHUB_OUTPUT
 
-      - name: Create and Update Run History
-        run: |
-          mkdir -p new-report/metadata
-          CURRENT_RUN="{\"runNumber\": \"${{ steps.run-info.outputs.run_number }}\", \"timestamp\": \"${{ steps.run-info.outputs.timestamp }}\", \"runReason\": \"${{ inputs.run_reason }}\", \"environment\": \"${{ inputs.environment }}\", \"browser\": \"${{ inputs.browser }}\", \"testPattern\": \"${{ inputs.test_pattern }}\"}"
-          echo "$CURRENT_RUN" > new-report/metadata/run-info.json
-
-          # Ensure gh-pages/run-history.json exists by copying it first
-          if [ -f "gh-pages/run-history.json" ]; then
-            cp gh-pages/run-history.json new-report/run-history.json
-            echo "Updating existing run history..."
-            jq --argjson newRun "$CURRENT_RUN" '
-              if (map(.runNumber == $newRun.runNumber) | any) then
-                map(if .runNumber == $newRun.runNumber then $newRun else . end)
-              else
-                . + [$newRun]
-              end | sort_by(.runNumber | tonumber) | reverse
-            ' new-report/run-history.json > new-report/run-history.tmp
-            mv new-report/run-history.tmp new-report/run-history.json
-          else
-            echo "Creating new run history..."
-            echo "[$CURRENT_RUN]" > new-report/run-history.json
-          fi
-
-          # Copy updated history back to gh-pages
-          cp new-report/run-history.json gh-pages/run-history.json
-
-          # Debug - print the contents of the history file
-          echo "Contents of run history file:"
-          cat new-report/run-history.json
-
       - name: Checkout gh-pages branch
         uses: actions/checkout@v4
         with:
@@ -679,11 +649,32 @@ jobs:
           # Create directory for new report
           mkdir -p "reports/${{ steps.run-info.outputs.run_number }}"
 
-          # Copy files (excluding large ones, unchanged logic)
+          # Copy files (excluding large ones)
           echo "Copying files to gh-pages branch directory..."
           rsync -av --exclude="*.zip" --exclude="*.png" --exclude="*.jpg" --exclude="*.jpeg" --exclude="*.mp4" --exclude="*.webm" \
             --exclude="*.gif" --exclude="*.trace" --exclude="*.webp" --max-size=100M \
             "../new-report/" "reports/${{ steps.run-info.outputs.run_number }}/"
+
+          # Create and Update Run History
+          CURRENT_RUN="{\"runNumber\": \"${{ steps.run-info.outputs.run_number }}\", \"timestamp\": \"${{ steps.run-info.outputs.timestamp }}\", \"runReason\": \"${{ inputs.run_reason }}\", \"environment\": \"${{ inputs.environment }}\", \"browser\": \"${{ inputs.browser }}\", \"testPattern\": \"${{ inputs.test_pattern }}\"}"
+          mkdir -p "../new-report/metadata"
+          echo "$CURRENT_RUN" > "../new-report/metadata/run-info.json"
+          if [ -f "run-history.json" ]; then
+            echo "Updating existing run history..."
+            jq --argjson newRun "$CURRENT_RUN" '
+              if (map(.runNumber == $newRun.runNumber) | any) then
+                map(if .runNumber == $newRun.runNumber then $newRun else . end)
+              else
+                . + [$newRun]
+              end | sort_by(.runNumber | tonumber) | reverse
+            ' run-history.json > run-history.tmp
+            mv run-history.tmp run-history.json
+          else
+            echo "Creating new run history..."
+            echo "[$CURRENT_RUN]" > run-history.json
+          fi
+          echo "Contents of run history file:"
+          cat run-history.json
 
           # Handle large files (unchanged logic)
           echo "Checking for large files..."
@@ -1220,7 +1211,6 @@ jobs:
             git checkout gh-pages
             git pull origin gh-pages --rebase --allow-unrelated-histories
           fi
-          # ... (run-history.json logic remains as updated above) ...
           if [ -n "$(git status --porcelain)" ]; then
             git add .
             git commit -m "Add test report for run #${{ steps.run-info.outputs.run_number }} (Reason: ${{ inputs.run_reason }})"
