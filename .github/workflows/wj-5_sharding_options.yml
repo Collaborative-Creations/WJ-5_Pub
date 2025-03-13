@@ -7,6 +7,11 @@ on:
         description: "Test environment (prodCanada/ prod/ prodTest/ stage/ qa)"
         required: true
         default: "stage"
+      run_reason:
+        description: "Reason for this test run"
+        required: true
+        type: string
+
       test_pattern:
         description: "Test pattern (e.g., @Smoke, @TestDe|@DerivedScores, (?=.*@RDGBAS)(?=.*@DerivedScores), (?=.*@DerivedScores)(?=.*(@PHNMAN|@RDGBAS)), (?=.*@Smoke)(?=.*(@TestDe|@DerivedScores|@SingleTable|@MultiTable)))"
         required: true
@@ -125,11 +130,13 @@ jobs:
               ;;
           esac
 
-      - name: Save pre-run notes
-        if: inputs.pre_run_notes != ''
+      # Updated "Save pre-run notes and run metadata" step
+      - name: Save pre-run notes and run metadata
         run: |
           mkdir -p run-metadata
           echo "${{ inputs.pre_run_notes }}" > run-metadata/pre-run-notes.txt
+          # Add timestamp and run reason to metadata
+          echo "{\"actualRunTime\": \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\", \"runReason\": \"${{ inputs.run_reason }}\"}" > run-metadata/run-metadata.json
 
       - name: Upload pre-run notes
         if: inputs.pre_run_notes != ''
@@ -676,10 +683,18 @@ jobs:
           echo "run_number=$GITHUB_RUN_NUMBER" >> $GITHUB_OUTPUT
           echo "timestamp=$(date +'%Y%m%d_%H%M%S')" >> $GITHUB_OUTPUT
 
+      - name: Download run metadata
+        uses: actions/download-artifact@v4
+        with:
+          name: run-metadata
+          path: run-metadata
+
       - name: Create Run Metadata
         run: |
           mkdir -p new-report/metadata
-          echo "{\"runNumber\": \"${{ steps.run-info.outputs.run_number }}\", \"timestamp\": \"${{ steps.run-info.outputs.timestamp }}\"}" > new-report/metadata/run-info.json
+          ACTUAL_RUN_TIME=$(cat run-metadata/run-metadata.json | jq -r '.actualRunTime' 2>/dev/null || echo "$(date +'%Y-%m-%dT%H:%M:%SZ')")
+          RUN_REASON=$(cat run-metadata/run-metadata.json | jq -r '.runReason' 2>/dev/null || echo "")
+          echo "{\"runNumber\": \"${{ steps.run-info.outputs.run_number }}\", \"timestamp\": \"$ACTUAL_RUN_TIME\", \"runReason\": \"$RUN_REASON\"}" > new-report/metadata/run-info.json
 
       - name: Checkout gh-pages branch
         uses: actions/checkout@v4
@@ -876,12 +891,12 @@ jobs:
                   # Get data from metadata file
                   RUN_NUM=$(jq -r '.runNumber' "$METADATA_FILE")
                   TIMESTAMP=$(jq -r '.timestamp' "$METADATA_FILE")
-                  REPORTS_DATA="${REPORTS_DATA}addReportEntry('$RUN_NUM', '$TIMESTAMP');\n    "
+                  REPORTS_DATA="${REPORTS_DATA}addReportEntry('$RUN_NUM', '$TIMESTAMP', '$(jq -r '.runReason // empty' "$METADATA_FILE")');\n    "
                 else
                   # Fallback to directory name
                   RUN_NUM=$(basename "$RUN_DIR")
                   TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-                  REPORTS_DATA="${REPORTS_DATA}addReportEntry('$RUN_NUM', '$TIMESTAMP');\n    "
+                  REPORTS_DATA="${REPORTS_DATA}addReportEntry('$RUN_NUM', '$TIMESTAMP', '$(jq -r '.runReason // empty' "$METADATA_FILE")');\n    "
                 fi
               fi
             done
@@ -981,48 +996,49 @@ jobs:
             </div>
 
             <script>
-              // Function to add a new report entry
-              function addReportEntry(runNumber, timestamp) {
-                const container = document.getElementById('reportsContainer');
-                const card = document.createElement('div');
-                card.className = 'report-card';
 
-                // Parse date from timestamp format YYYYMMDD_HHMMSS
-                let dateStr = timestamp;
-                if (timestamp.includes('_')) {
-                  const [datePart, timePart] = timestamp.split('_');
-                  dateStr = datePart.slice(0,4) + '-' + datePart.slice(4,6) + '-' + datePart.slice(6,8) + 
-                            'T' + timePart.slice(0,2) + ':' + timePart.slice(2,4) + ':' + timePart.slice(4,6);
-                }
+          // Updated function to include reason
+          function addReportEntry(runNumber, timestamp, reason) {
+            const container = document.getElementById('reportsContainer');
+            const card = document.createElement('div');
+            card.className = 'report-card';
 
-                const date = new Date(dateStr);
-                const formattedDate = date.toLocaleString();
+            // Parse date from timestamp format
+            let dateStr = timestamp;
+            if (timestamp.includes('_')) {
+              const [datePart, timePart] = timestamp.split('_');
+              dateStr = datePart.slice(0,4) + '-' + datePart.slice(4,6) + '-' + datePart.slice(6,8) + 
+                        'T' + timePart.slice(0,2) + ':' + timePart.slice(2,4) + ':' + timePart.slice(4,6);
+            }
 
-                card.innerHTML = \`
-                  <a href="./reports/\${runNumber}/index.html" class="report-link">
-                    <h3>Run #\${runNumber}</h3>
-                    <div class="report-meta">
-                      <div>Executed: \${formattedDate}</div>
-                    </div>
-                  </a>
-                \`;
+            const date = new Date(dateStr);
+            const formattedDate = date.toLocaleString();
 
-                container.appendChild(card);
-              }
+            const reasonHtml = reason ? `<div class="run-reason">Reason: ${reason}</div>` : '';
+
+            card.innerHTML = `
+              <a href="./reports/${runNumber}/index.html" class="report-link">
+                <h3>Run #${runNumber}</h3>
+                <div class="report-meta">
+                  <div>Executed: ${formattedDate}</div>
+                  ${reasonHtml}
+                </div>
+              </a>
+            `;
+
+            container.appendChild(card);
+          }
 
               // Add all report entries
-              $(echo -e "$REPORTS_DATA")
-
+              $(echo -e "$REPORTS_D 
               // Search functionality
               document.getElementById('searchInput').addEventListener('input', (e) => {
                 const searchTerm = e.target.value.toLowerCase();
-                const cards = document.querySelectorAll('.report-card');
-
+                const cards = document.querySelectorAll('.report-ca 
                 cards.forEach(card => {
                   const text = card.textContent.toLowerCase();
                   card.style.display = text.includes(searchTerm) ? '' : 'none';
                 });
-              });
 
               // Sorting functionality
               document.getElementById('sortSelect').addEventListener('change', (e) => {
