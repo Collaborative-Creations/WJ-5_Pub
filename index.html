@@ -65,10 +65,6 @@
       border: 1px solid #ddd;
       border-radius: 4px;
     }
-    .run-reason {
-      margin-top: 5px;
-      font-style: italic;
-    }
   </style>
 </head>
 <body>
@@ -76,6 +72,7 @@
     <h1>Playwright Test Reports History</h1>
     <p>Historical test execution reports with retention</p>
   </div>
+
   <div class="filter-bar">
     <input type="text" class="search-input" placeholder="Search reports..." id="searchInput">
     <select class="sort-select" id="sortSelect">
@@ -83,66 +80,76 @@
       <option value="oldest">Oldest First</option>
     </select>
   </div>
+
   <div class="reports-container" id="reportsContainer">
     <!-- Report entries will be dynamically inserted here -->
   </div>
+
   <script>
-  function addReportEntry(runNumber, timestamp, reason) {
-    const container = document.getElementById('reportsContainer');
-    const card = document.createElement('div');
-    card.className = 'report-card';
-    let formattedDate = "Unknown Date";
-    try {
-      if (timestamp) {
-        let dateStr = timestamp;
-        if (timestamp.includes('_')) {
-          const [datePart, timePart] = timestamp.split('_');
-          dateStr = datePart.slice(0,4) + '-' + datePart.slice(4,6) + '-' + datePart.slice(6,8) + 
-                    'T' + timePart.slice(0,2) + ':' + timePart.slice(2,4) + ':' + (timePart.slice(4,6) || '00');
-        }
-        const date = new Date(dateStr);
-        if (!isNaN(date.getTime())) {
-          formattedDate = date.toLocaleString();
-        }
+    // Function to add a new report entry
+    function addReportEntry(runNumber, timestamp) {
+      const container = document.getElementById('reportsContainer');
+      const card = document.createElement('div');
+      card.className = 'report-card';
+
+      // Parse date from timestamp format YYYYMMDD_HHMMSS
+      let dateStr = timestamp;
+      if (timestamp.includes('_')) {
+        const [datePart, timePart] = timestamp.split('_');
+        dateStr = datePart.slice(0,4) + '-' + datePart.slice(4,6) + '-' + datePart.slice(6,8) + 
+                  'T' + timePart.slice(0,2) + ':' + timePart.slice(2,4) + ':' + timePart.slice(4,6);
       }
-    } catch (e) {
-      console.error("Error parsing date:", e);
+
+      const date = new Date(dateStr);
+      const formattedDate = date.toLocaleString();
+
+      card.innerHTML = `
+        <a href="./reports/${runNumber}/index.html" class="report-link">
+          <h3>Run #${runNumber}</h3>
+          <div class="report-meta">
+            <div>Executed: ${formattedDate}</div>
+          </div>
+        </a>
+      `;
+
+      container.appendChild(card);
     }
-    const reasonHtml = reason ? `<div class="run-reason">Reason: ${reason}</div>` : '';
-    card.innerHTML = `
-      <a href="./reports/${runNumber}/index.html" class="report-link">
-        <h3>Run #${runNumber}</h3>
-        <div class="report-meta">
-          <div>Executed: ${formattedDate}</div>
-          ${reasonHtml}
-        </div>
-      </a>
-    `;
-    container.appendChild(card);
-  }
-  addReportEntry('153', '', '');  addReportEntry('152', '', '');  addReportEntry('151', '', '');  addReportEntry('147', '', '');  addReportEntry('146', '', '');  addReportEntry('145', '', '');  addReportEntry('144', '', '');  addReportEntry('143', '', '');  addReportEntry('142', '', '');  addReportEntry('141', '', '');  addReportEntry('140', '', '');  addReportEntry('139', '', '');  addReportEntry('138', '', '');  addReportEntry('137', '', '');  addReportEntry('136', '', '');  addReportEntry('135', '', '');  addReportEntry('134', '', '');  addReportEntry('133', '', '');  addReportEntry('132', '', '');  addReportEntry('131', '', '');  addReportEntry('130', '', '');  addReportEntry('129', '', '');  addReportEntry('127', '', '');  addReportEntry('124', '', '');  addReportEntry('123', '', '');  addReportEntry('122', '', '');  addReportEntry('121', '', '');  addReportEntry('120', '', '');  addReportEntry('119', '', '');  addReportEntry('118', '', '');  addReportEntry('117', '', '');  addReportEntry('116', '', '');  addReportEntry('115', '', '');  addReportEntry('114', '', '');  addReportEntry('112', '', '');  addReportEntry('111', '', '');  addReportEntry('109', '', '');  addReportEntry('108', '', '');  addReportEntry('107', '', '');  addReportEntry('106', '', '');  addReportEntry('105', '', '');  addReportEntry('104', '', '');  addReportEntry('103', '', '');  addReportEntry('102', '', '');  addReportEntry('101', '', '');  addReportEntry('100', '', '');  addReportEntry('99', '', '');  
-  document.getElementById('searchInput').addEventListener('input', (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-    const cards = document.querySelectorAll('.report-card');
-    cards.forEach(card => {
-      const text = card.textContent.toLowerCase();
-      card.style.display = text.includes(searchTerm) ? '' : 'none';
+
+    // Add all report entries
+    addReportEntry('154', '20250313_115229');
+    addReportEntry('154', '20250313_115229');
+
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      const cards = document.querySelectorAll('.report-card');
+
+      cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        card.style.display = text.includes(searchTerm) ? '' : 'none';
+      });
     });
-  });
-  document.getElementById('sortSelect').addEventListener('change', (e) => {
-    const container = document.getElementById('reportsContainer');
-    const cards = Array.from(container.children);
-    cards.sort((a, b) => {
-      const aNum = parseInt(a.querySelector('h3').textContent.split('#')[1]);
-      const bNum = parseInt(b.querySelector('h3').textContent.split('#')[1]);
-      return e.target.value === 'newest' ? bNum - aNum : aNum - bNum;
+
+    // Sorting functionality
+    document.getElementById('sortSelect').addEventListener('change', (e) => {
+      const container = document.getElementById('reportsContainer');
+      const cards = Array.from(container.children);
+
+      cards.sort((a, b) => {
+        const aNum = parseInt(a.querySelector('h3').textContent.split('#')[1]);
+        const bNum = parseInt(b.querySelector('h3').textContent.split('#')[1]);
+
+        return e.target.value === 'newest' ? bNum - aNum : aNum - bNum;
+      });
+
+      container.innerHTML = '';
+      cards.forEach(card => container.appendChild(card));
     });
-    container.innerHTML = '';
-    cards.forEach(card => container.appendChild(card));
-  });
-  window.onload = function() {
-    document.getElementById('sortSelect').dispatchEvent(new Event('change'));
-  };
+
+    // Sort by newest first by default (after all entries have been added)
+    window.onload = function() {
+      document.getElementById('sortSelect').dispatchEvent(new Event('change'));
+    };
   </script>
 </body>
 </html>
