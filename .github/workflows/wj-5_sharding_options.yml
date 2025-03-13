@@ -619,33 +619,28 @@ jobs:
       - name: Create and Update Run History
         run: |
           mkdir -p new-report/metadata
-
-          # Create current run metadata
           CURRENT_RUN="{\"runNumber\": \"${{ steps.run-info.outputs.run_number }}\", \"timestamp\": \"${{ steps.run-info.outputs.timestamp }}\", \"runReason\": \"${{ inputs.run_reason }}\", \"environment\": \"${{ inputs.environment }}\", \"browser\": \"${{ inputs.browser }}\", \"testPattern\": \"${{ inputs.test_pattern }}\"}"
-
           echo "$CURRENT_RUN" > new-report/metadata/run-info.json
 
-          # Make sure we have the gh-pages directory
-          if [ ! -d "gh-pages" ]; then
-            mkdir -p gh-pages
-          fi
-
-          # Create or update the central run history file
+          # Ensure gh-pages/run-history.json exists by copying it first
           if [ -f "gh-pages/run-history.json" ]; then
+            cp gh-pages/run-history.json new-report/run-history.json
             echo "Updating existing run history..."
-            # Read existing history and avoid duplicate entries
             jq --argjson newRun "$CURRENT_RUN" '
               if (map(.runNumber == $newRun.runNumber) | any) then
                 map(if .runNumber == $newRun.runNumber then $newRun else . end)
               else
                 . + [$newRun]
-              end
-            ' gh-pages/run-history.json > new-report/run-history.json
+              end | sort_by(.runNumber | tonumber) | reverse
+            ' new-report/run-history.json > new-report/run-history.tmp
+            mv new-report/run-history.tmp new-report/run-history.json
           else
             echo "Creating new run history..."
-            # Create new history file with first entry
             echo "[$CURRENT_RUN]" > new-report/run-history.json
           fi
+
+          # Copy updated history back to gh-pages
+          cp new-report/run-history.json gh-pages/run-history.json
 
           # Debug - print the contents of the history file
           echo "Contents of run history file:"
@@ -1012,30 +1007,30 @@ jobs:
             
             <script>
               // Load the run history from the JSON file
-            fetch('./run-history.json')
-              .then(response => {
-                if (!response.ok) {
-                  throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-              })
-              .then(runHistory => {
-                console.log(`Loaded ${runHistory.length} runs from history`);
-                // Sort by newest first
-                runHistory.sort((a, b) => parseInt(b.runNumber) - parseInt(a.runNumber));
-                
-                // Populate both the sidebar and main container
-                populateRunsList(runHistory);
-                populateReportsContainer(runHistory);
-                
-                // Set up event listeners
-                setupEventListeners(runHistory);
-              })
-              .catch(error => {
-                console.error('Error loading run history:', error);
-                document.getElementById('runsList').innerHTML = 
-                  '<p style="color: #f85149;">Error loading run history. Please check the console for details.</p>';
-              });
+              fetch('./run-history.json')
+                .then(response => {
+                  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                  return response.json();
+                })
+                .then(runHistory => {
+                  if (!Array.isArray(runHistory) || runHistory.length === 0) {
+                    throw new Error('Run history is empty or invalid');
+                  }
+                  // Normalize and sort by runNumber descending
+                  const normalizedHistory = runHistory.map(run => ({
+                    ...run,
+                    runNumber: String(run.runNumber) // Ensure consistency
+                  })).sort((a, b) => parseInt(b.runNumber) - parseInt(a.runNumber));
+
+                  populateRunsList(normalizedHistory);
+                  populateReportsContainer(normalizedHistory);
+                  setupEventListeners(normalizedHistory);
+                })
+                .catch(error => {
+                  console.error('Error loading run history:', error);
+                  document.getElementById('runsList').innerHTML = '<p style="color: #f85149;">Failed to load run history. Check console.</p>';
+                  document.getElementById('reportsContainer').innerHTML = '<p style="color: #f85149;">No reports available.</p>';
+                });
               
                 function populateRunsList(runHistory) {
                   const runsList = document.getElementById('runsList');
@@ -1218,20 +1213,35 @@ jobs:
       - name: Commit and Push Changes
         run: |
           cd gh-pages
-          # First, ensure we have the latest changes
           git fetch origin gh-pages
-
-          # We need to ensure we don't lose existing history
-          # If we're starting fresh, checkout the branch
           if [ -z "$(git branch --list gh-pages)" ]; then
             git checkout -b gh-pages
           else
-            # If the branch exists locally, make sure we're on it
             git checkout gh-pages
-            # Pull the latest changes from remote
-            git pull origin gh-pages --allow-unrelated-histories
+            git pull origin gh-pages --rebase --allow-unrelated-histories
           fi
-
+          # ... (run-history.json logic remains as updated above) ...
+          if [ -n "$(git status --porcelain)" ]; then
+            git add .
+            git commit -m "Add test report for run #${{ steps.run-info.outputs.run_number }} (Reason: ${{ inputs.run_reason }})"
+            MAX_RETRIES=3
+            RETRY_COUNT=0
+            while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+              if git push origin gh-pages; then
+                echo "Push successful"
+                break
+              else
+                RETRY_COUNT=$((RETRY_COUNT+1))
+                echo "Push failed, attempt $RETRY_COUNT of $MAX_RETRIES"
+                git fetch origin gh-pages
+                git rebase origin/gh-pages
+                [ $RETRY_COUNT -eq $MAX_RETRIES ] && exit 1
+                sleep 5
+              fi
+            done
+          else
+            echo "No changes to commit"
+          fi
 
           # Make sure we have jq installed
           sudo apt-get update && sudo apt-get install -y jq
