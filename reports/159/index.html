@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Playwright Test Reports</title>
+  <style>
+    :root {
+      --primary-color: #0366d6;
+      --success-color: #28a745;
+      --failure-color: #dc3545;
+      --neutral-color: #6c757d;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 20px;
+      background: #f8f9fa;
+      color: #24292e;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: var(--primary-color);
+      border-bottom: 2px solid #eaecef;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .meta-info {
+      background: #f6f8fa;
+      padding: 1rem;
+      border-radius: 6px;
+      margin: 1rem 0;
+      border: 1px solid #eaecef;
+    }
+    .meta-info p {
+      margin: 0.5rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .meta-info strong {
+      color: var(--neutral-color);
+    }
+    .report-container {
+      margin: 2rem 0;
+    }
+    .report-wrapper {
+      margin: 1rem 0;
+      position: relative;
+    }
+    .report-link {
+      display: block;
+      padding: 1rem;
+      background: white;
+      border: 1px solid #e1e4e8;
+      border-radius: 6px;
+      text-decoration: none;
+      color: var(--primary-color);
+      position: relative;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .report-link:hover {
+      border-color: var(--primary-color);
+      background: #f6f8fa;
+    }
+    .expand-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: transform 0.3s ease;
+      padding: 0.5rem;
+    }
+    .expand-btn.active {
+      transform: rotate(90deg);
+    }
+    .report-details {
+      display: none;
+      margin-top: 0.5rem;
+      border: 1px solid #e1e4e8;
+      border-radius: 0 0 6px 6px;
+      overflow: hidden;
+    }
+    .report-details.show {
+      display: block;
+    }
+    .report-details iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+    }
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 2rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+    .status-success {
+      background: #e6ffed;
+      color: var(--success-color);
+    }
+    .status-failure {
+      background: #ffeef0;
+      color: var(--failure-color);
+    }
+    .status-neutral {
+      background: #f6f8fa;
+      color: var(--neutral-color);
+    }
+    .system-info {
+      background: #f8f9fa;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+      font-family: monospace;
+      white-space: pre-wrap;
+      max-height: 400px;
+      overflow-y: auto;
+      display: none;
+    }
+    .system-info-header {
+      background: #f1f3f5;
+      padding: 0.5rem;
+      border-bottom: 1px solid #e1e4e8;
+    }
+    .system-info-toggle {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      color: #586069;
+      padding: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .system-info-toggle .toggle-arrow {
+      display: inline-block;
+      transition: transform 0.2s ease;
+    }
+    .system-info-toggle.active .toggle-arrow {
+      transform: rotate(90deg);
+    }
+    .notes-section {
+      background: #fff3cd;
+      border: 1px solid #ffeeba;
+      padding: 1rem;
+      border-radius: 6px;
+      margin: 1rem 0;
+    }
+    .notes-section h3 {
+      color: #856404;
+      margin-top: 0;
+    }
+    .post-notes-form {
+      background: #e9ecef;
+      padding: 1rem;
+      border-radius: 6px;
+      margin: 1rem 0;
+    }
+    .post-notes-form textarea {
+      width: 100%;
+      min-height: 100px;
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+    }
+    .post-notes-form button {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .post-notes-form button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Playwright Test Reports</h1>
+<div class='notes-section'><h3>Pre-Run Notes</h3><p>The third left side view </p></div>
+    <div class='meta-info'>
+      <p><strong>Environment:</strong> stage</p>
+      <p><strong>Browser:</strong> chrome</p>
+      <p><strong>Test Pattern:</strong> (?=.*@OVSYN)(?=.*@DerivedScores)</p>
+      <p><strong>Total Shards:</strong> 6</p>
+      <p><strong>Retries:</strong> 2</p>
+      <p><strong>Video Mode:</strong> on-first-retry</p>
+      <p><strong>Trace Mode:</strong> retain-on-first-failure</p>
+      <p><strong>Last Updated:</strong> 2025-03-13_14-44-01</p>
+    </div>
+    <div class='report-container'>
+    <div class='report-wrapper'>
+      <div class='report-link'>
+        <span>Shard 1 Report</span>
+        <div>
+          <span class='status-badge status-success'>success</span>
+          <button class='expand-btn' data-shard='1'>➤</button>
+        </div>
+      </div>
+      <div class='report-details' id='shard-1-details'>
+        <div class='system-info-header'>
+          <button class='system-info-toggle' data-shard='1'>
+            <span class="toggle-arrow">➤</span> System Information
+          </button>
+        </div>
+        <div class='system-info' id='system-info-1'>
+          <pre>=== System Information for Shard 1 ===
+CPU Information:
+Architecture:                         x86_64
+CPU op-mode(s):                       32-bit, 64-bit
+Address sizes:                        48 bits physical, 48 bits virtual
+Byte Order:                           Little Endian
+CPU(s):                               4
+On-line CPU(s) list:                  0-3
+Vendor ID:                            AuthenticAMD
+Model name:                           AMD EPYC 7763 64-Core Processor
+CPU family:                           25
+Model:                                1
+Thread(s) per core:                   2
+Core(s) per socket:                   2
+Socket(s):                            1
+Stepping:                             1
+BogoMIPS:                             4890.86
+Flags:                                fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl tsc_reliable nonstop_tsc cpuid extd_apicid aperfmperf pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy svm cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw topoext vmmcall fsgsbase bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves user_shstk clzero xsaveerptr rdpru arat npt nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold v_vmsave_vmload umip vaes vpclmulqdq rdpid fsrm
+Virtualization:                       AMD-V
+Hypervisor vendor:                    Microsoft
+Virtualization type:                  full
+L1d cache:                            64 KiB (2 instances)
+L1i cache:                            64 KiB (2 instances)
+L2 cache:                             1 MiB (2 instances)
+L3 cache:                             32 MiB (1 instance)
+NUMA node(s):                         1
+NUMA node0 CPU(s):                    0-3
+Vulnerability Gather data sampling:   Not affected
+Vulnerability Itlb multihit:          Not affected
+Vulnerability L1tf:                   Not affected
+Vulnerability Mds:                    Not affected
+Vulnerability Meltdown:               Not affected
+Vulnerability Mmio stale data:        Not affected
+Vulnerability Reg file data sampling: Not affected
+Vulnerability Retbleed:               Not affected
+Vulnerability Spec rstack overflow:   Vulnerable: Safe RET, no microcode
+Vulnerability Spec store bypass:      Vulnerable
+Vulnerability Spectre v1:             Mitigation; usercopy/swapgs barriers and __user pointer sanitization
+Vulnerability Spectre v2:             Mitigation; Retpolines; STIBP disabled; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected
+Vulnerability Srbds:                  Not affected
+Vulnerability Tsx async abort:        Not affected
+-e 
+Memory Information:
+               total        used        free      shared  buff/cache   available
+Mem:            15Gi       1.2Gi       6.0Gi        59Mi       8.8Gi        14Gi
+Swap:          4.0Gi          0B       4.0Gi
+-e 
+Disk Information:
+Filesystem      Size  Used Avail Use% Mounted on
+overlay          72G   50G   22G  70% /
+tmpfs            64M     0   64M   0% /dev
+shm              64M     0   64M   0% /dev/shm
+/dev/root        72G   50G   22G  70% /__e
+tmpfs           3.2G  1.2M  3.2G   1% /run/docker.sock
+tmpfs           7.9G     0  7.9G   0% /proc/acpi
+tmpfs           7.9G     0  7.9G   0% /proc/scsi
+tmpfs           7.9G     0  7.9G   0% /sys/firmware
+-e 
+System Load:
+ 14:42:47 up 4 min,  0 user,  load average: 1.15, 0.39, 0.14
+-e 
+Container Information:
+PRETTY_NAME="Ubuntu 24.04.1 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.1 LTS (Noble Numbat)"
+VERSION_CODENAME=noble
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=noble
+LOGO=ubuntu-logo</pre>
+        </div>
+        <iframe data-src='./shard-1/playwright-report/index.html'></iframe>
+      </div>
+    </div>
+    <div class='report-wrapper'>
+      <div class='report-link'>
+        <span>Shard 2 Report</span>
+        <div>
+          <span class='status-badge status-success'>success</span>
+          <button class='expand-btn' data-shard='2'>➤</button>
+        </div>
+      </div>
+      <div class='report-details' id='shard-2-details'>
+        <div class='system-info-header'>
+          <button class='system-info-toggle' data-shard='2'>
+            <span class="toggle-arrow">➤</span> System Information
+          </button>
+        </div>
+        <div class='system-info' id='system-info-2'>
+          <pre>=== System Information for Shard 2 ===
+CPU Information:
+Architecture:                         x86_64
+CPU op-mode(s):                       32-bit, 64-bit
+Address sizes:                        48 bits physical, 48 bits virtual
+Byte Order:                           Little Endian
+CPU(s):                               4
+On-line CPU(s) list:                  0-3
+Vendor ID:                            AuthenticAMD
+Model name:                           AMD EPYC 7763 64-Core Processor
+CPU family:                           25
+Model:                                1
+Thread(s) per core:                   2
+Core(s) per socket:                   2
+Socket(s):                            1
+Stepping:                             1
+BogoMIPS:                             4890.86
+Flags:                                fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl tsc_reliable nonstop_tsc cpuid extd_apicid aperfmperf pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy svm cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw topoext vmmcall fsgsbase bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves user_shstk clzero xsaveerptr rdpru arat npt nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold v_vmsave_vmload umip vaes vpclmulqdq rdpid fsrm
+Virtualization:                       AMD-V
+Hypervisor vendor:                    Microsoft
+Virtualization type:                  full
+L1d cache:                            64 KiB (2 instances)
+L1i cache:                            64 KiB (2 instances)
+L2 cache:                             1 MiB (2 instances)
+L3 cache:                             32 MiB (1 instance)
+NUMA node(s):                         1
+NUMA node0 CPU(s):                    0-3
+Vulnerability Gather data sampling:   Not affected
+Vulnerability Itlb multihit:          Not affected
+Vulnerability L1tf:                   Not affected
+Vulnerability Mds:                    Not affected
+Vulnerability Meltdown:               Not affected
+Vulnerability Mmio stale data:        Not affected
+Vulnerability Reg file data sampling: Not affected
+Vulnerability Retbleed:               Not affected
+Vulnerability Spec rstack overflow:   Vulnerable: Safe RET, no microcode
+Vulnerability Spec store bypass:      Vulnerable
+Vulnerability Spectre v1:             Mitigation; usercopy/swapgs barriers and __user pointer sanitization
+Vulnerability Spectre v2:             Mitigation; Retpolines; STIBP disabled; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected
+Vulnerability Srbds:                  Not affected
+Vulnerability Tsx async abort:        Not affected
+-e 
+Memory Information:
+               total        used        free      shared  buff/cache   available
+Mem:            15Gi       1.1Gi       6.0Gi        59Mi       8.8Gi        14Gi
+Swap:          4.0Gi          0B       4.0Gi
+-e 
+Disk Information:
+Filesystem      Size  Used Avail Use% Mounted on
+overlay          72G   50G   22G  70% /
+tmpfs            64M     0   64M   0% /dev
+shm              64M     0   64M   0% /dev/shm
+/dev/root        72G   50G   22G  70% /__w
+tmpfs           3.2G  1.2M  3.2G   1% /run/docker.sock
+tmpfs           7.9G     0  7.9G   0% /proc/acpi
+tmpfs           7.9G     0  7.9G   0% /proc/scsi
+tmpfs           7.9G     0  7.9G   0% /sys/firmware
+-e 
+System Load:
+ 14:42:47 up 4 min,  0 user,  load average: 0.91, 0.32, 0.12
+-e 
+Container Information:
+PRETTY_NAME="Ubuntu 24.04.1 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.1 LTS (Noble Numbat)"
+VERSION_CODENAME=noble
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=noble
+LOGO=ubuntu-logo</pre>
+        </div>
+        <iframe data-src='./shard-2/playwright-report/index.html'></iframe>
+      </div>
+    </div>
+    <div class='report-wrapper'>
+      <div class='report-link'>
+        <span>Shard 3 Report</span>
+        <div>
+          <span class='status-badge status-success'>success</span>
+          <button class='expand-btn' data-shard='3'>➤</button>
+        </div>
+      </div>
+      <div class='report-details' id='shard-3-details'>
+        <div class='system-info-header'>
+          <button class='system-info-toggle' data-shard='3'>
+            <span class="toggle-arrow">➤</span> System Information
+          </button>
+        </div>
+        <div class='system-info' id='system-info-3'>
+          <pre>=== System Information for Shard 3 ===
+CPU Information:
+Architecture:                         x86_64
+CPU op-mode(s):                       32-bit, 64-bit
+Address sizes:                        48 bits physical, 48 bits virtual
+Byte Order:                           Little Endian
+CPU(s):                               4
+On-line CPU(s) list:                  0-3
+Vendor ID:                            AuthenticAMD
+Model name:                           AMD EPYC 7763 64-Core Processor
+CPU family:                           25
+Model:                                1
+Thread(s) per core:                   2
+Core(s) per socket:                   2
+Socket(s):                            1
+Stepping:                             1
+BogoMIPS:                             4890.84
+Flags:                                fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl tsc_reliable nonstop_tsc cpuid extd_apicid aperfmperf pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy svm cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw topoext vmmcall fsgsbase bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves user_shstk clzero xsaveerptr rdpru arat npt nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold v_vmsave_vmload umip vaes vpclmulqdq rdpid fsrm
+Virtualization:                       AMD-V
+Hypervisor vendor:                    Microsoft
+Virtualization type:                  full
+L1d cache:                            64 KiB (2 instances)
+L1i cache:                            64 KiB (2 instances)
+L2 cache:                             1 MiB (2 instances)
+L3 cache:                             32 MiB (1 instance)
+NUMA node(s):                         1
+NUMA node0 CPU(s):                    0-3
+Vulnerability Gather data sampling:   Not affected
+Vulnerability Itlb multihit:          Not affected
+Vulnerability L1tf:                   Not affected
+Vulnerability Mds:                    Not affected
+Vulnerability Meltdown:               Not affected
+Vulnerability Mmio stale data:        Not affected
+Vulnerability Reg file data sampling: Not affected
+Vulnerability Retbleed:               Not affected
+Vulnerability Spec rstack overflow:   Vulnerable: Safe RET, no microcode
+Vulnerability Spec store bypass:      Vulnerable
+Vulnerability Spectre v1:             Mitigation; usercopy/swapgs barriers and __user pointer sanitization
+Vulnerability Spectre v2:             Mitigation; Retpolines; STIBP disabled; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected
+Vulnerability Srbds:                  Not affected
+Vulnerability Tsx async abort:        Not affected
+-e 
+Memory Information:
+               total        used        free      shared  buff/cache   available
+Mem:            15Gi       1.2Gi       6.0Gi        59Mi       8.8Gi        14Gi
+Swap:          4.0Gi          0B       4.0Gi
+-e 
+Disk Information:
+Filesystem      Size  Used Avail Use% Mounted on
+overlay          72G   50G   22G  70% /
+tmpfs            64M     0   64M   0% /dev
+shm              64M     0   64M   0% /dev/shm
+/dev/root        72G   50G   22G  70% /__e
+tmpfs           3.2G  1.2M  3.2G   1% /run/docker.sock
+tmpfs           7.9G     0  7.9G   0% /proc/acpi
+tmpfs           7.9G     0  7.9G   0% /proc/scsi
+tmpfs           7.9G     0  7.9G   0% /sys/firmware
+-e 
+System Load:
+ 14:42:47 up 2 min,  0 user,  load average: 1.04, 0.45, 0.17
+-e 
+Container Information:
+PRETTY_NAME="Ubuntu 24.04.1 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.1 LTS (Noble Numbat)"
+VERSION_CODENAME=noble
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=noble
+LOGO=ubuntu-logo</pre>
+        </div>
+        <iframe data-src='./shard-3/playwright-report/index.html'></iframe>
+      </div>
+    </div>
+    <div class='report-wrapper'>
+      <div class='report-link'>
+        <span>Shard 4 Report</span>
+        <div>
+          <span class='status-badge status-success'>success</span>
+          <button class='expand-btn' data-shard='4'>➤</button>
+        </div>
+      </div>
+      <div class='report-details' id='shard-4-details'>
+        <div class='system-info-header'>
+          <button class='system-info-toggle' data-shard='4'>
+            <span class="toggle-arrow">➤</span> System Information
+          </button>
+        </div>
+        <div class='system-info' id='system-info-4'>
+          <pre>=== System Information for Shard 4 ===
+CPU Information:
+Architecture:                         x86_64
+CPU op-mode(s):                       32-bit, 64-bit
+Address sizes:                        48 bits physical, 48 bits virtual
+Byte Order:                           Little Endian
+CPU(s):                               4
+On-line CPU(s) list:                  0-3
+Vendor ID:                            AuthenticAMD
+Model name:                           AMD EPYC 7763 64-Core Processor
+CPU family:                           25
+Model:                                1
+Thread(s) per core:                   2
+Core(s) per socket:                   2
+Socket(s):                            1
+Stepping:                             1
+BogoMIPS:                             4890.85
+Flags:                                fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl tsc_reliable nonstop_tsc cpuid extd_apicid aperfmperf pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy svm cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw topoext vmmcall fsgsbase bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves user_shstk clzero xsaveerptr rdpru arat npt nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold v_vmsave_vmload umip vaes vpclmulqdq rdpid fsrm
+Virtualization:                       AMD-V
+Hypervisor vendor:                    Microsoft
+Virtualization type:                  full
+L1d cache:                            64 KiB (2 instances)
+L1i cache:                            64 KiB (2 instances)
+L2 cache:                             1 MiB (2 instances)
+L3 cache:                             32 MiB (1 instance)
+NUMA node(s):                         1
+NUMA node0 CPU(s):                    0-3
+Vulnerability Gather data sampling:   Not affected
+Vulnerability Itlb multihit:          Not affected
+Vulnerability L1tf:                   Not affected
+Vulnerability Mds:                    Not affected
+Vulnerability Meltdown:               Not affected
+Vulnerability Mmio stale data:        Not affected
+Vulnerability Reg file data sampling: Not affected
+Vulnerability Retbleed:               Not affected
+Vulnerability Spec rstack overflow:   Vulnerable: Safe RET, no microcode
+Vulnerability Spec store bypass:      Vulnerable
+Vulnerability Spectre v1:             Mitigation; usercopy/swapgs barriers and __user pointer sanitization
+Vulnerability Spectre v2:             Mitigation; Retpolines; STIBP disabled; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected
+Vulnerability Srbds:                  Not affected
+Vulnerability Tsx async abort:        Not affected
+-e 
+Memory Information:
+               total        used        free      shared  buff/cache   available
+Mem:            15Gi       1.2Gi       6.0Gi        59Mi       8.8Gi        14Gi
+Swap:          4.0Gi          0B       4.0Gi
+-e 
+Disk Information:
+Filesystem      Size  Used Avail Use% Mounted on
+overlay          72G   50G   22G  70% /
+tmpfs            64M     0   64M   0% /dev
+shm              64M     0   64M   0% /dev/shm
+/dev/root        72G   50G   22G  70% /__t
+tmpfs           3.2G  1.2M  3.2G   1% /run/docker.sock
+tmpfs           7.9G     0  7.9G   0% /proc/acpi
+tmpfs           7.9G     0  7.9G   0% /proc/scsi
+tmpfs           7.9G     0  7.9G   0% /sys/firmware
+-e 
+System Load:
+ 14:42:47 up 4 min,  0 user,  load average: 0.99, 0.34, 0.13
+-e 
+Container Information:
+PRETTY_NAME="Ubuntu 24.04.1 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.1 LTS (Noble Numbat)"
+VERSION_CODENAME=noble
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=noble
+LOGO=ubuntu-logo</pre>
+        </div>
+        <iframe data-src='./shard-4/playwright-report/index.html'></iframe>
+      </div>
+    </div>
+    <div class='report-wrapper'>
+      <div class='report-link'>
+        <span>Shard 5 Report</span>
+        <div>
+          <span class='status-badge status-success'>success</span>
+          <button class='expand-btn' data-shard='5'>➤</button>
+        </div>
+      </div>
+      <div class='report-details' id='shard-5-details'>
+        <div class='system-info-header'>
+          <button class='system-info-toggle' data-shard='5'>
+            <span class="toggle-arrow">➤</span> System Information
+          </button>
+        </div>
+        <div class='system-info' id='system-info-5'>
+          <pre>=== System Information for Shard 5 ===
+CPU Information:
+Architecture:                         x86_64
+CPU op-mode(s):                       32-bit, 64-bit
+Address sizes:                        48 bits physical, 48 bits virtual
+Byte Order:                           Little Endian
+CPU(s):                               4
+On-line CPU(s) list:                  0-3
+Vendor ID:                            AuthenticAMD
+Model name:                           AMD EPYC 7763 64-Core Processor
+CPU family:                           25
+Model:                                1
+Thread(s) per core:                   2
+Core(s) per socket:                   2
+Socket(s):                            1
+Stepping:                             1
+BogoMIPS:                             4890.84
+Flags:                                fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl tsc_reliable nonstop_tsc cpuid extd_apicid aperfmperf pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy svm cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw topoext vmmcall fsgsbase bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves user_shstk clzero xsaveerptr rdpru arat npt nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold v_vmsave_vmload umip vaes vpclmulqdq rdpid fsrm
+Virtualization:                       AMD-V
+Hypervisor vendor:                    Microsoft
+Virtualization type:                  full
+L1d cache:                            64 KiB (2 instances)
+L1i cache:                            64 KiB (2 instances)
+L2 cache:                             1 MiB (2 instances)
+L3 cache:                             32 MiB (1 instance)
+NUMA node(s):                         1
+NUMA node0 CPU(s):                    0-3
+Vulnerability Gather data sampling:   Not affected
+Vulnerability Itlb multihit:          Not affected
+Vulnerability L1tf:                   Not affected
+Vulnerability Mds:                    Not affected
+Vulnerability Meltdown:               Not affected
+Vulnerability Mmio stale data:        Not affected
+Vulnerability Reg file data sampling: Not affected
+Vulnerability Retbleed:               Not affected
+Vulnerability Spec rstack overflow:   Mitigation; Safe RET
+Vulnerability Spec store bypass:      Vulnerable
+Vulnerability Spectre v1:             Mitigation; usercopy/swapgs barriers and __user pointer sanitization
+Vulnerability Spectre v2:             Mitigation; Retpolines; STIBP disabled; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected
+Vulnerability Srbds:                  Not affected
+Vulnerability Tsx async abort:        Not affected
+-e 
+Memory Information:
+               total        used        free      shared  buff/cache   available
+Mem:            15Gi       1.1Gi       6.0Gi        58Mi       8.8Gi        14Gi
+Swap:          4.0Gi          0B       4.0Gi
+-e 
+Disk Information:
+Filesystem      Size  Used Avail Use% Mounted on
+overlay          72G   50G   22G  70% /
+tmpfs            64M     0   64M   0% /dev
+shm              64M     0   64M   0% /dev/shm
+/dev/root        72G   50G   22G  70% /__w
+tmpfs           3.2G  1.2M  3.2G   1% /run/docker.sock
+tmpfs           7.9G     0  7.9G   0% /proc/acpi
+tmpfs           7.9G     0  7.9G   0% /proc/scsi
+tmpfs           7.9G     0  7.9G   0% /sys/firmware
+-e 
+System Load:
+ 14:42:45 up 2 min,  0 user,  load average: 1.50, 0.47, 0.17
+-e 
+Container Information:
+PRETTY_NAME="Ubuntu 24.04.1 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.1 LTS (Noble Numbat)"
+VERSION_CODENAME=noble
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=noble
+LOGO=ubuntu-logo</pre>
+        </div>
+        <iframe data-src='./shard-5/playwright-report/index.html'></iframe>
+      </div>
+    </div>
+    <div class='report-wrapper'>
+      <div class='report-link'>
+        <span>Shard 6 Report</span>
+        <div>
+          <span class='status-badge status-success'>success</span>
+          <button class='expand-btn' data-shard='6'>➤</button>
+        </div>
+      </div>
+      <div class='report-details' id='shard-6-details'>
+        <div class='system-info-header'>
+          <button class='system-info-toggle' data-shard='6'>
+            <span class="toggle-arrow">➤</span> System Information
+          </button>
+        </div>
+        <div class='system-info' id='system-info-6'>
+          <pre>=== System Information for Shard 6 ===
+CPU Information:
+Architecture:                         x86_64
+CPU op-mode(s):                       32-bit, 64-bit
+Address sizes:                        48 bits physical, 48 bits virtual
+Byte Order:                           Little Endian
+CPU(s):                               4
+On-line CPU(s) list:                  0-3
+Vendor ID:                            AuthenticAMD
+Model name:                           AMD EPYC 7763 64-Core Processor
+CPU family:                           25
+Model:                                1
+Thread(s) per core:                   2
+Core(s) per socket:                   2
+Socket(s):                            1
+Stepping:                             1
+BogoMIPS:                             4890.84
+Flags:                                fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl tsc_reliable nonstop_tsc cpuid extd_apicid aperfmperf pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy svm cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw topoext vmmcall fsgsbase bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves user_shstk clzero xsaveerptr rdpru arat npt nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold v_vmsave_vmload umip vaes vpclmulqdq rdpid fsrm
+Virtualization:                       AMD-V
+Hypervisor vendor:                    Microsoft
+Virtualization type:                  full
+L1d cache:                            64 KiB (2 instances)
+L1i cache:                            64 KiB (2 instances)
+L2 cache:                             1 MiB (2 instances)
+L3 cache:                             32 MiB (1 instance)
+NUMA node(s):                         1
+NUMA node0 CPU(s):                    0-3
+Vulnerability Gather data sampling:   Not affected
+Vulnerability Itlb multihit:          Not affected
+Vulnerability L1tf:                   Not affected
+Vulnerability Mds:                    Not affected
+Vulnerability Meltdown:               Not affected
+Vulnerability Mmio stale data:        Not affected
+Vulnerability Reg file data sampling: Not affected
+Vulnerability Retbleed:               Not affected
+Vulnerability Spec rstack overflow:   Vulnerable: Safe RET, no microcode
+Vulnerability Spec store bypass:      Vulnerable
+Vulnerability Spectre v1:             Mitigation; usercopy/swapgs barriers and __user pointer sanitization
+Vulnerability Spectre v2:             Mitigation; Retpolines; STIBP disabled; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected
+Vulnerability Srbds:                  Not affected
+Vulnerability Tsx async abort:        Not affected
+-e 
+Memory Information:
+               total        used        free      shared  buff/cache   available
+Mem:            15Gi       1.1Gi       6.0Gi        59Mi       8.8Gi        14Gi
+Swap:          4.0Gi          0B       4.0Gi
+-e 
+Disk Information:
+Filesystem      Size  Used Avail Use% Mounted on
+overlay          72G   50G   22G  70% /
+tmpfs            64M     0   64M   0% /dev
+shm              64M     0   64M   0% /dev/shm
+/dev/root        72G   50G   22G  70% /__t
+tmpfs           3.2G  1.2M  3.2G   1% /run/docker.sock
+tmpfs           7.9G     0  7.9G   0% /proc/acpi
+tmpfs           7.9G     0  7.9G   0% /proc/scsi
+tmpfs           7.9G     0  7.9G   0% /sys/firmware
+-e 
+System Load:
+ 14:42:47 up 4 min,  0 user,  load average: 1.02, 0.35, 0.13
+-e 
+Container Information:
+PRETTY_NAME="Ubuntu 24.04.1 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.1 LTS (Noble Numbat)"
+VERSION_CODENAME=noble
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=noble
+LOGO=ubuntu-logo</pre>
+        </div>
+        <iframe data-src='./shard-6/playwright-report/index.html'></iframe>
+      </div>
+    </div>
+    </div>
+    <div class='post-notes-form'>
+      <h3>Add Post-Run Notes</h3>
+      <form id='postNotesForm'>
+        <textarea id='postNotes' placeholder='Enter your observations and notes about this test run...'></textarea>
+        <button type='submit'>Save Notes</button>
+      </form>
+    </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const iframes = document.querySelectorAll('.report-details iframe');
+        const observer = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const iframe = entry.target;
+              if (!iframe.src && iframe.dataset.src) {
+                iframe.src = iframe.dataset.src;
+              }
+              observer.unobserve(iframe);
+            }
+          });
+        }, { rootMargin: '0px 0px 200px 0px' });
+        iframes.forEach(iframe => observer.observe(iframe));
+        document.querySelectorAll('.system-info-toggle').forEach(toggle => {
+          toggle.addEventListener('click', (e) => {
+            const shardNum = e.currentTarget.dataset.shard;
+            const systemInfo = document.getElementById('system-info-' + shardNum);
+            const toggleBtn = e.currentTarget;
+            systemInfo.style.display = systemInfo.style.display === 'block' ? 'none' : 'block';
+            toggleBtn.classList.toggle('active');
+          });
+        });
+        document.querySelectorAll('.report-link').forEach(link => {
+          link.addEventListener('click', (e) => {
+            const shardNum = e.currentTarget.querySelector('.expand-btn').dataset.shard;
+            const detailsContainer = document.getElementById('shard-' + shardNum + '-details');
+            const expandBtn = e.currentTarget.querySelector('.expand-btn');
+            if (e.target.classList.contains('expand-btn')) {
+              detailsContainer.classList.toggle('show');
+              expandBtn.classList.toggle('active');
+            } else if (!e.target.classList.contains('expand-btn')) {
+              window.open('./shard-' + shardNum + '/playwright-report/index.html', '_blank');
+            }
+          });
+        });
+        document.getElementById('postNotesForm').addEventListener('submit', function(e) {
+          e.preventDefault();
+          const notes = document.getElementById('postNotes').value;
+          const savedNotes = {
+            text: notes,
+            timestamp: new Date().toISOString(),
+            runId: '13837377233'
+          };
+          const allNotes = JSON.parse(localStorage.getItem('playwrightTestNotes') || '[]');
+          allNotes.push(savedNotes);
+          localStorage.setItem('playwrightTestNotes', JSON.stringify(allNotes));
+          const notesSection = document.createElement('div');
+          notesSection.className = 'notes-section';
+          notesSection.innerHTML = '<h3>Post-Run Notes</h3><p>' + notes + '</p>';
+          const form = document.querySelector('.post-notes-form');
+          form.parentNode.insertBefore(notesSection, form);
+          document.getElementById('postNotes').value = '';
+          alert('Notes saved successfully!');
+        });
+        window.addEventListener('load', function() {
+          const allNotes = JSON.parse(localStorage.getItem('playwrightTestNotes') || '[]');
+          const runNotes = allNotes.filter(note => note.runId === '13837377233');
+          runNotes.forEach(note => {
+            const notesSection = document.createElement('div');
+            notesSection.className = 'notes-section';
+            notesSection.innerHTML = '<h3>Post-Run Notes</h3><p>' + note.text + '</p>';
+            const form = document.querySelector('.post-notes-form');
+            form.parentNode.insertBefore(notesSection, form);
+          });
+        });
+      });
+    </script>
+  </div>
+</body>
+</html>
