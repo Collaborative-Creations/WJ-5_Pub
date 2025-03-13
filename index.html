@@ -76,7 +76,6 @@
     <h1>Playwright Test Reports History</h1>
     <p>Historical test execution reports with retention</p>
   </div>
-  
   <div class="filter-bar">
     <input type="text" class="search-input" placeholder="Search reports..." id="searchInput">
     <select class="sort-select" id="sortSelect">
@@ -84,41 +83,32 @@
       <option value="oldest">Oldest First</option>
     </select>
   </div>
-  
   <div class="reports-container" id="reportsContainer">
     <!-- Report entries will be dynamically inserted here -->
   </div>
-  
   <script>
-  // Updated function to include reason and handle parsing errors
   function addReportEntry(runNumber, timestamp, reason) {
     const container = document.getElementById('reportsContainer');
     const card = document.createElement('div');
     card.className = 'report-card';
-  
-    // Parse date from timestamp format safely
     let formattedDate = "Unknown Date";
     try {
       if (timestamp) {
-        // Handle both ISO format and custom format with underscore
         let dateStr = timestamp;
         if (timestamp.includes('_')) {
           const [datePart, timePart] = timestamp.split('_');
           dateStr = datePart.slice(0,4) + '-' + datePart.slice(4,6) + '-' + datePart.slice(6,8) + 
                     'T' + timePart.slice(0,2) + ':' + timePart.slice(2,4) + ':' + (timePart.slice(4,6) || '00');
         }
-      
         const date = new Date(dateStr);
-        if (!isNaN(date.getTime())) { // Check if date is valid
+        if (!isNaN(date.getTime())) {
           formattedDate = date.toLocaleString();
         }
       }
     } catch (e) {
       console.error("Error parsing date:", e);
     }
-  
     const reasonHtml = reason ? `<div class="run-reason">Reason: ${reason}</div>` : '';
-  
     card.innerHTML = `
       <a href="./reports/${runNumber}/index.html" class="report-link">
         <h3>Run #${runNumber}</h3>
@@ -128,14 +118,9 @@
         </div>
       </a>
     `;
-  
     container.appendChild(card);
   }
-
-  // Add all report entries
-  addReportEntry('100', '2025-03-13T08:32:57Z', '');  addReportEntry('101', '2025-03-13T08:32:57Z', '');  addReportEntry('102', '2025-03-13T08:32:57Z', '');  addReportEntry('103', '2025-03-13T08:32:57Z', '');  addReportEntry('104', '2025-03-13T08:32:57Z', '');  addReportEntry('105', '2025-03-13T08:32:57Z', '');  addReportEntry('106', '2025-03-13T08:32:57Z', '');  addReportEntry('107', '2025-03-13T08:33:01Z', '');  addReportEntry('108', '2025-03-13T08:33:03Z', '');  addReportEntry('109', '2025-03-13T08:33:03Z', '');  addReportEntry('111', '2025-03-13T08:33:03Z', '');  addReportEntry('112', '2025-03-13T08:33:03Z', '');  addReportEntry('114', '2025-03-13T08:33:03Z', '');  addReportEntry('115', '2025-03-13T08:33:03Z', '');  addReportEntry('116', '2025-03-13T08:33:03Z', '');  addReportEntry('117', '2025-03-13T08:33:03Z', '');  addReportEntry('118', '2025-03-13T08:33:03Z', '');  addReportEntry('119', '2025-03-13T08:33:03Z', '');  addReportEntry('120', '2025-03-13T08:33:03Z', '');  addReportEntry('121', '2025-03-13T08:33:03Z', '');  addReportEntry('122', '2025-03-13T08:33:03Z', '');  addReportEntry('123', '2025-03-13T08:33:03Z', '');  addReportEntry('124', '2025-03-13T08:33:03Z', '');  addReportEntry('127', '2025-03-13T08:33:03Z', '');  addReportEntry('129', '2025-03-13T08:33:03Z', '');  addReportEntry('130', '2025-03-13T08:33:03Z', '');  addReportEntry('131', '2025-03-13T08:33:03Z', '');  addReportEntry('132', '2025-03-13T08:33:04Z', '');  addReportEntry('133', '2025-03-13T08:33:04Z', '');  addReportEntry('134', '2025-03-13T08:33:04Z', '');  addReportEntry('135', '2025-03-13T08:33:04Z', '');  addReportEntry('136', '2025-03-13T08:33:04Z', '');  addReportEntry('137', '2025-03-13T08:33:04Z', '');  addReportEntry('138', '2025-03-13T08:33:04Z', '');  addReportEntry('139', '2025-03-13T08:33:04Z', '');  addReportEntry('140', '2025-03-13T08:33:04Z', '');  addReportEntry('141', '2025-03-13T08:33:04Z', '');  addReportEntry('142', '2025-03-13T08:33:04Z', '');  addReportEntry('143', '2025-03-13T08:33:04Z', '');  addReportEntry('144', '2025-03-13T08:33:04Z', '');  addReportEntry('145', '2025-03-13T08:33:04Z', '');  addReportEntry('146', '2025-03-13T08:33:04Z', '');  addReportEntry('147', '2025-03-13T08:33:04Z', '');  addReportEntry('151', '2025-03-13T08:33:04Z', '');  addReportEntry('152', '2025-03-13T08:26:36Z', 'Day2 Dashboard update trial 03');  addReportEntry('99', '2025-03-13T08:33:04Z', '');  addReportEntry('152', '20250313_083232', 'Day2 Dashboard update trial 03');
-
-  // Search functionality
+  addReportEntry('153', '', '');  addReportEntry('152', '', '');  addReportEntry('151', '', '');  addReportEntry('147', '', '');  addReportEntry('146', '', '');  addReportEntry('145', '', '');  addReportEntry('144', '', '');  addReportEntry('143', '', '');  addReportEntry('142', '', '');  addReportEntry('141', '', '');  addReportEntry('140', '', '');  addReportEntry('139', '', '');  addReportEntry('138', '', '');  addReportEntry('137', '', '');  addReportEntry('136', '', '');  addReportEntry('135', '', '');  addReportEntry('134', '', '');  addReportEntry('133', '', '');  addReportEntry('132', '', '');  addReportEntry('131', '', '');  addReportEntry('130', '', '');  addReportEntry('129', '', '');  addReportEntry('127', '', '');  addReportEntry('124', '', '');  addReportEntry('123', '', '');  addReportEntry('122', '', '');  addReportEntry('121', '', '');  addReportEntry('120', '', '');  addReportEntry('119', '', '');  addReportEntry('118', '', '');  addReportEntry('117', '', '');  addReportEntry('116', '', '');  addReportEntry('115', '', '');  addReportEntry('114', '', '');  addReportEntry('112', '', '');  addReportEntry('111', '', '');  addReportEntry('109', '', '');  addReportEntry('108', '', '');  addReportEntry('107', '', '');  addReportEntry('106', '', '');  addReportEntry('105', '', '');  addReportEntry('104', '', '');  addReportEntry('103', '', '');  addReportEntry('102', '', '');  addReportEntry('101', '', '');  addReportEntry('100', '', '');  addReportEntry('99', '', '');  
   document.getElementById('searchInput').addEventListener('input', (e) => {
     const searchTerm = e.target.value.toLowerCase();
     const cards = document.querySelectorAll('.report-card');
@@ -144,24 +129,17 @@
       card.style.display = text.includes(searchTerm) ? '' : 'none';
     });
   });
-
-  // Sorting functionality
   document.getElementById('sortSelect').addEventListener('change', (e) => {
     const container = document.getElementById('reportsContainer');
     const cards = Array.from(container.children);
-
     cards.sort((a, b) => {
       const aNum = parseInt(a.querySelector('h3').textContent.split('#')[1]);
       const bNum = parseInt(b.querySelector('h3').textContent.split('#')[1]);
-
       return e.target.value === 'newest' ? bNum - aNum : aNum - bNum;
     });
-
     container.innerHTML = '';
     cards.forEach(card => container.appendChild(card));
   });
-
-  // Sort by newest first by default (after all entries have been added)
   window.onload = function() {
     document.getElementById('sortSelect').dispatchEvent(new Event('change'));
   };

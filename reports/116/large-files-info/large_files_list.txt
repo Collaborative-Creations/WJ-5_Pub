@@ -1,2 +1,0 @@
-Large file detected: shard-1/playwright-report/data/9054ce3564887a53968492d5e6b668ea60723695.zip (121.74 MB)
-Large file detected: shard-1/test-results/muti_table-ANLSYN_Pub--ANL-8abdb-aminer-and-generate-reports-chrome/trace.zip (121.74 MB)
