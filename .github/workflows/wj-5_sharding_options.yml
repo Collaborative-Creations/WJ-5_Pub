@@ -625,9 +625,15 @@ jobs:
 
           echo "$CURRENT_RUN" > new-report/metadata/run-info.json
 
+          # Make sure we have the gh-pages directory
+          if [ ! -d "gh-pages" ]; then
+            mkdir -p gh-pages
+          fi
+
           # Create or update the central run history file
           if [ -f "gh-pages/run-history.json" ]; then
-            # Read existing history but avoid duplicate entries
+            echo "Updating existing run history..."
+            # Read existing history and avoid duplicate entries
             jq --argjson newRun "$CURRENT_RUN" '
               if (map(.runNumber == $newRun.runNumber) | any) then
                 map(if .runNumber == $newRun.runNumber then $newRun else . end)
@@ -636,9 +642,15 @@ jobs:
               end
             ' gh-pages/run-history.json > new-report/run-history.json
           else
+            echo "Creating new run history..."
             # Create new history file with first entry
             echo "[$CURRENT_RUN]" > new-report/run-history.json
           fi
+
+          # Debug - print the contents of the history file
+          echo "Contents of run history file:"
+          cat new-report/run-history.json
+
       - name: Checkout gh-pages branch
         uses: actions/checkout@v4
         with:
@@ -1000,32 +1012,42 @@ jobs:
             
             <script>
               // Load the run history from the JSON file
-              fetch('./run-history.json')
-                .then(response => response.json())
-                .then(runHistory => {
-                  // Initially sort by newest first
+            fetch('./run-history.json')
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+              })
+              .then(runHistory => {
+                console.log(`Loaded ${runHistory.length} runs from history`);
+                // Sort by newest first
+                runHistory.sort((a, b) => parseInt(b.runNumber) - parseInt(a.runNumber));
+                
+                // Populate both the sidebar and main container
+                populateRunsList(runHistory);
+                populateReportsContainer(runHistory);
+                
+                // Set up event listeners
+                setupEventListeners(runHistory);
+              })
+              .catch(error => {
+                console.error('Error loading run history:', error);
+                document.getElementById('runsList').innerHTML = 
+                  '<p style="color: #f85149;">Error loading run history. Please check the console for details.</p>';
+              });
+              
+                function populateRunsList(runHistory) {
+                  const runsList = document.getElementById('runsList');
+                  runsList.innerHTML = '';
+
+                  // Sort by run number descending by default
                   runHistory.sort((a, b) => parseInt(b.runNumber) - parseInt(a.runNumber));
 
-                  // Populate both the sidebar and main container
-                  populateRunsList(runHistory);
-                  populateReportsContainer(runHistory);
-
-                  // Set up event listeners for filtering and sorting
-                  setupEventListeners(runHistory);
-                })
-                .catch(error => {
-                  console.error('Error loading run history:', error);
-                  document.getElementById('runsList').innerHTML = '<p style="color: #f85149;">Error loading run history. Please check the console for details.</p>';
-                });
-              
-              function populateRunsList(runHistory) {
-                const runsList = document.getElementById('runsList');
-                runsList.innerHTML = '';
-
-                runHistory.forEach(run => {
-                  const runItem = document.createElement('div');
-                  runItem.className = 'run-item';
-                  runItem.dataset.runNumber = run.runNumber;
+                  runHistory.forEach(run => {
+                    const runItem = document.createElement('div');
+                    runItem.className = 'run-item';
+                    runItem.dataset.runNumber = run.runNumber;
 
                   // Format the timestamp
                   let formattedDate = 'Unknown date';
@@ -1048,6 +1070,7 @@ jobs:
                       console.warn('Error formatting date:', e);
                     }
                   }
+                    
 
                   runItem.innerHTML = \`
                     <h3>Run #\${run.runNumber}</h3>
@@ -1066,6 +1089,8 @@ jobs:
 
                   runsList.appendChild(runItem);
                 });
+                 // Log the number of runs displayed
+                console.log(`Displayed ${runHistory.length} runs in the sidebar`);
               }
 
               function populateReportsContainer(runHistory) {
@@ -1193,27 +1218,47 @@ jobs:
       - name: Commit and Push Changes
         run: |
           cd gh-pages
+          # First, ensure we have the latest changes
           git fetch origin gh-pages
-          git checkout gh-pages
+
+          # We need to ensure we don't lose existing history
+          # If we're starting fresh, checkout the branch
+          if [ -z "$(git branch --list gh-pages)" ]; then
+            git checkout -b gh-pages
+          else
+            # If the branch exists locally, make sure we're on it
+            git checkout gh-pages
+            # Pull the latest changes from remote
+            git pull origin gh-pages --allow-unrelated-histories
+          fi
+
+
           # Make sure we have jq installed
           sudo apt-get update && sudo apt-get install -y jq
-              
+
           # Add more data about the current run to the history before committing
           if [ -f "run-history.json" ]; then
-            current_run=$(jq --arg num "${{ steps.run-info.outputs.run_number }}" '.[] | select(.runNumber == $num)' run-history.json)
-            if [ -z "$current_run" ]; then
+            # Check if the run number exists in the history file
+            run_exists=$(jq --arg num "${{ steps.run-info.outputs.run_number }}" 'map(.runNumber == $num) | any' run-history.json)
+
+            if [ "$run_exists" = "false" ]; then
               # If run is not in history, add it
-              jq --argjson newRun "{\"runNumber\": \"${{ steps.run-info.outputs.run_number }}\", \"timestamp\": \"${{ steps.run-info.outputs.timestamp }}\", \"runReason\": \"${{ inputs.run_reason }}\", \"environment\": \"${{ inputs.environment }}\", \"browser\": \"${{ inputs.browser }}\", \"testPattern\": \"${{ inputs.test_pattern }}\"}" '. + [$newRun]' run-history.json > temp.json
+              echo "Adding run #${{ steps.run-info.outputs.run_number }} to history..."
+              new_run="{\"runNumber\": \"${{ steps.run-info.outputs.run_number }}\", \"timestamp\": \"${{ steps.run-info.outputs.timestamp }}\", \"runReason\": \"${{ inputs.run_reason }}\", \"environment\": \"${{ inputs.environment }}\", \"browser\": \"${{ inputs.browser }}\", \"testPattern\": \"${{ inputs.test_pattern }}\"}"
+              jq --argjson newRun "$new_run" '. + [$newRun]' run-history.json > temp.json
               mv temp.json run-history.json
+            else
+              echo "Run #${{ steps.run-info.outputs.run_number }} already exists in history."
             fi
           else
             # Create new history if it doesn't exist
+            echo "Creating new run history file..."
             echo "[{\"runNumber\": \"${{ steps.run-info.outputs.run_number }}\", \"timestamp\": \"${{ steps.run-info.outputs.timestamp }}\", \"runReason\": \"${{ inputs.run_reason }}\", \"environment\": \"${{ inputs.environment }}\", \"browser\": \"${{ inputs.browser }}\", \"testPattern\": \"${{ inputs.test_pattern }}\"}]" > run-history.json
           fi
-              
+
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-              
+
           if [ -n "$(git status --porcelain)" ]; then
             echo "Changes detected, committing..."
             git add .
