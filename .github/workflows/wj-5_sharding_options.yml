@@ -642,6 +642,9 @@ jobs:
           name: merged-playwright-report
           path: new-report
 
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       - name: Organize reports
         run: |
           cd gh-pages
@@ -796,8 +799,6 @@ jobs:
             fi
           fi
 
-          # Install jq for JSON parsing
-          sudo apt-get update && sudo apt-get install -y jq
 
           # Collect information about all existing reports with deduplication
           REPORTS_DATA=""
@@ -1205,15 +1206,24 @@ jobs:
         run: |
           cd gh-pages
           git fetch origin gh-pages
+
+          # Check if gh-pages branch exists locally
           if [ -z "$(git branch --list gh-pages)" ]; then
             git checkout -b gh-pages
           else
             git checkout gh-pages
-            git pull origin gh-pages --rebase --allow-unrelated-histories
           fi
-          if [ -n "$(git status --porcelain)" ]; then
-            git add .
-            git commit -m "Add test report for run #${{ steps.run-info.outputs.run_number }} (Reason: ${{ inputs.run_reason }})"
+
+          # Pull with rebase first
+          git pull origin gh-pages --rebase --allow-unrelated-histories
+
+          # Commit and push if there are changes
+          if [ -n "$(git status --porcelain)" ] || [ "$(git log origin/gh-pages..HEAD --oneline | wc -l)" -gt 0 ]; then
+            if [ -n "$(git status --porcelain)" ]; then
+              echo "Committing changes..."
+              git add .
+              git commit -m "Add test report for run #${{ steps.run-info.outputs.run_number }} (Reason: ${{ inputs.run_reason }})"
+            fi
             MAX_RETRIES=3
             RETRY_COUNT=0
             while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
@@ -1230,58 +1240,7 @@ jobs:
               fi
             done
           else
-            echo "No changes to commit"
-          fi
-
-          # Make sure we have jq installed
-          sudo apt-get update && sudo apt-get install -y jq
-
-          # Add more data about the current run to the history before committing
-          if [ -f "run-history.json" ]; then
-            # Check if the run number exists in the history file
-            run_exists=$(jq --arg num "${{ steps.run-info.outputs.run_number }}" 'map(.runNumber == $num) | any' run-history.json)
-
-            if [ "$run_exists" = "false" ]; then
-              # If run is not in history, add it
-              echo "Adding run #${{ steps.run-info.outputs.run_number }} to history..."
-              new_run="{\"runNumber\": \"${{ steps.run-info.outputs.run_number }}\", \"timestamp\": \"${{ steps.run-info.outputs.timestamp }}\", \"runReason\": \"${{ inputs.run_reason }}\", \"environment\": \"${{ inputs.environment }}\", \"browser\": \"${{ inputs.browser }}\", \"testPattern\": \"${{ inputs.test_pattern }}\"}"
-              jq --argjson newRun "$new_run" '. + [$newRun]' run-history.json > temp.json
-              mv temp.json run-history.json
-            else
-              echo "Run #${{ steps.run-info.outputs.run_number }} already exists in history."
-            fi
-          else
-            # Create new history if it doesn't exist
-            echo "Creating new run history file..."
-            echo "[{\"runNumber\": \"${{ steps.run-info.outputs.run_number }}\", \"timestamp\": \"${{ steps.run-info.outputs.timestamp }}\", \"runReason\": \"${{ inputs.run_reason }}\", \"environment\": \"${{ inputs.environment }}\", \"browser\": \"${{ inputs.browser }}\", \"testPattern\": \"${{ inputs.test_pattern }}\"}]" > run-history.json
-          fi
-
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-
-          if [ -n "$(git status --porcelain)" ]; then
-            echo "Changes detected, committing..."
-            git add .
-            git commit -m "Add test report for run #${{ steps.run-info.outputs.run_number }} (Reason: ${{ inputs.run_reason }})"
-            MAX_RETRIES=3
-            RETRY_COUNT=0
-            while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-              if git push origin gh-pages; then
-                echo "Successfully pushed changes"
-                break
-              else
-                RETRY_COUNT=$((RETRY_COUNT+1))
-                if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
-                  echo "Failed to push after $MAX_RETRIES attempts"
-                  exit 1
-                fi
-                echo "Push failed, attempt $RETRY_COUNT of $MAX_RETRIES. Retrying..."
-                git pull --rebase origin gh-pages
-                sleep 5
-              fi
-            done
-          else
-            echo "No changes to commit"
+            echo "No changes to commit or push"
           fi
 
       - name: Setup Pages
