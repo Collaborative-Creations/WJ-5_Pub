@@ -159,30 +159,30 @@
   
   <script>
     // Load the run history from the JSON file
-  fetch('./run-history.json')
-    .then(response => {
-      if (!response.ok) {
-        throw new Error();
-      }
-      return response.json();
-    })
-    .then(runHistory => {
-      console.log();
-      // Sort by newest first
-      runHistory.sort((a, b) => parseInt(b.runNumber) - parseInt(a.runNumber));
-      
-      // Populate both the sidebar and main container
-      populateRunsList(runHistory);
-      populateReportsContainer(runHistory);
-      
-      // Set up event listeners
-      setupEventListeners(runHistory);
-    })
-    .catch(error => {
-      console.error('Error loading run history:', error);
-      document.getElementById('runsList').innerHTML = 
-        '<p style="color: #f85149;">Error loading run history. Please check the console for details.</p>';
-    });
+    fetch('./run-history.json')
+      .then(response => {
+        if (!response.ok) throw new Error();
+        return response.json();
+      })
+      .then(runHistory => {
+        if (!Array.isArray(runHistory) || runHistory.length === 0) {
+          throw new Error('Run history is empty or invalid');
+        }
+        // Normalize and sort by runNumber descending
+        const normalizedHistory = runHistory.map(run => ({
+          ...run,
+          runNumber: String(run.runNumber) // Ensure consistency
+        })).sort((a, b) => parseInt(b.runNumber) - parseInt(a.runNumber));
+
+        populateRunsList(normalizedHistory);
+        populateReportsContainer(normalizedHistory);
+        setupEventListeners(normalizedHistory);
+      })
+      .catch(error => {
+        console.error('Error loading run history:', error);
+        document.getElementById('runsList').innerHTML = '<p style="color: #f85149;">Failed to load run history. Check console.</p>';
+        document.getElementById('reportsContainer').innerHTML = '<p style="color: #f85149;">No reports available.</p>';
+      });
     
       function populateRunsList(runHistory) {
         const runsList = document.getElementById('runsList');
