@@ -613,8 +613,8 @@ jobs:
         id: run-info
         run: |
           echo "run_number=$GITHUB_RUN_NUMBER" >> $GITHUB_OUTPUT
-          # Use GitHub's run start time as the execution timestamp
-          echo "timestamp=$(date -d "${{ github.event.workflow_run.created_at || github.event.created_at }}" +'%Y%m%d_%H%M%S')" >> $GITHUB_OUTPUT
+          # Use current time in IST (UTC+5:30) as the execution timestamp
+          echo "timestamp=$(TZ='Asia/Kolkata' date +'%Y%m%d_%H%M%S')" >> $GITHUB_OUTPUT
 
       - name: Checkout gh-pages branch
         uses: actions/checkout@v4
@@ -664,10 +664,17 @@ jobs:
           echo "$CURRENT_RUN" > "../new-report/metadata/run-info.json"
           if [ -f "run-history.json" ]; then
             echo "Updating existing run history..."
+            # This improved jq command will:
+            # 1. Preserve existing entries' timestamps
+            # 2. Add the new run (or update if it exists)
+            # 3. Sort by run number in descending order
             jq --argjson newRun "$CURRENT_RUN" '
+              # First check if the run already exists
               if (map(.runNumber == $newRun.runNumber) | any) then
+                # If it exists, update it
                 map(if .runNumber == $newRun.runNumber then $newRun else . end)
               else
+                # Otherwise, add it to the array
                 . + [$newRun]
               end | sort_by(.runNumber | tonumber) | reverse
             ' run-history.json > run-history.tmp
@@ -1050,8 +1057,15 @@ jobs:
                         const hour = timePart.substring(0, 2);
                         const minute = timePart.substring(2, 4);
                         const second = timePart.substring(4, 6);
+                        
+                        // Create date object with IST offset (+5:30)
+                        // Note: JavaScript months are 0-indexed
                         const date = new Date(Date.UTC(year, month-1, day, hour, minute, second));
-                        formattedDate = date.toLocaleString();
+                        // Add IST offset (5 hours and 30 minutes)
+                        date.setTime(date.getTime() + (5*60*60*1000) + (30*60*1000));
+                        
+                        // Format the date with IST indicator
+                        formattedDate = date.toLocaleString() + ' (IST)';
                       }
                     } catch (e) {
                       console.warn('Error formatting date:', e);
@@ -1101,8 +1115,15 @@ jobs:
                         const hour = timePart.substring(0, 2);
                         const minute = timePart.substring(2, 4);
                         const second = timePart.substring(4, 6);
+                        
+                        // Create date object with IST offset (+5:30)
+                        // Note: JavaScript months are 0-indexed
                         const date = new Date(Date.UTC(year, month-1, day, hour, minute, second));
-                        formattedDate = date.toLocaleString();
+                        // Add IST offset (5 hours and 30 minutes)
+                        date.setTime(date.getTime() + (5*60*60*1000) + (30*60*1000));
+                        
+                        // Format the date with IST indicator
+                        formattedDate = date.toLocaleString() + ' (IST)';
                       }
                     } catch (e) {
                       console.warn('Error formatting date:', e);
