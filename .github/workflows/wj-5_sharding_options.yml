@@ -11,6 +11,11 @@ on:
         description: "Test pattern (e.g., @Smoke, @TestDe|@DerivedScores, (?=.*@RDGBAS)(?=.*@DerivedScores), (?=.*@DerivedScores)(?=.*(@PHNMAN|@RDGBAS)), (?=.*@Smoke)(?=.*(@TestDe|@DerivedScores|@SingleTable|@MultiTable)))"
         required: true
         default: "(?=.*@RDGBAS)(?=.*@DerivedScores)"
+      run_reason:
+        description: "Short reason for triggering this run (e.g., 'Smoke test', 'Bug fix validation')"
+        required: true
+        default: "Enter reason"
+        type: string
       shard_count:
         description: "Number of shards"
         required: true
@@ -70,11 +75,6 @@ on:
       pre_run_notes:
         description: "Notes before running the tests (purpose, context, etc.)"
         required: false
-        type: string
-      run_reason:
-        description: "Short reason for triggering this run (e.g., 'Smoke test', 'Bug fix validation')"
-        required: true
-        default: "General test run"
         type: string
 
 env:
@@ -836,13 +836,14 @@ jobs:
           fi
 
           # Create or update main index with login and run history
-          cat > index.html << EOF
+          cat > index.html << 'EOF'
           <!DOCTYPE html>
           <html lang="en">
           <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Playwright Test Reports History</title>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
             <style>
               /* Login styles */
               #login { text-align: center; margin-top: 50px; }
@@ -1008,18 +1009,31 @@ jobs:
             </div>
 
             <script>
-              // Login check with GitHub Secrets
+              // Login check with bcrypt
               function checkLogin() {
                 const username = document.getElementById("username").value;
                 const password = document.getElementById("password").value;
-                const correctUsername = "${{ secrets.SITE_USERNAME }}";
-                const correctPassword = "${{ secrets.SITE_PASSWORD }}";
-                if (username === correctUsername && password === correctPassword) {
-                  document.getElementById("login").style.display = "none";
-                  document.getElementById("content").style.display = "block";
-                } else {
-                  alert("Wrong username or password! Try again.");
+                const correctUsername = "TheBoss";
+                const passwordHash = "$2a$12$xynwxQ/FtZ8HU43ZYnGcJ.VB.4wZfUGWoqEGAk9Cj2x.KMyblcuxm";
+
+                if (username !== correctUsername) {
+                  alert("Wrong username!");
+                  return;
                 }
+
+                bcrypt.compare(password, passwordHash, function(err, result) {
+                  if (err) {
+                    console.error("Error comparing password:", err);
+                    alert("An error occurred. Check console.");
+                    return;
+                  }
+                  if (result) {
+                    document.getElementById("login").style.display = "none";
+                    document.getElementById("content").style.display = "block";
+                  } else {
+                    alert("Wrong password!");
+                  }
+                });
               }
 
               // Original JavaScript for run history
@@ -1069,22 +1083,22 @@ jobs:
                         const second = timePart.substring(4, 6);
                         const date = new Date(Date.UTC(year, month-1, day, hour, minute, second));
                         formattedDate = date.toLocaleString();
-                      }
+                    }
                     } catch (e) {
                       console.warn('Error formatting date:', e);
                     }
                   }
-                  runItem.innerHTML = \`
-                    <h3>Run #\${run.runNumber}</h3>
+                  runItem.innerHTML = `
+                    <h3>Run #${run.runNumber}</h3>
                     <div class="run-meta">
-                      <div>Executed: \${formattedDate}</div>
-                      <div>Reason: \${run.runReason || 'Not specified'}</div>
-                      <div>Environment: \${run.environment || 'Not specified'}</div>
-                      <div>Browser: \${run.browser || 'Not specified'}</div>
+                      <div>Executed: ${formattedDate}</div>
+                      <div>Reason: ${run.runReason || 'Not specified'}</div>
+                      <div>Environment: ${run.environment || 'Not specified'}</div>
+                      <div>Browser: ${run.browser || 'Not specified'}</div>
                     </div>
-                  \`;
+                  `;
                   runItem.addEventListener('click', () => {
-                    window.location.href = \`./reports/\${run.runNumber}/index.html\`;
+                    window.location.href = `./reports/${run.runNumber}/index.html`;
                   });
                   runsList.appendChild(runItem);
                 });
@@ -1117,17 +1131,17 @@ jobs:
                       console.warn('Error formatting date:', e);
                     }
                   }
-                  card.innerHTML = \`
-                    <a href="./reports/\${run.runNumber}/index.html" class="report-link">
-                      <h3>Run #\${run.runNumber}</h3>
+                  card.innerHTML = `
+                    <a href="./reports/${run.runNumber}/index.html" class="report-link">
+                      <h3>Run #${run.runNumber}</h3>
                       <div class="report-meta">
-                        <div>Executed: \${formattedDate}</div>
-                        <div>Reason: \${run.runReason || 'Not specified'}</div>
-                        <div>Environment: \${run.environment || 'Not specified'}</div>
-                        <div>Browser: \${run.browser || 'Not specified'}</div>
+                        <div>Executed: ${formattedDate}</div>
+                        <div>Reason: ${run.runReason || 'Not specified'}</div>
+                        <div>Environment: ${run.environment || 'Not specified'}</div>
+                        <div>Browser: ${run.browser || 'Not specified'}</div>
                       </div>
                     </a>
-                  \`;
+                  `;
                   container.appendChild(card);
                 });
               }
