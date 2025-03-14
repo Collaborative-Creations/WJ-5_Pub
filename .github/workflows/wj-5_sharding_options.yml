@@ -613,8 +613,9 @@ jobs:
         id: run-info
         run: |
           echo "run_number=$GITHUB_RUN_NUMBER" >> $GITHUB_OUTPUT
-          # Use GitHub's run start time as the execution timestamp
-          echo "timestamp=$(date -d "${{ github.event.workflow_run.created_at || github.event.created_at }}" +'%Y%m%d_%H%M%S')" >> $GITHUB_OUTPUT
+          # Generate UTC timestamp and explicitly store timezone info
+          UTC_TIMESTAMP=$(date -u +'%Y%m%d_%H%M%S')
+          echo "timestamp=${UTC_TIMESTAMP}_UTC" >> $GITHUB_OUTPUT
 
       - name: Checkout gh-pages branch
         uses: actions/checkout@v4
@@ -664,10 +665,17 @@ jobs:
           echo "$CURRENT_RUN" > "../new-report/metadata/run-info.json"
           if [ -f "run-history.json" ]; then
             echo "Updating existing run history..."
+            # This improved jq command will:
+            # 1. Preserve existing entries' timestamps
+            # 2. Add the new run (or update if it exists)
+            # 3. Sort by run number in descending order
             jq --argjson newRun "$CURRENT_RUN" '
+              # First check if the run already exists
               if (map(.runNumber == $newRun.runNumber) | any) then
+                # If it exists, update it
                 map(if .runNumber == $newRun.runNumber then $newRun else . end)
               else
+                # Otherwise, add it to the array
                 . + [$newRun]
               end | sort_by(.runNumber | tonumber) | reverse
             ' run-history.json > run-history.tmp
@@ -1038,24 +1046,36 @@ jobs:
 
                   // Format the timestamp
                   let formattedDate = 'Unknown date';
+                  // Updated JavaScript date parsing code
                   if (run.timestamp) {
-                    try {
-                      const parts = run.timestamp.split('_');
-                      if (parts.length === 2) {
-                        const datePart = parts[0];
-                        const timePart = parts[1];
-                        const year = datePart.substring(0, 4);
-                        const month = datePart.substring(4, 6);
-                        const day = datePart.substring(6, 8);
-                        const hour = timePart.substring(0, 2);
-                        const minute = timePart.substring(2, 4);
-                        const second = timePart.substring(4, 6);
-                        const date = new Date(Date.UTC(year, month-1, day, hour, minute, second));
-                        formattedDate = date.toLocaleString();
+                      try {
+                          const parts = run.timestamp.split('_');
+                          if (parts.length >= 2) {
+                              const datePart = parts[0];
+                              const timePart = parts[1];
+                              
+                              // Ensure date and time parts are valid
+                              if (datePart.length === 8 && timePart.length === 6) {
+                                  const year = parseInt(datePart.substring(0, 4));
+                                  const month = parseInt(datePart.substring(4, 6)) - 1; // JS months are 0-indexed
+                                  const day = parseInt(datePart.substring(6, 8));
+                                  const hour = parseInt(timePart.substring(0, 2));
+                                  const minute = parseInt(timePart.substring(2, 4));
+                                  const second = parseInt(timePart.substring(4, 6));
+                              
+                                  // Create a date in UTC
+                                  const date = new Date(Date.UTC(year, month, day, hour, minute, second));
+                              
+                                  // Format with the browser's locale
+                                  formattedDate = new Date(date).toLocaleString('en-US', { timeZone: 'UTC' }) + ' (UTC)';
+                              } else {
+                                  console.warn('Invalid timestamp format:', run.timestamp);
+                              }
+                          }
+                      } catch (e) {
+                          console.error('Error formatting date:', e);
+                          formattedDate = 'Error parsing timestamp'; // More informative fallback
                       }
-                    } catch (e) {
-                      console.warn('Error formatting date:', e);
-                    }
                   }
                     
 
@@ -1090,23 +1110,34 @@ jobs:
 
                   let formattedDate = 'Unknown date';
                   if (run.timestamp) {
-                    try {
-                      const parts = run.timestamp.split('_');
-                      if (parts.length === 2) {
-                        const datePart = parts[0];
-                        const timePart = parts[1];
-                        const year = datePart.substring(0, 4);
-                        const month = datePart.substring(4, 6);
-                        const day = datePart.substring(6, 8);
-                        const hour = timePart.substring(0, 2);
-                        const minute = timePart.substring(2, 4);
-                        const second = timePart.substring(4, 6);
-                        const date = new Date(Date.UTC(year, month-1, day, hour, minute, second));
-                        formattedDate = date.toLocaleString();
+                      try {
+                          const parts = run.timestamp.split('_');
+                          if (parts.length >= 2) {
+                              const datePart = parts[0];
+                              const timePart = parts[1];
+                              
+                              // Ensure date and time parts are valid
+                              if (datePart.length === 8 && timePart.length === 6) {
+                                  const year = parseInt(datePart.substring(0, 4));
+                                  const month = parseInt(datePart.substring(4, 6)) - 1; // JS months are 0-indexed
+                                  const day = parseInt(datePart.substring(6, 8));
+                                  const hour = parseInt(timePart.substring(0, 2));
+                                  const minute = parseInt(timePart.substring(2, 4));
+                                  const second = parseInt(timePart.substring(4, 6));
+                              
+                                  // Create a date in UTC
+                                  const date = new Date(Date.UTC(year, month, day, hour, minute, second));
+                              
+                                  // Format with the browser's locale
+                                  formattedDate = new Date(date).toLocaleString('en-US', { timeZone: 'UTC' }) + ' (UTC)';
+                              } else {
+                                  console.warn('Invalid timestamp format:', run.timestamp);
+                              }
+                          }
+                      } catch (e) {
+                          console.error('Error formatting date:', e);
+                          formattedDate = 'Error parsing timestamp'; // More informative fallback
                       }
-                    } catch (e) {
-                      console.warn('Error formatting date:', e);
-                    }
                   }
 
                   card.innerHTML = \`
