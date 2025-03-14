@@ -1048,35 +1048,34 @@ jobs:
                   let formattedDate = 'Unknown date';
                   // Updated JavaScript date parsing code
                   if (run.timestamp) {
-                    try {
-                      const parts = run.timestamp.split('_');
-                      if (parts.length >= 2) {
-                        const datePart = parts[0];
-                        const timePart = parts[1];
-
-                        if (datePart.length === 8 && timePart.length >= 6) {
-                          const year = parseInt(datePart.substring(0, 4));
-                          const month = parseInt(datePart.substring(4, 6)) - 1; // JS months are 0-indexed
-                          const day = parseInt(datePart.substring(6, 8));
-                          const hour = parseInt(timePart.substring(0, 2));
-                          const minute = parseInt(timePart.substring(2, 4));
-                          const second = parseInt(timePart.substring(4, 6));
-
-                          // Create a date in UTC
-                          const date = new Date(Date.UTC(year, month, day, hour, minute, second));
-
-                          // Format with the browser's locale
-                          formattedDate = new Date(date).toLocaleString() + ' (UTC)';
-
-                          // If we want to show in IST instead:
-                          // date.setTime(date.getTime() + (5*60*60*1000) + (30*60*1000));
-                          // formattedDate = date.toLocaleString() + ' (IST)';
-                        }
+                      try {
+                          const parts = run.timestamp.split('_');
+                          if (parts.length >= 2) {
+                              const datePart = parts[0];
+                              const timePart = parts[1];
+                              
+                              // Ensure date and time parts are valid
+                              if (datePart.length === 8 && timePart.length === 6) {
+                                  const year = parseInt(datePart.substring(0, 4));
+                                  const month = parseInt(datePart.substring(4, 6)) - 1; // JS months are 0-indexed
+                                  const day = parseInt(datePart.substring(6, 8));
+                                  const hour = parseInt(timePart.substring(0, 2));
+                                  const minute = parseInt(timePart.substring(2, 4));
+                                  const second = parseInt(timePart.substring(4, 6));
+                              
+                                  // Create a date in UTC
+                                  const date = new Date(Date.UTC(year, month, day, hour, minute, second));
+                              
+                                  // Format with the browser's locale
+                                  formattedDate = new Date(date).toLocaleString('en-US', { timeZone: 'UTC' }) + ' (UTC)';
+                              } else {
+                                  console.warn('Invalid timestamp format:', run.timestamp);
+                              }
+                          }
+                      } catch (e) {
+                          console.error('Error formatting date:', e);
+                          formattedDate = 'Error parsing timestamp'; // More informative fallback
                       }
-                    } catch (e) {
-                      console.warn('Error formatting date:', e);
-                      formattedDate = run.timestamp; // Fallback to raw timestamp
-                    }
                   }
                     
 
@@ -1111,35 +1110,34 @@ jobs:
 
                   let formattedDate = 'Unknown date';
                   if (run.timestamp) {
-                    try {
-                      const parts = run.timestamp.split('_');
-                      if (parts.length >= 2) {
-                        const datePart = parts[0];
-                        const timePart = parts[1];
-                                            
-                        if (datePart.length === 8 && timePart.length >= 6) {
-                          const year = parseInt(datePart.substring(0, 4));
-                          const month = parseInt(datePart.substring(4, 6)) - 1; // JS months are 0-indexed
-                          const day = parseInt(datePart.substring(6, 8));
-                          const hour = parseInt(timePart.substring(0, 2));
-                          const minute = parseInt(timePart.substring(2, 4));
-                          const second = parseInt(timePart.substring(4, 6));
-                                            
-                          // Create a date in UTC
-                          const date = new Date(Date.UTC(year, month, day, hour, minute, second));
-                                            
-                          // Format with the browser's locale
-                          formattedDate = new Date(date).toLocaleString() + ' (UTC)';
-                                            
-                          // If we want to show in IST instead:
-                          // date.setTime(date.getTime() + (5*60*60*1000) + (30*60*1000));
-                          // formattedDate = date.toLocaleString() + ' (IST)';
-                        }
+                      try {
+                          const parts = run.timestamp.split('_');
+                          if (parts.length >= 2) {
+                              const datePart = parts[0];
+                              const timePart = parts[1];
+                              
+                              // Ensure date and time parts are valid
+                              if (datePart.length === 8 && timePart.length === 6) {
+                                  const year = parseInt(datePart.substring(0, 4));
+                                  const month = parseInt(datePart.substring(4, 6)) - 1; // JS months are 0-indexed
+                                  const day = parseInt(datePart.substring(6, 8));
+                                  const hour = parseInt(timePart.substring(0, 2));
+                                  const minute = parseInt(timePart.substring(2, 4));
+                                  const second = parseInt(timePart.substring(4, 6));
+                              
+                                  // Create a date in UTC
+                                  const date = new Date(Date.UTC(year, month, day, hour, minute, second));
+                              
+                                  // Format with the browser's locale
+                                  formattedDate = new Date(date).toLocaleString('en-US', { timeZone: 'UTC' }) + ' (UTC)';
+                              } else {
+                                  console.warn('Invalid timestamp format:', run.timestamp);
+                              }
+                          }
+                      } catch (e) {
+                          console.error('Error formatting date:', e);
+                          formattedDate = 'Error parsing timestamp'; // More informative fallback
                       }
-                    } catch (e) {
-                      console.warn('Error formatting date:', e);
-                      formattedDate = run.timestamp; // Fallback to raw timestamp
-                    }
                   }
 
                   card.innerHTML = \`
