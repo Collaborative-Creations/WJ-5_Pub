@@ -531,8 +531,7 @@ export function getConfidenceRange(
     if (computedValue >= 39.5 && computedValue <= 160.5) {
       // console.log(computedValue);
       // return String(Math.round(computedValue));
-      // return String(Math.round(applyRoundToEvenRule(computedValue)));
-      return String(Math.round(Number(applyRoundToEvenRule(computedValue).toFixed(2))));
+      return String(Math.round(applyRoundToEvenRule(computedValue)));
     } else if (computedValue < 39.5) {
       return "<40";
     } else if (computedValue > 160.5) {
