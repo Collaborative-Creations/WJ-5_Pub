@@ -776,7 +776,7 @@ jobs:
                   <a href="../../large-files-info/index.html" class="link">View All Large Files Info</a>
                 </body>
                 </html>
-          EOF_PLACEHOLDER
+                EOF_PLACEHOLDER
               fi
             done < large_files_list.txt
             cat >> "reports/${{ steps.run-info.outputs.run_number }}/large-files-info/index.html" << EOF
@@ -788,7 +788,7 @@ jobs:
               <p style="text-align: center; margin-top: 5px; color: #586069;">Artifacts include all videos, traces, and large files</p>
             </body>
             </html>
-          EOF
+            EOF
             if [ -f "reports/${{ steps.run-info.outputs.run_number }}/index.html" ]; then
               sed -i '/<body>/a \
               <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0;"> \
@@ -798,7 +798,6 @@ jobs:
               </div>' "reports/${{ steps.run-info.outputs.run_number }}/index.html"
             fi
           fi
-
 
           # Collect information about all existing reports with deduplication
           REPORTS_DATA=""
@@ -836,15 +835,23 @@ jobs:
             seen_runs[${{ steps.run-info.outputs.run_number }}]=1
           fi
 
-          # Create or update main index with run reason
+          # Create or update main index with login and run history
           cat > index.html << EOF
           <!DOCTYPE html>
-          <html>
+          <html lang="en">
           <head>
-            <title>Playwright Test Reports History</title>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Playwright Test Reports History</title>
             <style>
+              /* Login styles */
+              #login { text-align: center; margin-top: 50px; }
+              #content { display: none; }
+              input { margin: 5px; padding: 5px; width: 200px; }
+              button { padding: 5px 10px; background: #0366d6; color: white; border: none; border-radius: 4px; cursor: pointer; }
+              button:hover { background: #0258b8; }
+
+              /* Original styles */
               body {
                 font-family: -apple-system, system-ui, sans-serif;
                 margin: 0;
@@ -951,54 +958,71 @@ jobs:
                 margin-bottom: 15px;
               }
               @media (max-width: 768px) {
-                body {
-                  flex-direction: column;
-                }
-                .sidebar {
-                  width: 100%;
-                  height: auto;
-                  position: relative;
-                }
-                .main-content {
-                  margin-left: 0;
-                }
+                body { flex-direction: column; }
+                .sidebar { width: 100%; height: auto; position: relative; }
+                .main-content { margin-left: 0; }
               }
             </style>
           </head>
           <body>
-            <div class="sidebar">
-              <h2 class="sidebar-header">Run History</h2>
-              <div class="filter-bar">
-                <input type="text" class="search-input" placeholder="Search reasons or runs..." id="sidebarSearch">
-                <select class="sort-select" id="sidebarSort">
-                  <option value="newest">Newest First</option>
-                  <option value="oldest">Oldest First</option>
-                </select>
+            <!-- Login box -->
+            <div id="login">
+              <h2>Login</h2>
+              <input type="text" id="username" placeholder="Username">
+              <input type="password" id="password" placeholder="Password">
+              <button onclick="checkLogin()">Submit</button>
+            </div>
+
+            <!-- Original content, hidden until login -->
+            <div id="content">
+              <div class="sidebar">
+                <h2 class="sidebar-header">Run History</h2>
+                <div class="filter-bar">
+                  <input type="text" class="search-input" placeholder="Search reasons or runs..." id="sidebarSearch">
+                  <select class="sort-select" id="sidebarSort">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                  </select>
+                </div>
+                <div id="runsList">
+                  <!-- Run items will be dynamically inserted here -->
+                </div>
               </div>
-              <div id="runsList">
-                <!-- Run items will be dynamically inserted here -->
+              
+              <div class="main-content">
+                <div class="header">
+                  <h1>Playwright Test Reports History</h1>
+                  <p>Historical test execution reports with retention</p>
+                </div>
+                <div class="filter-bar" style="background: white;">
+                  <input type="text" class="search-input" placeholder="Search reports..." id="searchInput" style="background: white; color: black; border: 1px solid #ddd;">
+                  <select class="sort-select" id="sortSelect" style="background: white; color: black; border: 1px solid #ddd;">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                  </select>
+                </div>
+                <div class="reports-container" id="reportsContainer">
+                  <!-- Report entries will be dynamically inserted here -->
+                </div>
               </div>
             </div>
-            
-            <div class="main-content">
-              <div class="header">
-                <h1>Playwright Test Reports History</h1>
-                <p>Historical test execution reports with retention</p>
-              </div>
-              <div class="filter-bar" style="background: white;">
-                <input type="text" class="search-input" placeholder="Search reports..." id="searchInput" style="background: white; color: black; border: 1px solid #ddd;">
-                <select class="sort-select" id="sortSelect" style="background: white; color: black; border: 1px solid #ddd;">
-                  <option value="newest">Newest First</option>
-                  <option value="oldest">Oldest First</option>
-                </select>
-              </div>
-              <div class="reports-container" id="reportsContainer">
-                <!-- Report entries will be dynamically inserted here -->
-              </div>
-            </div>
-            
+
             <script>
-              // Load the run history from the JSON file
+              // Login check with GitHub Secrets
+              function checkLogin() {
+                const username = document.getElementById("username").value;
+                const password = document.getElementById("password").value;
+                const correctUsername = "${{ secrets.SITE_USERNAME }}";
+                const correctPassword = "${{ secrets.SITE_PASSWORD }}";
+                if (username === correctUsername && password === correctPassword) {
+                  document.getElementById("login").style.display = "none";
+                  document.getElementById("content").style.display = "block";
+                } else {
+                  alert("Wrong username or password! Try again.");
+                }
+              }
+
+              // Original JavaScript for run history
               fetch('./run-history.json')
                 .then(response => {
                   if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1008,12 +1032,10 @@ jobs:
                   if (!Array.isArray(runHistory) || runHistory.length === 0) {
                     throw new Error('Run history is empty or invalid');
                   }
-                  // Normalize and sort by runNumber descending
                   const normalizedHistory = runHistory.map(run => ({
                     ...run,
-                    runNumber: String(run.runNumber) // Ensure consistency
+                    runNumber: String(run.runNumber)
                   })).sort((a, b) => parseInt(b.runNumber) - parseInt(a.runNumber));
-
                   populateRunsList(normalizedHistory);
                   populateReportsContainer(normalizedHistory);
                   setupEventListeners(normalizedHistory);
@@ -1023,20 +1045,15 @@ jobs:
                   document.getElementById('runsList').innerHTML = '<p style="color: #f85149;">Failed to load run history. Check console.</p>';
                   document.getElementById('reportsContainer').innerHTML = '<p style="color: #f85149;">No reports available.</p>';
                 });
-              
-                function populateRunsList(runHistory) {
-                  const runsList = document.getElementById('runsList');
-                  runsList.innerHTML = '';
 
-                  // Sort by run number descending by default
-                  runHistory.sort((a, b) => parseInt(b.runNumber) - parseInt(a.runNumber));
-
-                  runHistory.forEach(run => {
-                    const runItem = document.createElement('div');
-                    runItem.className = 'run-item';
-                    runItem.dataset.runNumber = run.runNumber;
-
-                  // Format the timestamp
+              function populateRunsList(runHistory) {
+                const runsList = document.getElementById('runsList');
+                runsList.innerHTML = '';
+                runHistory.sort((a, b) => parseInt(b.runNumber) - parseInt(a.runNumber));
+                runHistory.forEach(run => {
+                  const runItem = document.createElement('div');
+                  runItem.className = 'run-item';
+                  runItem.dataset.runNumber = run.runNumber;
                   let formattedDate = 'Unknown date';
                   if (run.timestamp) {
                     try {
@@ -1057,8 +1074,6 @@ jobs:
                       console.warn('Error formatting date:', e);
                     }
                   }
-                    
-
                   runItem.innerHTML = \`
                     <h3>Run #\${run.runNumber}</h3>
                     <div class="run-meta">
@@ -1068,26 +1083,20 @@ jobs:
                       <div>Browser: \${run.browser || 'Not specified'}</div>
                     </div>
                   \`;
-
                   runItem.addEventListener('click', () => {
-                    // Navigate to the report when clicked
                     window.location.href = \`./reports/\${run.runNumber}/index.html\`;
                   });
-
                   runsList.appendChild(runItem);
                 });
-                 // Log the number of runs displayed
                 console.log(`Displayed ${runHistory.length} runs in the sidebar`);
               }
 
               function populateReportsContainer(runHistory) {
                 const container = document.getElementById('reportsContainer');
                 container.innerHTML = '';
-
                 runHistory.forEach(run => {
                   const card = document.createElement('div');
                   card.className = 'report-card';
-
                   let formattedDate = 'Unknown date';
                   if (run.timestamp) {
                     try {
@@ -1108,7 +1117,6 @@ jobs:
                       console.warn('Error formatting date:', e);
                     }
                   }
-
                   card.innerHTML = \`
                     <a href="./reports/\${run.runNumber}/index.html" class="report-link">
                       <h3>Run #\${run.runNumber}</h3>
@@ -1120,28 +1128,20 @@ jobs:
                       </div>
                     </a>
                   \`;
-
                   container.appendChild(card);
                 });
               }
 
               function setupEventListeners(originalRunHistory) {
-                // Main search
                 document.getElementById('searchInput').addEventListener('input', (e) => {
                   filterReports(e.target.value.toLowerCase());
                 });
-
-                // Main sort
                 document.getElementById('sortSelect').addEventListener('change', (e) => {
                   sortReports(e.target.value);
                 });
-
-                // Sidebar search
                 document.getElementById('sidebarSearch').addEventListener('input', (e) => {
                   filterSidebar(e.target.value.toLowerCase());
                 });
-
-                // Sidebar sort
                 document.getElementById('sidebarSort').addEventListener('change', (e) => {
                   sortSidebar(e.target.value);
                 });
@@ -1158,13 +1158,11 @@ jobs:
               function sortReports(sortOrder) {
                 const container = document.getElementById('reportsContainer');
                 const cards = Array.from(container.children);
-
                 cards.sort((a, b) => {
                   const aNum = parseInt(a.querySelector('h3').textContent.split('#')[1]);
                   const bNum = parseInt(b.querySelector('h3').textContent.split('#')[1]);
                   return sortOrder === 'newest' ? bNum - aNum : aNum - bNum;
                 });
-
                 container.innerHTML = '';
                 cards.forEach(card => container.appendChild(card));
               }
@@ -1180,13 +1178,11 @@ jobs:
               function sortSidebar(sortOrder) {
                 const container = document.getElementById('runsList');
                 const items = Array.from(container.children);
-
                 items.sort((a, b) => {
                   const aNum = parseInt(a.dataset.runNumber);
                   const bNum = parseInt(b.dataset.runNumber);
                   return sortOrder === 'newest' ? bNum - aNum : aNum - bNum;
                 });
-
                 container.innerHTML = '';
                 items.forEach(item => container.appendChild(item));
               }
