@@ -613,8 +613,9 @@ jobs:
         id: run-info
         run: |
           echo "run_number=$GITHUB_RUN_NUMBER" >> $GITHUB_OUTPUT
-          # Use current time in IST (UTC+5:30) as the execution timestamp
-          echo "timestamp=$(TZ='Asia/Kolkata' date +'%Y%m%d_%H%M%S')" >> $GITHUB_OUTPUT
+          # Generate UTC timestamp and explicitly store timezone info
+          UTC_TIMESTAMP=$(date -u +'%Y%m%d_%H%M%S')
+          echo "timestamp=${UTC_TIMESTAMP}_UTC" >> $GITHUB_OUTPUT
 
       - name: Checkout gh-pages branch
         uses: actions/checkout@v4
@@ -1045,30 +1046,36 @@ jobs:
 
                   // Format the timestamp
                   let formattedDate = 'Unknown date';
+                  // Updated JavaScript date parsing code
                   if (run.timestamp) {
                     try {
                       const parts = run.timestamp.split('_');
-                      if (parts.length === 2) {
+                      if (parts.length >= 2) {
                         const datePart = parts[0];
                         const timePart = parts[1];
-                        const year = datePart.substring(0, 4);
-                        const month = datePart.substring(4, 6);
-                        const day = datePart.substring(6, 8);
-                        const hour = timePart.substring(0, 2);
-                        const minute = timePart.substring(2, 4);
-                        const second = timePart.substring(4, 6);
-                        
-                        // Create date object with IST offset (+5:30)
-                        // Note: JavaScript months are 0-indexed
-                        const date = new Date(Date.UTC(year, month-1, day, hour, minute, second));
-                        // Add IST offset (5 hours and 30 minutes)
-                        date.setTime(date.getTime() + (5*60*60*1000) + (30*60*1000));
-                        
-                        // Format the date with IST indicator
-                        formattedDate = date.toLocaleString() + ' (IST)';
+
+                        if (datePart.length === 8 && timePart.length >= 6) {
+                          const year = parseInt(datePart.substring(0, 4));
+                          const month = parseInt(datePart.substring(4, 6)) - 1; // JS months are 0-indexed
+                          const day = parseInt(datePart.substring(6, 8));
+                          const hour = parseInt(timePart.substring(0, 2));
+                          const minute = parseInt(timePart.substring(2, 4));
+                          const second = parseInt(timePart.substring(4, 6));
+
+                          // Create a date in UTC
+                          const date = new Date(Date.UTC(year, month, day, hour, minute, second));
+
+                          // Format with the browser's locale
+                          formattedDate = new Date(date).toLocaleString() + ' (UTC)';
+
+                          // If we want to show in IST instead:
+                          // date.setTime(date.getTime() + (5*60*60*1000) + (30*60*1000));
+                          // formattedDate = date.toLocaleString() + ' (IST)';
+                        }
                       }
                     } catch (e) {
                       console.warn('Error formatting date:', e);
+                      formattedDate = run.timestamp; // Fallback to raw timestamp
                     }
                   }
                     
@@ -1106,27 +1113,32 @@ jobs:
                   if (run.timestamp) {
                     try {
                       const parts = run.timestamp.split('_');
-                      if (parts.length === 2) {
+                      if (parts.length >= 2) {
                         const datePart = parts[0];
                         const timePart = parts[1];
-                        const year = datePart.substring(0, 4);
-                        const month = datePart.substring(4, 6);
-                        const day = datePart.substring(6, 8);
-                        const hour = timePart.substring(0, 2);
-                        const minute = timePart.substring(2, 4);
-                        const second = timePart.substring(4, 6);
-                        
-                        // Create date object with IST offset (+5:30)
-                        // Note: JavaScript months are 0-indexed
-                        const date = new Date(Date.UTC(year, month-1, day, hour, minute, second));
-                        // Add IST offset (5 hours and 30 minutes)
-                        date.setTime(date.getTime() + (5*60*60*1000) + (30*60*1000));
-                        
-                        // Format the date with IST indicator
-                        formattedDate = date.toLocaleString() + ' (IST)';
+                                            
+                        if (datePart.length === 8 && timePart.length >= 6) {
+                          const year = parseInt(datePart.substring(0, 4));
+                          const month = parseInt(datePart.substring(4, 6)) - 1; // JS months are 0-indexed
+                          const day = parseInt(datePart.substring(6, 8));
+                          const hour = parseInt(timePart.substring(0, 2));
+                          const minute = parseInt(timePart.substring(2, 4));
+                          const second = parseInt(timePart.substring(4, 6));
+                                            
+                          // Create a date in UTC
+                          const date = new Date(Date.UTC(year, month, day, hour, minute, second));
+                                            
+                          // Format with the browser's locale
+                          formattedDate = new Date(date).toLocaleString() + ' (UTC)';
+                                            
+                          // If we want to show in IST instead:
+                          // date.setTime(date.getTime() + (5*60*60*1000) + (30*60*1000));
+                          // formattedDate = date.toLocaleString() + ' (IST)';
+                        }
                       }
                     } catch (e) {
                       console.warn('Error formatting date:', e);
+                      formattedDate = run.timestamp; // Fallback to raw timestamp
                     }
                   }
 
