@@ -71,6 +71,11 @@ on:
         description: "Notes before running the tests (purpose, context, etc.)"
         required: false
         type: string
+      run_reason:
+        description: "Short reason for triggering this run (e.g., 'Smoke test', 'Bug fix validation')"
+        required: true
+        default: "General test run"
+        type: string
 
 env:
   TEST_ENV: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'stage' }}
@@ -87,10 +92,8 @@ permissions:
   pages: write
   id-token: write
 
-# Keep the existing jobs (prepare, test, merge-reports) unchanged
-# Only modify the deploy-report job
-
 jobs:
+  # [prepare, test, merge-reports jobs unchanged as per your instruction]
   prepare:
     runs-on: ubuntu-latest
     outputs:
@@ -145,17 +148,14 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.49.1-noble
-
     strategy:
       fail-fast: false
       matrix: ${{fromJson(needs.prepare.outputs.matrix)}}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-
       - name: Collect System Information
         run: |
           mkdir -p system-info
@@ -170,21 +170,17 @@ jobs:
           uptime >> system-info/specs.txt
           echo -e "\nContainer Information:" >> system-info/specs.txt
           cat /etc/os-release >> system-info/specs.txt
-
       - name: Set up Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
-
       - name: Install dependencies
         run: |
           npm ci
           npx playwright install-deps
-
       - name: Install Playwright browsers
         run: npx playwright install ${{ inputs.browser }}
-
       - name: Run Playwright tests
         id: run_tests
         continue-on-error: true
@@ -196,14 +192,12 @@ jobs:
           CI: "true"
         run: |
           echo "Running shard ${{ matrix.shard }} of ${{ github.event.inputs.shard_count }}"
-
           npx cross-env test=${{ env.TEST_ENV }} npx playwright test \
             --grep '${{ github.event.inputs.test_pattern }}' \
             --project=${{ github.event.inputs.browser }} \
             --shard=${{ matrix.shard }}/${{ github.event.inputs.shard_count }} \
             --workers=1 \
             --retries=${{ env.NUM_RETRIES }}
-
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -214,7 +208,6 @@ jobs:
             test-results/
             system-info/
           retention-days: 30
-
       - name: Create status file
         if: always()
         run: |
@@ -227,7 +220,6 @@ jobs:
           echo "Retries: ${{ env.NUM_RETRIES }}" >> test-status/status.txt
           echo "Video Mode: ${{ github.event.inputs.video_mode }}" >> test-status/status.txt
           echo "Trace Mode: ${{ github.event.inputs.trace_mode }}" >> test-status/status.txt
-
       - name: Upload status
         if: always()
         uses: actions/upload-artifact@v4
@@ -246,17 +238,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: all-artifacts
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-
       - name: Create merged report directory
         run: |
           mkdir -p merged-report
           current_date=$(date +%Y-%m-%d_%H-%M-%S)
-
           cat << 'EOF' > merged-report/index.html
           <!DOCTYPE html>
           <html lang="en">
@@ -271,7 +260,6 @@ jobs:
                 --failure-color: #dc3545;
                 --neutral-color: #6c757d;
               }
-              
               body {
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
                 line-height: 1.6;
@@ -280,7 +268,6 @@ jobs:
                 background: #f8f9fa;
                 color: #24292e;
               }
-              
               .container {
                 max-width: 1200px;
                 margin: 0 auto;
@@ -289,14 +276,12 @@ jobs:
                 border-radius: 10px;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.1);
               }
-              
               h1 {
                 color: var(--primary-color);
                 border-bottom: 2px solid #eaecef;
                 padding-bottom: 0.5rem;
                 margin-bottom: 1.5rem;
               }
-              
               .meta-info {
                 background: #f6f8fa;
                 padding: 1rem;
@@ -304,27 +289,22 @@ jobs:
                 margin: 1rem 0;
                 border: 1px solid #eaecef;
               }
-              
               .meta-info p {
                 margin: 0.5rem 0;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
               }
-              
               .meta-info strong {
                 color: var(--neutral-color);
               }
-              
               .report-container {
                 margin: 2rem 0;
               }
-              
               .report-wrapper {
                 margin: 1rem 0;
                 position: relative;
               }
-              
               .report-link {
                 display: block;
                 padding: 1rem;
@@ -339,12 +319,10 @@ jobs:
                 align-items: center;
                 justify-content: space-between;
               }
-              
               .report-link:hover {
                 border-color: var(--primary-color);
                 background: #f6f8fa;
               }
-              
               .expand-btn {
                 background: none;
                 border: none;
@@ -353,11 +331,9 @@ jobs:
                 transition: transform 0.3s ease;
                 padding: 0.5rem;
               }
-              
               .expand-btn.active {
                 transform: rotate(90deg);
               }
-              
               .report-details {
                 display: none;
                 margin-top: 0.5rem;
@@ -365,17 +341,14 @@ jobs:
                 border-radius: 0 0 6px 6px;
                 overflow: hidden;
               }
-              
               .report-details.show {
                 display: block;
               }
-              
               .report-details iframe {
                 width: 100%;
                 height: 600px;
                 border: none;
               }
-              
               .status-badge {
                 padding: 0.25rem 0.75rem;
                 border-radius: 2rem;
@@ -383,22 +356,18 @@ jobs:
                 font-weight: 500;
                 text-transform: uppercase;
               }
-              
               .status-success {
                 background: #e6ffed;
                 color: var(--success-color);
               }
-              
               .status-failure {
                 background: #ffeef0;
                 color: var(--failure-color);
               }
-              
               .status-neutral {
                 background: #f6f8fa;
                 color: var(--neutral-color);
               }
-              
               .system-info {
                 background: #f8f9fa;
                 padding: 1rem;
@@ -410,13 +379,11 @@ jobs:
                 overflow-y: auto;
                 display: none;
               }
-              
               .system-info-header {
                 background: #f1f3f5;
                 padding: 0.5rem;
                 border-bottom: 1px solid #e1e4e8;
               }
-              
               .system-info-toggle {
                 background: none;
                 border: none;
@@ -428,16 +395,13 @@ jobs:
                 align-items: center;
                 gap: 0.5rem;
               }
-
               .system-info-toggle .toggle-arrow {
                 display: inline-block;
                 transition: transform 0.2s ease;
               }
-
               .system-info-toggle.active .toggle-arrow {
                 transform: rotate(90deg);
               }
-              
               .notes-section {
                 background: #fff3cd;
                 border: 1px solid #ffeeba;
@@ -445,19 +409,16 @@ jobs:
                 border-radius: 6px;
                 margin: 1rem 0;
               }
-              
               .notes-section h3 {
                 color: #856404;
                 margin-top: 0;
               }
-              
               .post-notes-form {
                 background: #e9ecef;
                 padding: 1rem;
                 border-radius: 6px;
                 margin: 1rem 0;
               }
-              
               .post-notes-form textarea {
                 width: 100%;
                 min-height: 100px;
@@ -466,7 +427,6 @@ jobs:
                 border: 1px solid #ced4da;
                 border-radius: 4px;
               }
-              
               .post-notes-form button {
                 background: var(--primary-color);
                 color: white;
@@ -475,7 +435,6 @@ jobs:
                 border-radius: 4px;
                 cursor: pointer;
               }
-              
               .post-notes-form button:hover {
                 background: #0056b3;
               }
@@ -485,12 +444,10 @@ jobs:
             <div class="container">
               <h1>Playwright Test Reports</h1>
           EOF
-
           # Add pre-run notes if they exist
           if [ -f "all-artifacts/run-metadata/pre-run-notes.txt" ]; then
             echo "<div class='notes-section'><h3>Pre-Run Notes</h3><p>$(cat all-artifacts/run-metadata/pre-run-notes.txt)</p></div>" >> merged-report/index.html
           fi
-
           # Add meta information
           cat << EOF >> merged-report/index.html
               <div class='meta-info'>
@@ -505,17 +462,14 @@ jobs:
               </div>
               <div class='report-container'>
           EOF
-
           # Process each shard's report and system info
           for ((i=1; i<=${{ inputs.shard_count }}; i++)); do
             report_source="all-artifacts/playwright-report-shard-$i"
             status_file="all-artifacts/test-status-shard-$i/status.txt"
             system_info_file="$report_source/system-info/specs.txt"
-            
             if [ -d "$report_source" ]; then
               mkdir -p "merged-report/shard-$i"
               cp -r "$report_source"/* "merged-report/shard-$i/"
-              
               status="N/A"
               status_class="status-neutral"
               if [ -f "$status_file" ]; then
@@ -526,13 +480,11 @@ jobs:
                   status_class="status-failure"
                 fi
               fi
-              
               # Read system info
               system_info="System information not available"
               if [ -f "$system_info_file" ]; then
                 system_info=$(cat "$system_info_file")
               fi
-              
               cat << EOF >> merged-report/index.html
               <div class='report-wrapper'>
                 <div class='report-link'>
@@ -557,7 +509,6 @@ jobs:
           EOF
             fi
           done
-
           # Add post-notes form and JavaScript (without Full Report section)
           cat << 'EOF' >> merged-report/index.html
               </div>
@@ -570,7 +521,6 @@ jobs:
               </div>
               <script>
                 document.addEventListener('DOMContentLoaded', function() {
-                  // Lazy load iframes
                   const iframes = document.querySelectorAll('.report-details iframe');
                   const observer = new IntersectionObserver((entries, observer) => {
                     entries.forEach(entry => {
@@ -583,10 +533,7 @@ jobs:
                       }
                     });
                   }, { rootMargin: '0px 0px 200px 0px' });
-
                   iframes.forEach(iframe => observer.observe(iframe));
-
-                  // Toggle system info
                   document.querySelectorAll('.system-info-toggle').forEach(toggle => {
                     toggle.addEventListener('click', (e) => {
                       const shardNum = e.currentTarget.dataset.shard;
@@ -596,8 +543,6 @@ jobs:
                       toggleBtn.classList.toggle('active');
                     });
                   });
-
-                  // Toggle report details
                   document.querySelectorAll('.report-link').forEach(link => {
                     link.addEventListener('click', (e) => {
                       const shardNum = e.currentTarget.querySelector('.expand-btn').dataset.shard;
@@ -611,8 +556,6 @@ jobs:
                       }
                     });
                   });
-
-                  // Post-run notes form handling
                   document.getElementById('postNotesForm').addEventListener('submit', function(e) {
                     e.preventDefault();
                     const notes = document.getElementById('postNotes').value;
@@ -632,8 +575,6 @@ jobs:
                     document.getElementById('postNotes').value = '';
                     alert('Notes saved successfully!');
                   });
-
-                  // Load existing post-run notes
                   window.addEventListener('load', function() {
                     const allNotes = JSON.parse(localStorage.getItem('playwrightTestNotes') || '[]');
                     const runNotes = allNotes.filter(note => note.runId === '${{ github.run_id }}');
@@ -651,7 +592,6 @@ jobs:
           </body>
           </html>
           EOF
-
       - name: Upload merged report artifact
         uses: actions/upload-artifact@v4
         with:
@@ -659,10 +599,9 @@ jobs:
           path: merged-report/
           retention-days: 30
 
-  # The deploy-report job is completely rewritten
   deploy-report:
     name: Deploy Report to GitHub Pages
-    timeout-minutes: 10 # Add timeout
+    timeout-minutes: 10
     if: always()
     needs: merge-reports
     runs-on: ubuntu-latest
@@ -674,19 +613,15 @@ jobs:
         id: run-info
         run: |
           echo "run_number=$GITHUB_RUN_NUMBER" >> $GITHUB_OUTPUT
-          echo "timestamp=$(date +'%Y%m%d_%H%M%S')" >> $GITHUB_OUTPUT
-
-      - name: Create Run Metadata
-        run: |
-          mkdir -p new-report/metadata
-          echo "{\"runNumber\": \"${{ steps.run-info.outputs.run_number }}\", \"timestamp\": \"${{ steps.run-info.outputs.timestamp }}\"}" > new-report/metadata/run-info.json
+          # Use GitHub's run start time as the execution timestamp
+          echo "timestamp=$(date -d "${{ github.event.workflow_run.created_at || github.event.created_at }}" +'%Y%m%d_%H%M%S')" >> $GITHUB_OUTPUT
 
       - name: Checkout gh-pages branch
         uses: actions/checkout@v4
         with:
           ref: gh-pages
           path: gh-pages
-          fetch-depth: 0 # Get full history
+          fetch-depth: 0
           token: ${{ secrets.GH_PAT }}
 
       - name: Initialize gh-pages if needed
@@ -707,6 +642,9 @@ jobs:
           name: merged-playwright-report
           path: new-report
 
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       - name: Organize reports
         run: |
           cd gh-pages
@@ -714,12 +652,38 @@ jobs:
           # Create directory for new report
           mkdir -p "reports/${{ steps.run-info.outputs.run_number }}"
 
-          # First, identify large files before copying
+          # Copy files (excluding large ones)
+          echo "Copying files to gh-pages branch directory..."
+          rsync -av --exclude="*.zip" --exclude="*.png" --exclude="*.jpg" --exclude="*.jpeg" --exclude="*.mp4" --exclude="*.webm" \
+            --exclude="*.gif" --exclude="*.trace" --exclude="*.webp" --max-size=100M \
+            "../new-report/" "reports/${{ steps.run-info.outputs.run_number }}/"
+
+          # Create and Update Run History
+          CURRENT_RUN="{\"runNumber\": \"${{ steps.run-info.outputs.run_number }}\", \"timestamp\": \"${{ steps.run-info.outputs.timestamp }}\", \"runReason\": \"${{ inputs.run_reason }}\", \"environment\": \"${{ inputs.environment }}\", \"browser\": \"${{ inputs.browser }}\", \"testPattern\": \"${{ inputs.test_pattern }}\"}"
+          mkdir -p "../new-report/metadata"
+          echo "$CURRENT_RUN" > "../new-report/metadata/run-info.json"
+          if [ -f "run-history.json" ]; then
+            echo "Updating existing run history..."
+            jq --argjson newRun "$CURRENT_RUN" '
+              if (map(.runNumber == $newRun.runNumber) | any) then
+                map(if .runNumber == $newRun.runNumber then $newRun else . end)
+              else
+                . + [$newRun]
+              end | sort_by(.runNumber | tonumber) | reverse
+            ' run-history.json > run-history.tmp
+            mv run-history.tmp run-history.json
+          else
+            echo "Creating new run history..."
+            echo "[$CURRENT_RUN]" > run-history.json
+          fi
+          echo "Contents of run history file:"
+          cat run-history.json
+
+          # Handle large files (unchanged logic)
           echo "Checking for large files..."
           large_files=()
           large_file_sizes=()
           max_file_size=$((100 * 1024 * 1024)) # 100MB in bytes
-
           find ../new-report -type f -size +${max_file_size}c | while read -r file; do
             file_size=$(du -b "$file" | cut -f1)
             file_size_mb=$(echo "scale=2; $file_size / 1048576" | bc)
@@ -729,58 +693,46 @@ jobs:
             echo "Large file detected: $relative_path ($file_size_mb MB)"
           done > large_files_list.txt
 
-          # Copy files, excluding the large ones
-          echo "Copying files to gh-pages branch directory..."
-          rsync -av --exclude="*.zip" --exclude="*.png" --exclude="*.jpg" --exclude="*.jpeg" --exclude="*.mp4" --exclude="*.webm" \
-            --exclude="*.gif" --exclude="*.trace" --exclude="*.webp" --max-size=100M \
-            "../new-report/" "reports/${{ steps.run-info.outputs.run_number }}/"
-
-          # Create placeholders for large files
           if [ -s large_files_list.txt ]; then
             echo "Creating placeholders for large files..."
             mkdir -p "reports/${{ steps.run-info.outputs.run_number }}/large-files-info"
             cp large_files_list.txt "reports/${{ steps.run-info.outputs.run_number }}/large-files-info/"
-            
-            # Create an HTML file listing large files with artifact links
-              cat > "reports/${{ steps.run-info.outputs.run_number }}/large-files-info/index.html" << EOF
-              <!DOCTYPE html>
-              <html>
-              <head>
-                <title>Large Files Information</title>
-                <style>
-                  body { font-family: -apple-system, system-ui, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
-                  .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin-bottom: 20px; }
-                  .info-box { background: #e7f5fe; border-left: 4px solid #0366d6; padding: 15px; margin-bottom: 20px; }
-                  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                  th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; }
-                  th { background-color: #f6f8fa; }
-                  .artifact-link { display: inline-block; background: #0366d6; color: white; padding: 6px 12px; 
-                                  text-decoration: none; border-radius: 4px; margin-top: 10px; }
-                  .artifact-link:hover { background: #0258b8; }
-                </style>
-              </head>
-              <body>
-                <h1>Large Files Excluded from GitHub Pages</h1>
-
-                <div class="warning">
-                  <h3>⚠️ Some files were too large to be included in the GitHub Pages deployment</h3>
-                  <p>GitHub has a 100MB file size limit for regular Git repositories. The files listed below exceeded this limit 
-                  and were excluded from the deployment.</p>
-                </div>
-
-                <div class="info-box">
-                  <h3>📋 Access Complete Artifacts</h3>
-                  <p>You can access the complete test results, including these large files, from the GitHub Actions artifacts.</p>
-                  <p>The artifacts are stored for 30 days and contain all test results, including videos, traces, and screenshots.</p>
-                  <p>To download the artifacts:</p>
-                  <ol>
-                    <li>Go to the GitHub Actions run page (link below)</li>
-                    <li>Scroll down to the "Artifacts" section</li>
-                    <li>Download the artifact that includes your files of interest</li>
-                  </ol>
-                  <p><strong>Note:</strong> Large video and trace files are typically most useful for debugging test failures.</p>
-                </div>
-              
+            cat > "reports/${{ steps.run-info.outputs.run_number }}/large-files-info/index.html" << EOF
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <title>Large Files Information</title>
+              <style>
+                body { font-family: -apple-system, system-ui, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+                .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin-bottom: 20px; }
+                .info-box { background: #e7f5fe; border-left: 4px solid #0366d6; padding: 15px; margin-bottom: 20px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; }
+                th { background-color: #f6f8fa; }
+                .artifact-link { display: inline-block; background: #0366d6; color: white; padding: 6px 12px; 
+                                text-decoration: none; border-radius: 4px; margin-top: 10px; }
+                .artifact-link:hover { background: #0258b8; }
+              </style>
+            </head>
+            <body>
+              <h1>Large Files Excluded from GitHub Pages</h1>
+              <div class="warning">
+                <h3>⚠️ Some files were too large to be included in the GitHub Pages deployment</h3>
+                <p>GitHub has a 100MB file size limit for regular Git repositories. The files listed below exceeded this limit 
+                and were excluded from the deployment.</p>
+              </div>
+              <div class="info-box">
+                <h3>📋 Access Complete Artifacts</h3>
+                <p>You can access the complete test results, including these large files, from the GitHub Actions artifacts.</p>
+                <p>The artifacts are stored for 30 days and contain all test results, including videos, traces, and screenshots.</p>
+                <p>To download the artifacts:</p>
+                <ol>
+                  <li>Go to the GitHub Actions run page (link below)</li>
+                  <li>Scroll down to the "Artifacts" section</li>
+                  <li>Download the artifact that includes your files of interest</li>
+                </ol>
+                <p><strong>Note:</strong> Large video and trace files are typically most useful for debugging test failures.</p>
+              </div>
               <h2>Excluded Files</h2>
               <table>
                 <tr>
@@ -788,23 +740,16 @@ jobs:
                   <th>Size</th>
                 </tr>
             EOF
-            
-            # Add each large file to the HTML
             while IFS= read -r line; do
               if [[ $line == Large\ file\ detected:* ]]; then
                 file_path=$(echo "$line" | sed 's/Large file detected: \(.*\) (\(.*\) MB)/\1/')
                 file_size=$(echo "$line" | sed 's/Large file detected: \(.*\) (\(.*\) MB)/\2/')
-                
                 echo "          <tr>
                   <td>$file_path</td>
                   <td>$file_size MB</td>
                 </tr>" >> "reports/${{ steps.run-info.outputs.run_number }}/large-files-info/index.html"
-                
-                # Create placeholder directories if needed
                 placeholder_dir=$(dirname "reports/${{ steps.run-info.outputs.run_number }}/$file_path")
                 mkdir -p "$placeholder_dir"
-                
-                # Create a placeholder HTML file with a link to the large-files-info
                 placeholder_file_html="${placeholder_dir}/$(basename "${file_path%.*}").html"
                 cat > "$placeholder_file_html" << EOF_PLACEHOLDER
                 <!DOCTYPE html>
@@ -821,39 +766,30 @@ jobs:
                 </head>
                 <body>
                   <h1>Large File Placeholder</h1>
-                  
                   <div class="warning">
                     <h3>⚠️ This file was too large to be included in GitHub Pages</h3>
                     <p>The original file <strong>$(basename "$file_path")</strong> is $file_size MB, which exceeds GitHub's 100MB limit.</p>
                   </div>
-                  
                   <div class="info">
                     <p>Please refer to the GitHub Actions artifacts to access the complete file.</p>
                   </div>
-                  
                   <a href="../../large-files-info/index.html" class="link">View All Large Files Info</a>
                 </body>
                 </html>
           EOF_PLACEHOLDER
               fi
             done < large_files_list.txt
-            
-            # Finish the HTML file
             cat >> "reports/${{ steps.run-info.outputs.run_number }}/large-files-info/index.html" << EOF
               </table>
-              
-            <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" 
-               class="artifact-link" target="_blank" style="font-size: 16px; padding: 12px 24px; text-align: center; display: block; margin: 20px auto; max-width: 300px;">
-              📥 Download Complete Artifacts
-            </a>
-            <p style="text-align: center; margin-top: 5px; color: #586069;">Artifacts include all videos, traces, and large files</p>
+              <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" 
+                 class="artifact-link" target="_blank" style="font-size: 16px; padding: 12px 24px; text-align: center; display: block; margin: 20px auto; max-width: 300px;">
+                📥 Download Complete Artifacts
+              </a>
+              <p style="text-align: center; margin-top: 5px; color: #586069;">Artifacts include all videos, traces, and large files</p>
             </body>
             </html>
           EOF
-            
-            # Add a warning to the main report index.html about large files
             if [ -f "reports/${{ steps.run-info.outputs.run_number }}/index.html" ]; then
-              # Insert the warning after the opening body tag
               sed -i '/<body>/a \
               <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0;"> \
                 <h3 style="margin-top: 0;">⚠️ Some files were too large to be included in this report</h3> \
@@ -863,35 +799,44 @@ jobs:
             fi
           fi
 
-          # Install jq for JSON parsing
-          sudo apt-get update && sudo apt-get install -y jq
 
-          # Collect information about all existing reports
+          # Collect information about all existing reports with deduplication
           REPORTS_DATA=""
+          declare -A seen_runs
           if [ -d "reports" ]; then
             for RUN_DIR in reports/*; do
               if [ -d "$RUN_DIR" ]; then
                 METADATA_FILE="$RUN_DIR/metadata/run-info.json"
                 if [ -f "$METADATA_FILE" ]; then
-                  # Get data from metadata file
                   RUN_NUM=$(jq -r '.runNumber' "$METADATA_FILE")
                   TIMESTAMP=$(jq -r '.timestamp' "$METADATA_FILE")
-                  REPORTS_DATA="${REPORTS_DATA}addReportEntry('$RUN_NUM', '$TIMESTAMP');\n    "
+                  RUN_REASON=$(jq -r '.runReason // "No reason provided"' "$METADATA_FILE")
+                  if [ -z "${seen_runs[$RUN_NUM]}" ]; then
+                    REPORTS_DATA="${REPORTS_DATA}addReportEntry('$RUN_NUM', '$TIMESTAMP', '$RUN_REASON');\n    "
+                    seen_runs[$RUN_NUM]=1
+                  fi
                 else
-                  # Fallback to directory name
                   RUN_NUM=$(basename "$RUN_DIR")
                   TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-                  REPORTS_DATA="${REPORTS_DATA}addReportEntry('$RUN_NUM', '$TIMESTAMP');\n    "
+                  RUN_REASON="No metadata available"
+                  if [ -z "${seen_runs[$RUN_NUM]}" ]; then
+                    REPORTS_DATA="${REPORTS_DATA}addReportEntry('$RUN_NUM', '$TIMESTAMP', '$RUN_REASON');\n    "
+                    seen_runs[$RUN_NUM]=1
+                  fi
                 fi
               fi
             done
           fi
 
-          # Add current run
+          # Add current run (only if not already added)
           CURRENT_TIMESTAMP="${{ steps.run-info.outputs.timestamp }}"
-          REPORTS_DATA="${REPORTS_DATA}addReportEntry('${{ steps.run-info.outputs.run_number }}', '$CURRENT_TIMESTAMP');"
+          CURRENT_REASON="${{ inputs.run_reason }}"
+          if [ -z "${seen_runs[${{ steps.run-info.outputs.run_number }}]}" ]; then
+            REPORTS_DATA="${REPORTS_DATA}addReportEntry('${{ steps.run-info.outputs.run_number }}', '$CURRENT_TIMESTAMP', '$CURRENT_REASON');"
+            seen_runs[${{ steps.run-info.outputs.run_number }}]=1
+          fi
 
-          # Create or update main index
+          # Create or update main index with run reason
           cat > index.html << EOF
           <!DOCTYPE html>
           <html>
@@ -902,10 +847,29 @@ jobs:
             <style>
               body {
                 font-family: -apple-system, system-ui, sans-serif;
-                max-width: 1200px;
-                margin: 0 auto;
-                padding: 20px;
+                margin: 0;
+                padding: 0;
                 background: #f6f8fa;
+                display: flex;
+                min-height: 100vh;
+              }
+              .sidebar {
+                width: 280px;
+                background: #24292e;
+                color: white;
+                padding: 20px;
+                box-sizing: border-box;
+                overflow-y: auto;
+                height: 100vh;
+                position: fixed;
+                left: 0;
+                top: 0;
+              }
+              .main-content {
+                flex: 1;
+                margin-left: 280px;
+                padding: 20px;
+                box-sizing: border-box;
               }
               .header {
                 background: white;
@@ -919,131 +883,313 @@ jobs:
                 gap: 15px;
                 grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
               }
-              .report-card {
+              .report-card, .run-item {
                 background: white;
                 padding: 15px;
                 border-radius: 8px;
                 box-shadow: 0 1px 3px rgba(0,0,0,0.1);
                 transition: transform 0.2s;
+                margin-bottom: 10px;
               }
               .report-card:hover {
                 transform: translateY(-2px);
                 box-shadow: 0 4px 6px rgba(0,0,0,0.1);
               }
+              .run-item {
+                background: #2f363d;
+                cursor: pointer;
+              }
+              .run-item:hover, .run-item.active {
+                background: #444d56;
+              }
+              .run-item h3 {
+                margin-top: 0;
+                color: #58a6ff;
+              }
               .report-link {
                 text-decoration: none;
                 color: #0366d6;
               }
-              .report-meta {
+              .report-meta, .run-meta {
                 color: #586069;
                 font-size: 0.9em;
                 margin-top: 10px;
               }
+              .run-meta {
+                color: #8b949e;
+              }
               .filter-bar {
-                background: white;
+                background: #2f363d;
                 padding: 15px;
                 border-radius: 8px;
                 margin-bottom: 20px;
-                display: flex;
-                gap: 10px;
-                align-items: center;
-                flex-wrap: wrap;
               }
               .search-input {
                 padding: 8px;
-                border: 1px solid #ddd;
+                border: 1px solid #444d56;
                 border-radius: 4px;
-                flex: 1;
+                background: #1f2428;
+                color: white;
+                width: 100%;
+                box-sizing: border-box;
+                margin-bottom: 10px;
               }
               .sort-select {
                 padding: 8px;
-                border: 1px solid #ddd;
+                border: 1px solid #444d56;
                 border-radius: 4px;
+                background: #1f2428;
+                color: white;
+                width: 100%;
+                box-sizing: border-box;
+              }
+              .sidebar-header {
+                margin-top: 0;
+                color: white;
+                border-bottom: 1px solid #444d56;
+                padding-bottom: 10px;
+                margin-bottom: 15px;
+              }
+              @media (max-width: 768px) {
+                body {
+                  flex-direction: column;
+                }
+                .sidebar {
+                  width: 100%;
+                  height: auto;
+                  position: relative;
+                }
+                .main-content {
+                  margin-left: 0;
+                }
               }
             </style>
           </head>
           <body>
-            <div class="header">
-              <h1>Playwright Test Reports History</h1>
-              <p>Historical test execution reports with retention</p>
+            <div class="sidebar">
+              <h2 class="sidebar-header">Run History</h2>
+              <div class="filter-bar">
+                <input type="text" class="search-input" placeholder="Search reasons or runs..." id="sidebarSearch">
+                <select class="sort-select" id="sidebarSort">
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                </select>
+              </div>
+              <div id="runsList">
+                <!-- Run items will be dynamically inserted here -->
+              </div>
             </div>
-
-            <div class="filter-bar">
-              <input type="text" class="search-input" placeholder="Search reports..." id="searchInput">
-              <select class="sort-select" id="sortSelect">
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-              </select>
+            
+            <div class="main-content">
+              <div class="header">
+                <h1>Playwright Test Reports History</h1>
+                <p>Historical test execution reports with retention</p>
+              </div>
+              <div class="filter-bar" style="background: white;">
+                <input type="text" class="search-input" placeholder="Search reports..." id="searchInput" style="background: white; color: black; border: 1px solid #ddd;">
+                <select class="sort-select" id="sortSelect" style="background: white; color: black; border: 1px solid #ddd;">
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                </select>
+              </div>
+              <div class="reports-container" id="reportsContainer">
+                <!-- Report entries will be dynamically inserted here -->
+              </div>
             </div>
-
-            <div class="reports-container" id="reportsContainer">
-              <!-- Report entries will be dynamically inserted here -->
-            </div>
-
+            
             <script>
-              // Function to add a new report entry
-              function addReportEntry(runNumber, timestamp) {
-                const container = document.getElementById('reportsContainer');
-                const card = document.createElement('div');
-                card.className = 'report-card';
+              // Load the run history from the JSON file
+              fetch('./run-history.json')
+                .then(response => {
+                  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                  return response.json();
+                })
+                .then(runHistory => {
+                  if (!Array.isArray(runHistory) || runHistory.length === 0) {
+                    throw new Error('Run history is empty or invalid');
+                  }
+                  // Normalize and sort by runNumber descending
+                  const normalizedHistory = runHistory.map(run => ({
+                    ...run,
+                    runNumber: String(run.runNumber) // Ensure consistency
+                  })).sort((a, b) => parseInt(b.runNumber) - parseInt(a.runNumber));
 
-                // Parse date from timestamp format YYYYMMDD_HHMMSS
-                let dateStr = timestamp;
-                if (timestamp.includes('_')) {
-                  const [datePart, timePart] = timestamp.split('_');
-                  dateStr = datePart.slice(0,4) + '-' + datePart.slice(4,6) + '-' + datePart.slice(6,8) + 
-                            'T' + timePart.slice(0,2) + ':' + timePart.slice(2,4) + ':' + timePart.slice(4,6);
-                }
+                  populateRunsList(normalizedHistory);
+                  populateReportsContainer(normalizedHistory);
+                  setupEventListeners(normalizedHistory);
+                })
+                .catch(error => {
+                  console.error('Error loading run history:', error);
+                  document.getElementById('runsList').innerHTML = '<p style="color: #f85149;">Failed to load run history. Check console.</p>';
+                  document.getElementById('reportsContainer').innerHTML = '<p style="color: #f85149;">No reports available.</p>';
+                });
+              
+                function populateRunsList(runHistory) {
+                  const runsList = document.getElementById('runsList');
+                  runsList.innerHTML = '';
 
-                const date = new Date(dateStr);
-                const formattedDate = date.toLocaleString();
+                  // Sort by run number descending by default
+                  runHistory.sort((a, b) => parseInt(b.runNumber) - parseInt(a.runNumber));
 
-                card.innerHTML = \`
-                  <a href="./reports/\${runNumber}/index.html" class="report-link">
-                    <h3>Run #\${runNumber}</h3>
-                    <div class="report-meta">
+                  runHistory.forEach(run => {
+                    const runItem = document.createElement('div');
+                    runItem.className = 'run-item';
+                    runItem.dataset.runNumber = run.runNumber;
+
+                  // Format the timestamp
+                  let formattedDate = 'Unknown date';
+                  if (run.timestamp) {
+                    try {
+                      const parts = run.timestamp.split('_');
+                      if (parts.length === 2) {
+                        const datePart = parts[0];
+                        const timePart = parts[1];
+                        const year = datePart.substring(0, 4);
+                        const month = datePart.substring(4, 6);
+                        const day = datePart.substring(6, 8);
+                        const hour = timePart.substring(0, 2);
+                        const minute = timePart.substring(2, 4);
+                        const second = timePart.substring(4, 6);
+                        const date = new Date(Date.UTC(year, month-1, day, hour, minute, second));
+                        formattedDate = date.toLocaleString();
+                      }
+                    } catch (e) {
+                      console.warn('Error formatting date:', e);
+                    }
+                  }
+                    
+
+                  runItem.innerHTML = \`
+                    <h3>Run #\${run.runNumber}</h3>
+                    <div class="run-meta">
                       <div>Executed: \${formattedDate}</div>
+                      <div>Reason: \${run.runReason || 'Not specified'}</div>
+                      <div>Environment: \${run.environment || 'Not specified'}</div>
+                      <div>Browser: \${run.browser || 'Not specified'}</div>
                     </div>
-                  </a>
-                \`;
+                  \`;
 
-                container.appendChild(card);
+                  runItem.addEventListener('click', () => {
+                    // Navigate to the report when clicked
+                    window.location.href = \`./reports/\${run.runNumber}/index.html\`;
+                  });
+
+                  runsList.appendChild(runItem);
+                });
+                 // Log the number of runs displayed
+                console.log(`Displayed ${runHistory.length} runs in the sidebar`);
               }
 
-              // Add all report entries
-              $(echo -e "$REPORTS_DATA")
+              function populateReportsContainer(runHistory) {
+                const container = document.getElementById('reportsContainer');
+                container.innerHTML = '';
 
-              // Search functionality
-              document.getElementById('searchInput').addEventListener('input', (e) => {
-                const searchTerm = e.target.value.toLowerCase();
+                runHistory.forEach(run => {
+                  const card = document.createElement('div');
+                  card.className = 'report-card';
+
+                  let formattedDate = 'Unknown date';
+                  if (run.timestamp) {
+                    try {
+                      const parts = run.timestamp.split('_');
+                      if (parts.length === 2) {
+                        const datePart = parts[0];
+                        const timePart = parts[1];
+                        const year = datePart.substring(0, 4);
+                        const month = datePart.substring(4, 6);
+                        const day = datePart.substring(6, 8);
+                        const hour = timePart.substring(0, 2);
+                        const minute = timePart.substring(2, 4);
+                        const second = timePart.substring(4, 6);
+                        const date = new Date(Date.UTC(year, month-1, day, hour, minute, second));
+                        formattedDate = date.toLocaleString();
+                      }
+                    } catch (e) {
+                      console.warn('Error formatting date:', e);
+                    }
+                  }
+
+                  card.innerHTML = \`
+                    <a href="./reports/\${run.runNumber}/index.html" class="report-link">
+                      <h3>Run #\${run.runNumber}</h3>
+                      <div class="report-meta">
+                        <div>Executed: \${formattedDate}</div>
+                        <div>Reason: \${run.runReason || 'Not specified'}</div>
+                        <div>Environment: \${run.environment || 'Not specified'}</div>
+                        <div>Browser: \${run.browser || 'Not specified'}</div>
+                      </div>
+                    </a>
+                  \`;
+
+                  container.appendChild(card);
+                });
+              }
+
+              function setupEventListeners(originalRunHistory) {
+                // Main search
+                document.getElementById('searchInput').addEventListener('input', (e) => {
+                  filterReports(e.target.value.toLowerCase());
+                });
+
+                // Main sort
+                document.getElementById('sortSelect').addEventListener('change', (e) => {
+                  sortReports(e.target.value);
+                });
+
+                // Sidebar search
+                document.getElementById('sidebarSearch').addEventListener('input', (e) => {
+                  filterSidebar(e.target.value.toLowerCase());
+                });
+
+                // Sidebar sort
+                document.getElementById('sidebarSort').addEventListener('change', (e) => {
+                  sortSidebar(e.target.value);
+                });
+              }
+
+              function filterReports(searchTerm) {
                 const cards = document.querySelectorAll('.report-card');
-
                 cards.forEach(card => {
                   const text = card.textContent.toLowerCase();
                   card.style.display = text.includes(searchTerm) ? '' : 'none';
                 });
-              });
+              }
 
-              // Sorting functionality
-              document.getElementById('sortSelect').addEventListener('change', (e) => {
+              function sortReports(sortOrder) {
                 const container = document.getElementById('reportsContainer');
                 const cards = Array.from(container.children);
 
                 cards.sort((a, b) => {
                   const aNum = parseInt(a.querySelector('h3').textContent.split('#')[1]);
                   const bNum = parseInt(b.querySelector('h3').textContent.split('#')[1]);
-
-                  return e.target.value === 'newest' ? bNum - aNum : aNum - bNum;
+                  return sortOrder === 'newest' ? bNum - aNum : aNum - bNum;
                 });
 
                 container.innerHTML = '';
                 cards.forEach(card => container.appendChild(card));
-              });
+              }
 
-              // Sort by newest first by default (after all entries have been added)
-              window.onload = function() {
-                document.getElementById('sortSelect').dispatchEvent(new Event('change'));
-              };
+              function filterSidebar(searchTerm) {
+                const items = document.querySelectorAll('.run-item');
+                items.forEach(item => {
+                  const text = item.textContent.toLowerCase();
+                  item.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+              }
+
+              function sortSidebar(sortOrder) {
+                const container = document.getElementById('runsList');
+                const items = Array.from(container.children);
+
+                items.sort((a, b) => {
+                  const aNum = parseInt(a.dataset.runNumber);
+                  const bNum = parseInt(b.dataset.runNumber);
+                  return sortOrder === 'newest' ? bNum - aNum : aNum - bNum;
+                });
+
+                container.innerHTML = '';
+                items.forEach(item => container.appendChild(item));
+              }
             </script>
           </body>
           </html>
@@ -1059,40 +1205,51 @@ jobs:
       - name: Commit and Push Changes
         run: |
           cd gh-pages
-
-          # Ensure we're on the right branch
           git fetch origin gh-pages
-          git checkout gh-pages
 
-          # Check for changes
+          # Check if gh-pages branch exists locally
+          if [ -z "$(git branch --list gh-pages)" ]; then
+            git checkout -b gh-pages
+          else
+            git checkout gh-pages
+          fi
+
+          # Stage and commit changes from Organize reports before pulling
           if [ -n "$(git status --porcelain)" ]; then
-            echo "Changes detected, committing..."
-            
-            # Try to commit and push
+            echo "Committing changes before pulling..."
             git add .
-            git commit -m "Add test report for run #${{ steps.run-info.outputs.run_number }}"
-            
-            # Attempt to push, with retry logic
+            git commit -m "Add test report for run #${{ steps.run-info.outputs.run_number }} (Reason: ${{ inputs.run_reason }}) - Initial commit"
+          fi
+
+          # Pull with rebase to integrate upstream changes
+          git pull origin gh-pages --rebase --allow-unrelated-histories
+
+          # Commit any additional changes after rebase (unlikely but possible)
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Committing additional changes after rebase..."
+            git add .
+            git commit -m "Add test report for run #${{ steps.run-info.outputs.run_number }} (Reason: ${{ inputs.run_reason }}) - Post-rebase commit"
+          fi
+
+          # Push with retry logic if there are commits ahead
+          if [ "$(git log origin/gh-pages..HEAD --oneline | wc -l)" -gt 0 ]; then
             MAX_RETRIES=3
             RETRY_COUNT=0
-            
             while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
               if git push origin gh-pages; then
-                echo "Successfully pushed changes"
+                echo "Push successful"
                 break
               else
                 RETRY_COUNT=$((RETRY_COUNT+1))
-                if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
-                  echo "Failed to push after $MAX_RETRIES attempts"
-                  exit 1
-                fi
-                echo "Push failed, attempt $RETRY_COUNT of $MAX_RETRIES. Retrying..."
-                git pull --rebase origin gh-pages
+                echo "Push failed, attempt $RETRY_COUNT of $MAX_RETRIES"
+                git fetch origin gh-pages
+                git rebase origin/gh-pages
+                [ $RETRY_COUNT -eq $MAX_RETRIES ] && exit 1
                 sleep 5
               fi
             done
           else
-            echo "No changes to commit"
+            echo "No changes to push after rebase"
           fi
 
       - name: Setup Pages
