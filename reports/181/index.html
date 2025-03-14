@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Playwright Test Reports</title>
+  <style>
+    :root {
+      --primary-color: #0366d6;
+      --success-color: #28a745;
+      --failure-color: #dc3545;
+      --neutral-color: #6c757d;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 20px;
+      background: #f8f9fa;
+      color: #24292e;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: var(--primary-color);
+      border-bottom: 2px solid #eaecef;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .meta-info {
+      background: #f6f8fa;
+      padding: 1rem;
+      border-radius: 6px;
+      margin: 1rem 0;
+      border: 1px solid #eaecef;
+    }
+    .meta-info p {
+      margin: 0.5rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .meta-info strong {
+      color: var(--neutral-color);
+    }
+    .report-container {
+      margin: 2rem 0;
+    }
+    .report-wrapper {
+      margin: 1rem 0;
+      position: relative;
+    }
+    .report-link {
+      display: block;
+      padding: 1rem;
+      background: white;
+      border: 1px solid #e1e4e8;
+      border-radius: 6px;
+      text-decoration: none;
+      color: var(--primary-color);
+      position: relative;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .report-link:hover {
+      border-color: var(--primary-color);
+      background: #f6f8fa;
+    }
+    .expand-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: transform 0.3s ease;
+      padding: 0.5rem;
+    }
+    .expand-btn.active {
+      transform: rotate(90deg);
+    }
+    .report-details {
+      display: none;
+      margin-top: 0.5rem;
+      border: 1px solid #e1e4e8;
+      border-radius: 0 0 6px 6px;
+      overflow: hidden;
+    }
+    .report-details.show {
+      display: block;
+    }
+    .report-details iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+    }
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 2rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+    .status-success {
+      background: #e6ffed;
+      color: var(--success-color);
+    }
+    .status-failure {
+      background: #ffeef0;
+      color: var(--failure-color);
+    }
+    .status-neutral {
+      background: #f6f8fa;
+      color: var(--neutral-color);
+    }
+    .system-info {
+      background: #f8f9fa;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+      font-family: monospace;
+      white-space: pre-wrap;
+      max-height: 400px;
+      overflow-y: auto;
+      display: none;
+    }
+    .system-info-header {
+      background: #f1f3f5;
+      padding: 0.5rem;
+      border-bottom: 1px solid #e1e4e8;
+    }
+    .system-info-toggle {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      color: #586069;
+      padding: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .system-info-toggle .toggle-arrow {
+      display: inline-block;
+      transition: transform 0.2s ease;
+    }
+    .system-info-toggle.active .toggle-arrow {
+      transform: rotate(90deg);
+    }
+    .notes-section {
+      background: #fff3cd;
+      border: 1px solid #ffeeba;
+      padding: 1rem;
+      border-radius: 6px;
+      margin: 1rem 0;
+    }
+    .notes-section h3 {
+      color: #856404;
+      margin-top: 0;
+    }
+    .post-notes-form {
+      background: #e9ecef;
+      padding: 1rem;
+      border-radius: 6px;
+      margin: 1rem 0;
+    }
+    .post-notes-form textarea {
+      width: 100%;
+      min-height: 100px;
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+    }
+    .post-notes-form button {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .post-notes-form button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Playwright Test Reports</h1>
+    <div class='meta-info'>
+      <p><strong>Environment:</strong> stage</p>
+      <p><strong>Browser:</strong> chrome</p>
+      <p><strong>Test Pattern:</strong> (?=.*@RDGBAS)(?=.*@DerivedScores)</p>
+      <p><strong>Total Shards:</strong> 1</p>
+      <p><strong>Retries:</strong> 2</p>
+      <p><strong>Video Mode:</strong> on-first-retry</p>
+      <p><strong>Trace Mode:</strong> retain-on-first-failure</p>
+      <p><strong>Last Updated:</strong> 2025-03-14_16-58-32</p>
+    </div>
+    <div class='report-container'>
+    </div>
+    <div class='post-notes-form'>
+      <h3>Add Post-Run Notes</h3>
+      <form id='postNotesForm'>
+        <textarea id='postNotes' placeholder='Enter your observations and notes about this test run...'></textarea>
+        <button type='submit'>Save Notes</button>
+      </form>
+    </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const iframes = document.querySelectorAll('.report-details iframe');
+        const observer = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const iframe = entry.target;
+              if (!iframe.src && iframe.dataset.src) {
+                iframe.src = iframe.dataset.src;
+              }
+              observer.unobserve(iframe);
+            }
+          });
+        }, { rootMargin: '0px 0px 200px 0px' });
+        iframes.forEach(iframe => observer.observe(iframe));
+        document.querySelectorAll('.system-info-toggle').forEach(toggle => {
+          toggle.addEventListener('click', (e) => {
+            const shardNum = e.currentTarget.dataset.shard;
+            const systemInfo = document.getElementById('system-info-' + shardNum);
+            const toggleBtn = e.currentTarget;
+            systemInfo.style.display = systemInfo.style.display === 'block' ? 'none' : 'block';
+            toggleBtn.classList.toggle('active');
+          });
+        });
+        document.querySelectorAll('.report-link').forEach(link => {
+          link.addEventListener('click', (e) => {
+            const shardNum = e.currentTarget.querySelector('.expand-btn').dataset.shard;
+            const detailsContainer = document.getElementById('shard-' + shardNum + '-details');
+            const expandBtn = e.currentTarget.querySelector('.expand-btn');
+            if (e.target.classList.contains('expand-btn')) {
+              detailsContainer.classList.toggle('show');
+              expandBtn.classList.toggle('active');
+            } else if (!e.target.classList.contains('expand-btn')) {
+              window.open('./shard-' + shardNum + '/playwright-report/index.html', '_blank');
+            }
+          });
+        });
+        document.getElementById('postNotesForm').addEventListener('submit', function(e) {
+          e.preventDefault();
+          const notes = document.getElementById('postNotes').value;
+          const savedNotes = {
+            text: notes,
+            timestamp: new Date().toISOString(),
+            runId: '13861533130'
+          };
+          const allNotes = JSON.parse(localStorage.getItem('playwrightTestNotes') || '[]');
+          allNotes.push(savedNotes);
+          localStorage.setItem('playwrightTestNotes', JSON.stringify(allNotes));
+          const notesSection = document.createElement('div');
+          notesSection.className = 'notes-section';
+          notesSection.innerHTML = '<h3>Post-Run Notes</h3><p>' + notes + '</p>';
+          const form = document.querySelector('.post-notes-form');
+          form.parentNode.insertBefore(notesSection, form);
+          document.getElementById('postNotes').value = '';
+          alert('Notes saved successfully!');
+        });
+        window.addEventListener('load', function() {
+          const allNotes = JSON.parse(localStorage.getItem('playwrightTestNotes') || '[]');
+          const runNotes = allNotes.filter(note => note.runId === '13861533130');
+          runNotes.forEach(note => {
+            const notesSection = document.createElement('div');
+            notesSection.className = 'notes-section';
+            notesSection.innerHTML = '<h3>Post-Run Notes</h3><p>' + note.text + '</p>';
+            const form = document.querySelector('.post-notes-form');
+            form.parentNode.insertBefore(notesSection, form);
+          });
+        });
+      });
+    </script>
+  </div>
+</body>
+</html>
