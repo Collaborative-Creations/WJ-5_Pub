@@ -776,7 +776,7 @@ jobs:
                   <a href="../../large-files-info/index.html" class="link">View All Large Files Info</a>
                 </body>
                 </html>
-                EOF_PLACEHOLDER
+          EOF_PLACEHOLDER
               fi
             done < large_files_list.txt
             cat >> "reports/${{ steps.run-info.outputs.run_number }}/large-files-info/index.html" << EOF
@@ -788,7 +788,7 @@ jobs:
               <p style="text-align: center; margin-top: 5px; color: #586069;">Artifacts include all videos, traces, and large files</p>
             </body>
             </html>
-            EOF
+          EOF
             if [ -f "reports/${{ steps.run-info.outputs.run_number }}/index.html" ]; then
               sed -i '/<body>/a \
               <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0;"> \
@@ -798,6 +798,7 @@ jobs:
               </div>' "reports/${{ steps.run-info.outputs.run_number }}/index.html"
             fi
           fi
+
 
           # Collect information about all existing reports with deduplication
           REPORTS_DATA=""
@@ -835,24 +836,15 @@ jobs:
             seen_runs[${{ steps.run-info.outputs.run_number }}]=1
           fi
 
-          # Create or update main index with login and run history
-          cat > index.html << 'EOF'
+          # Create or update main index with run reason
+          cat > index.html << EOF
           <!DOCTYPE html>
-          <html lang="en">
+          <html>
           <head>
+            <title>Playwright Test Reports History</title>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Playwright Test Reports History</title>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
             <style>
-              /* Login styles */
-              #login { text-align: center; margin-top: 50px; }
-              #content { display: none; }
-              input { margin: 5px; padding: 5px; width: 200px; }
-              button { padding: 5px 10px; background: #0366d6; color: white; border: none; border-radius: 4px; cursor: pointer; }
-              button:hover { background: #0258b8; }
-
-              /* Original styles */
               body {
                 font-family: -apple-system, system-ui, sans-serif;
                 margin: 0;
@@ -861,6 +853,52 @@ jobs:
                 display: flex;
                 min-height: 100vh;
               }
+                #authOverlay {
+               position: fixed;
+               top: 0;
+               left: 0;
+               width: 100%;
+               height: 100%;
+               background: rgba(0, 0, 0, 0.8);
+               display: flex;
+               justify-content: center;
+               align-items: center;
+               z-index: 1000;
+             }
+             #authBox {
+               background: white;
+               padding: 20px;
+               border-radius: 8px;
+               box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+               text-align: center;
+             }
+             #authBox input {
+               display: block;
+               margin: 10px auto;
+               padding: 8px;
+               width: 200px;
+               border: 1px solid #ddd;
+               border-radius: 4px;
+             }
+             #authBox button {
+               padding: 8px 16px;
+               background: #0366d6;
+               color: white;
+               border: none;
+               border-radius: 4px;
+               cursor: pointer;
+             }
+             #authBox button:hover {
+               background: #0258b8;
+             }
+             #authError {
+               color: #dc3545;
+               margin-top: 10px;
+               display: none;
+             }
+             .hidden {
+               display: none;
+             }
               .sidebar {
                 width: 280px;
                 background: #24292e;
@@ -959,84 +997,89 @@ jobs:
                 margin-bottom: 15px;
               }
               @media (max-width: 768px) {
-                body { flex-direction: column; }
-                .sidebar { width: 100%; height: auto; position: relative; }
-                .main-content { margin-left: 0; }
+                body {
+                  flex-direction: column;
+                }
+                .sidebar {
+                  width: 100%;
+                  height: auto;
+                  position: relative;
+                }
+                .main-content {
+                  margin-left: 0;
+                }
               }
             </style>
           </head>
           <body>
-            <!-- Login box -->
-            <div id="login">
-              <h2>Login</h2>
-              <input type="text" id="username" placeholder="Username">
+            <div id="authOverlay">
+            <div id="authBox">
+              <h2>Authentication Required</h2>
+              <input type="text" id="username" placeholder="Username" autocomplete="off">
               <input type="password" id="password" placeholder="Password">
-              <button onclick="checkLogin()">Submit</button>
+              <button onclick="checkCredentials()">Login</button>
+              <div id="authError">Invalid credentials</div>
             </div>
-
-            <!-- Original content, hidden until login -->
-            <div id="content">
-              <div class="sidebar">
-                <h2 class="sidebar-header">Run History</h2>
-                <div class="filter-bar">
-                  <input type="text" class="search-input" placeholder="Search reasons or runs..." id="sidebarSearch">
-                  <select class="sort-select" id="sidebarSort">
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                  </select>
-                </div>
-                <div id="runsList">
-                  <!-- Run items will be dynamically inserted here -->
-                </div>
+          </div>
+          <div id="content" class="hidden">
+            <div class="sidebar">
+              <h2 class="sidebar-header">Run History</h2>
+              <div class="filter-bar">
+                <input type="text" class="search-input" placeholder="Search reasons or runs..." id="sidebarSearch">
+                <select class="sort-select" id="sidebarSort">
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                </select>
               </div>
-              
-              <div class="main-content">
-                <div class="header">
-                  <h1>Playwright Test Reports History</h1>
-                  <p>Historical test execution reports with retention</p>
-                </div>
-                <div class="filter-bar" style="background: white;">
-                  <input type="text" class="search-input" placeholder="Search reports..." id="searchInput" style="background: white; color: black; border: 1px solid #ddd;">
-                  <select class="sort-select" id="sortSelect" style="background: white; color: black; border: 1px solid #ddd;">
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                  </select>
-                </div>
-                <div class="reports-container" id="reportsContainer">
-                  <!-- Report entries will be dynamically inserted here -->
-                </div>
+              <div id="runsList">
+                <!-- Run items will be dynamically inserted here -->
               </div>
             </div>
-
+            
+            <div class="main-content">
+              <div class="header">
+                <h1>Playwright Test Reports History</h1>
+                <p>Historical test execution reports with retention</p>
+              </div>
+              <div class="filter-bar" style="background: white;">
+                <input type="text" class="search-input" placeholder="Search reports..." id="searchInput" style="background: white; color: black; border: 1px solid #ddd;">
+                <select class="sort-select" id="sortSelect" style="background: white; color: black; border: 1px solid #ddd;">
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                </select>
+              </div>
+              <div class="reports-container" id="reportsContainer">
+                <!-- Report entries will be dynamically inserted here -->
+              </div>
+            </div>
+            
             <script>
-              // Login check with bcrypt
-              function checkLogin() {
-                const username = document.getElementById("username").value;
-                const password = document.getElementById("password").value;
-                const correctUsername = "TheBoss";
-                const passwordHash = "$2a$12$xynwxQ/FtZ8HU43ZYnGcJ.VB.4wZfUGWoqEGAk9Cj2x.KMyblcuxm";
+            const VALID_USERNAME = 'admin';
+            const VALID_PASSWORD = 'password';
 
-                if (username !== correctUsername) {
-                  alert("Wrong username!");
-                  return;
-                }
-
-                bcrypt.compare(password, passwordHash, function(err, result) {
-                  if (err) {
-                    console.error("Error comparing password:", err);
-                    alert("An error occurred. Check console.");
-                    return;
-                  }
-                  if (result) {
-                    document.getElementById("login").style.display = "none";
-                    document.getElementById("content").style.display = "block";
-                  } else {
-                    alert("Wrong password!");
-                  }
-                });
+            function checkCredentials() {
+              const username = document.getElementById('username').value;
+              const password = document.getElementById('password').value;
+              if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+                localStorage.setItem('authenticated', 'true');
+                document.getElementById('authOverlay').style.display = 'none';
+                document.getElementById('content').classList.remove('hidden');
+              } else {
+                document.getElementById('authError').style.display = 'block';
               }
+            }
 
-              // Original JavaScript for run history
+            // Check if already authenticated
+            if (localStorage.getItem('authenticated') === 'true') {
+              document.getElementById('authOverlay').style.display = 'none';
+              document.getElementById('content').classList.remove('hidden');
+            }
+
+            // Handle Enter key press
+            document.getElementById('password').addEventListener('keypress', (e) => {
+              if (e.key === 'Enter') checkCredentials();
+            });
+              // Load the run history from the JSON file
               fetch('./run-history.json')
                 .then(response => {
                   if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1046,10 +1089,12 @@ jobs:
                   if (!Array.isArray(runHistory) || runHistory.length === 0) {
                     throw new Error('Run history is empty or invalid');
                   }
+                  // Normalize and sort by runNumber descending
                   const normalizedHistory = runHistory.map(run => ({
                     ...run,
-                    runNumber: String(run.runNumber)
+                    runNumber: String(run.runNumber) // Ensure consistency
                   })).sort((a, b) => parseInt(b.runNumber) - parseInt(a.runNumber));
+
                   populateRunsList(normalizedHistory);
                   populateReportsContainer(normalizedHistory);
                   setupEventListeners(normalizedHistory);
@@ -1059,58 +1104,20 @@ jobs:
                   document.getElementById('runsList').innerHTML = '<p style="color: #f85149;">Failed to load run history. Check console.</p>';
                   document.getElementById('reportsContainer').innerHTML = '<p style="color: #f85149;">No reports available.</p>';
                 });
+              
+                function populateRunsList(runHistory) {
+                  const runsList = document.getElementById('runsList');
+                  runsList.innerHTML = '';
 
-              function populateRunsList(runHistory) {
-                const runsList = document.getElementById('runsList');
-                runsList.innerHTML = '';
-                runHistory.sort((a, b) => parseInt(b.runNumber) - parseInt(a.runNumber));
-                runHistory.forEach(run => {
-                  const runItem = document.createElement('div');
-                  runItem.className = 'run-item';
-                  runItem.dataset.runNumber = run.runNumber;
-                  let formattedDate = 'Unknown date';
-                  if (run.timestamp) {
-                    try {
-                      const parts = run.timestamp.split('_');
-                      if (parts.length === 2) {
-                        const datePart = parts[0];
-                        const timePart = parts[1];
-                        const year = datePart.substring(0, 4);
-                        const month = datePart.substring(4, 6);
-                        const day = datePart.substring(6, 8);
-                        const hour = timePart.substring(0, 2);
-                        const minute = timePart.substring(2, 4);
-                        const second = timePart.substring(4, 6);
-                        const date = new Date(Date.UTC(year, month-1, day, hour, minute, second));
-                        formattedDate = date.toLocaleString();
-                    }
-                    } catch (e) {
-                      console.warn('Error formatting date:', e);
-                    }
-                  }
-                  runItem.innerHTML = `
-                    <h3>Run #${run.runNumber}</h3>
-                    <div class="run-meta">
-                      <div>Executed: ${formattedDate}</div>
-                      <div>Reason: ${run.runReason || 'Not specified'}</div>
-                      <div>Environment: ${run.environment || 'Not specified'}</div>
-                      <div>Browser: ${run.browser || 'Not specified'}</div>
-                    </div>
-                  `;
-                  runItem.addEventListener('click', () => {
-                    window.location.href = `./reports/${run.runNumber}/index.html`;
-                  });
-                  runsList.appendChild(runItem);
-                });
-                console.log(`Displayed ${runHistory.length} runs in the sidebar`);
-              }
+                  // Sort by run number descending by default
+                  runHistory.sort((a, b) => parseInt(b.runNumber) - parseInt(a.runNumber));
 
-              function populateReportsContainer(runHistory) {
-                const container = document.getElementById('reportsContainer');
-                container.innerHTML = '';
-                runHistory.forEach(run => {
-                  const card = document.createElement('div');
-                  card.className = 'report-card';
+                  runHistory.forEach(run => {
+                    const runItem = document.createElement('div');
+                    runItem.className = 'run-item';
+                    runItem.dataset.runNumber = run.runNumber;
+
+                  // Format the timestamp
                   let formattedDate = 'Unknown date';
                   if (run.timestamp) {
                     try {
@@ -1131,31 +1138,91 @@ jobs:
                       console.warn('Error formatting date:', e);
                     }
                   }
-                  card.innerHTML = `
-                    <a href="./reports/${run.runNumber}/index.html" class="report-link">
-                      <h3>Run #${run.runNumber}</h3>
+                    
+
+                  runItem.innerHTML = \`
+                    <h3>Run #\${run.runNumber}</h3>
+                    <div class="run-meta">
+                      <div>Executed: \${formattedDate}</div>
+                      <div>Reason: \${run.runReason || 'Not specified'}</div>
+                      <div>Environment: \${run.environment || 'Not specified'}</div>
+                      <div>Browser: \${run.browser || 'Not specified'}</div>
+                    </div>
+                  \`;
+
+                  runItem.addEventListener('click', () => {
+                    // Navigate to the report when clicked
+                    window.location.href = \`./reports/\${run.runNumber}/index.html\`;
+                  });
+
+                  runsList.appendChild(runItem);
+                });
+                 // Log the number of runs displayed
+                console.log(`Displayed ${runHistory.length} runs in the sidebar`);
+              }
+
+              function populateReportsContainer(runHistory) {
+                const container = document.getElementById('reportsContainer');
+                container.innerHTML = '';
+
+                runHistory.forEach(run => {
+                  const card = document.createElement('div');
+                  card.className = 'report-card';
+
+                  let formattedDate = 'Unknown date';
+                  if (run.timestamp) {
+                    try {
+                      const parts = run.timestamp.split('_');
+                      if (parts.length === 2) {
+                        const datePart = parts[0];
+                        const timePart = parts[1];
+                        const year = datePart.substring(0, 4);
+                        const month = datePart.substring(4, 6);
+                        const day = datePart.substring(6, 8);
+                        const hour = timePart.substring(0, 2);
+                        const minute = timePart.substring(2, 4);
+                        const second = timePart.substring(4, 6);
+                        const date = new Date(Date.UTC(year, month-1, day, hour, minute, second));
+                        formattedDate = date.toLocaleString();
+                      }
+                    } catch (e) {
+                      console.warn('Error formatting date:', e);
+                    }
+                  }
+
+                  card.innerHTML = \`
+                    <a href="./reports/\${run.runNumber}/index.html" class="report-link">
+                      <h3>Run #\${run.runNumber}</h3>
                       <div class="report-meta">
-                        <div>Executed: ${formattedDate}</div>
-                        <div>Reason: ${run.runReason || 'Not specified'}</div>
-                        <div>Environment: ${run.environment || 'Not specified'}</div>
-                        <div>Browser: ${run.browser || 'Not specified'}</div>
+                        <div>Executed: \${formattedDate}</div>
+                        <div>Reason: \${run.runReason || 'Not specified'}</div>
+                        <div>Environment: \${run.environment || 'Not specified'}</div>
+                        <div>Browser: \${run.browser || 'Not specified'}</div>
                       </div>
                     </a>
-                  `;
+                  \`;
+
                   container.appendChild(card);
                 });
               }
 
               function setupEventListeners(originalRunHistory) {
+                // Main search
                 document.getElementById('searchInput').addEventListener('input', (e) => {
                   filterReports(e.target.value.toLowerCase());
                 });
+
+                // Main sort
                 document.getElementById('sortSelect').addEventListener('change', (e) => {
                   sortReports(e.target.value);
                 });
+
+                // Sidebar search
                 document.getElementById('sidebarSearch').addEventListener('input', (e) => {
                   filterSidebar(e.target.value.toLowerCase());
                 });
+
+                // Sidebar sort
                 document.getElementById('sidebarSort').addEventListener('change', (e) => {
                   sortSidebar(e.target.value);
                 });
@@ -1172,11 +1239,13 @@ jobs:
               function sortReports(sortOrder) {
                 const container = document.getElementById('reportsContainer');
                 const cards = Array.from(container.children);
+
                 cards.sort((a, b) => {
                   const aNum = parseInt(a.querySelector('h3').textContent.split('#')[1]);
                   const bNum = parseInt(b.querySelector('h3').textContent.split('#')[1]);
                   return sortOrder === 'newest' ? bNum - aNum : aNum - bNum;
                 });
+
                 container.innerHTML = '';
                 cards.forEach(card => container.appendChild(card));
               }
@@ -1192,11 +1261,13 @@ jobs:
               function sortSidebar(sortOrder) {
                 const container = document.getElementById('runsList');
                 const items = Array.from(container.children);
+
                 items.sort((a, b) => {
                   const aNum = parseInt(a.dataset.runNumber);
                   const bNum = parseInt(b.dataset.runNumber);
                   return sortOrder === 'newest' ? bNum - aNum : aNum - bNum;
                 });
+
                 container.innerHTML = '';
                 items.forEach(item => container.appendChild(item));
               }
